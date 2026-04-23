@@ -19,7 +19,7 @@ const AUTH = {
     if (!AUTH.isLoggedIn()) return;
     const user = AUTH.getUser();
     if (user?.role === 'admin') window.location.href = 'admin.html';
-    else if (user?.role === 'provider') window.location.href = 'dashboard-prestataire.html';
+    else if (user?.role === 'provider') window.location.href = 'home-prestataire.html';
     else window.location.href = 'home-client.html';
   },
   requireAuth() {
@@ -82,11 +82,13 @@ if (document.getElementById('authForm')) {
         };
 
         if (isPresta) {
-          const title = document.querySelector('input[placeholder*="Plombier"]')?.value?.trim();
-          if (!title) { showError('Votre métier est requis'); return; }
+          const title = document.getElementById('jobSelect')?.value?.trim();
+          if (!title) { showError('Veuillez choisir votre métier principal'); btn.disabled = false; btnText.textContent = 'Créer mon compte'; return; }
           const chips = [...document.querySelectorAll('.skill-chip.selected')].map(c => c.textContent.trim());
-          body.title  = title;
-          body.skills = chips;
+          const rate  = parseInt(document.getElementById('rateInput')?.value) || 0;
+          body.title       = title;
+          body.skills      = chips;
+          body.hourly_rate = rate || undefined;
         }
 
         data = await api.auth.register(body);
@@ -98,7 +100,7 @@ if (document.getElementById('authForm')) {
       setTimeout(() => {
         const role = data.user.role;
         if (role === 'admin') window.location.href = 'admin.html';
-        else if (role === 'provider') window.location.href = 'dashboard-prestataire.html';
+        else if (role === 'provider') window.location.href = 'home-prestataire.html';
         else window.location.href = 'home-client.html';
       }, 600);
 

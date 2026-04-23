@@ -161,19 +161,79 @@
         <div id="prestaFields" style="display:none;">
           <div class="form-group">
             <label class="form-label">Votre métier principal</label>
-            <input type="text" class="form-input" placeholder="Ex : Plombier, Graphiste, Coiffeur…" />
+            <select class="form-input" id="jobSelect" onchange="onJobChange()" style="cursor:pointer;appearance:auto;">
+              <option value="">— Choisissez votre métier —</option>
+              <optgroup label="Bâtiment &amp; Artisanat">
+                <option value="Plombier">Plombier</option>
+                <option value="Électricien">Électricien</option>
+                <option value="Maçon">Maçon / Carreleur</option>
+                <option value="Peintre en bâtiment">Peintre en bâtiment</option>
+                <option value="Menuisier">Menuisier / Ébéniste</option>
+                <option value="Soudeur">Soudeur / Ferronnier</option>
+                <option value="Climaticien">Climaticien</option>
+                <option value="Plâtrier">Plâtrier</option>
+              </optgroup>
+              <optgroup label="Automobile &amp; Moto">
+                <option value="Mécanicien Auto">Mécanicien Auto</option>
+                <option value="Mécanicien Moto">Mécanicien Moto</option>
+                <option value="Carrossier">Carrossier / Peintre auto</option>
+                <option value="Électricien Auto">Électricien Auto</option>
+              </optgroup>
+              <optgroup label="Beauté &amp; Mode">
+                <option value="Coiffeur / Coiffeuse">Coiffeur / Coiffeuse</option>
+                <option value="Barbier">Barbier</option>
+                <option value="Couturier / Couturière">Couturier / Couturière</option>
+                <option value="Maquilleur / Maquilleuse">Maquilleur / Maquilleuse</option>
+                <option value="Styliste">Styliste</option>
+                <option value="Esthéticienne">Esthéticienne</option>
+              </optgroup>
+              <optgroup label="Tech &amp; Numérique">
+                <option value="Réparateur Téléphone">Réparateur Téléphone / Tablette</option>
+                <option value="Technicien Informatique">Technicien Informatique</option>
+                <option value="Développeur Web">Développeur Web</option>
+                <option value="Graphiste / Designer">Graphiste / Designer UI-UX</option>
+                <option value="Photographe">Photographe / Vidéaste</option>
+              </optgroup>
+              <optgroup label="Services à domicile">
+                <option value="Femme de ménage">Femme de ménage</option>
+                <option value="Cuisinier / Traiteur">Cuisinier / Traiteur</option>
+                <option value="Babysitter">Babysitter / Garde d'enfants</option>
+                <option value="Jardinier">Jardinier / Paysagiste</option>
+                <option value="Déménageur">Déménageur</option>
+                <option value="Laveur de voiture">Laveur de voiture</option>
+              </optgroup>
+              <optgroup label="Éducation &amp; Santé">
+                <option value="Professeur particulier">Professeur particulier</option>
+                <option value="Traducteur">Traducteur / Interprète</option>
+                <option value="Aide-soignant">Aide-soignant</option>
+                <option value="Coach sportif">Coach sportif</option>
+              </optgroup>
+            </select>
+          </div>
+          <div class="form-group" style="display:grid;grid-template-columns:1fr 1fr;gap:.8rem;">
+            <div>
+              <label class="form-label">Expérience</label>
+              <select class="form-input" id="expSelect" style="cursor:pointer;appearance:auto;">
+                <option value="1">Moins de 1 an</option>
+                <option value="2" selected>1 – 2 ans</option>
+                <option value="5">3 – 5 ans</option>
+                <option value="10">6 – 10 ans</option>
+                <option value="15">10+ ans</option>
+              </select>
+            </div>
+            <div>
+              <label class="form-label">Tarif / heure (FCFA)</label>
+              <input type="number" class="form-input" id="rateInput" placeholder="Ex : 5000" min="500" step="500"/>
+            </div>
           </div>
           <div class="form-group">
             <label class="form-label">Compétences clés</label>
-            <div class="skills-selector">
-              <span class="skill-chip" onclick="toggleChip(this)">Plomberie</span>
-              <span class="skill-chip selected" onclick="toggleChip(this)">Installation</span>
+            <div class="skills-selector" id="skillsSelector">
               <span class="skill-chip" onclick="toggleChip(this)">Réparation</span>
+              <span class="skill-chip" onclick="toggleChip(this)">Installation</span>
               <span class="skill-chip" onclick="toggleChip(this)">Urgence 24h</span>
-              <span class="skill-chip" onclick="toggleChip(this)">Design</span>
-              <span class="skill-chip" onclick="toggleChip(this)">UI/UX</span>
-              <span class="skill-chip" onclick="toggleChip(this)">Électricité</span>
-              <span class="skill-chip" onclick="toggleChip(this)">Couture</span>
+              <span class="skill-chip" onclick="toggleChip(this)">Devis gratuit</span>
+              <span class="skill-chip" onclick="toggleChip(this)">Déplacement inclus</span>
             </div>
           </div>
         </div>
@@ -265,13 +325,41 @@
 
   function toggleChip(el) { el.classList.toggle('selected'); }
 
-  // handleSubmit est remplacé par auth.js (fallback local si l'API est indisponible)
+  // Per-job skill chips
+  const JOB_SKILLS = {
+    'Plombier':               ['Plomberie','Installation','Réparation','Urgence 24h','Devis gratuit'],
+    'Électricien':            ['Câblage','Tableau électrique','Dépannage','Urgence','Installation'],
+    'Maçon':                  ['Maçonnerie','Carrelage','Béton','Rénovation','Construction neuve'],
+    'Peintre en bâtiment':    ['Peinture intérieure','Peinture façade','Enduit','Décoration','Ravalement'],
+    'Menuisier':              ['Menuiserie bois','Pose de portes','Meubles sur mesure','Ébénisterie'],
+    'Mécanicien Auto':        ['Vidange','Freins','Diagnostic','Révision','Climatisation auto'],
+    'Coiffeur / Coiffeuse':   ['Coupe femme','Coupe homme','Tresses','Coloration','Lissage'],
+    'Couturier / Couturière': ['Couture sur mesure','Retouches','Mode africaine','Prêt-à-porter'],
+    'Graphiste / Designer':   ['Logo','UI/UX','Flyer','Identité visuelle','Web design'],
+    'Développeur Web':        ['HTML/CSS','JavaScript','React','PHP','WordPress'],
+    'Réparateur Téléphone':   ['Écran cassé','Batterie','Logiciel','iPhone','Android'],
+    'Photographe':            ['Mariage','Portrait','Produits','Vidéo','Retouche photo'],
+    'Cuisinier / Traiteur':   ['Cuisine africaine','Traiteur événements','Pâtisserie','Plats à emporter'],
+    'Professeur particulier': ['Maths','Physique','Français','Anglais','Informatique'],
+  };
+  const DEFAULT_SKILLS = ['Réparation','Installation','Urgence 24h','Devis gratuit','Déplacement inclus'];
+
+  function onJobChange() {
+    const job = document.getElementById('jobSelect').value;
+    const skills = JOB_SKILLS[job] || DEFAULT_SKILLS;
+    const sel = document.getElementById('skillsSelector');
+    sel.innerHTML = skills.map((s,i) =>
+      `<span class="skill-chip${i<2?' selected':''}" onclick="toggleChip(this)">${s}</span>`
+    ).join('');
+  }
+
+  // Fallback handleSubmit (replaced by auth.js when loaded)
   function handleSubmit() {
     const btn = document.querySelector('.btn-submit');
     btn.style.background = 'var(--gray-dark)'; btn.style.color = 'var(--white)';
     document.getElementById('btnText').textContent = 'Chargement…';
     setTimeout(() => {
-      window.location.href = currentMode === 'client' ? 'home-client.html' : 'dashboard-prestataire.html';
+      window.location.href = currentMode === 'client' ? 'home-client.html' : 'home-prestataire.html';
     }, 700);
   }
 </script>

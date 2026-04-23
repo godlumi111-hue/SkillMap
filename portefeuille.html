@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>SkillMap — Portefeuille</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,300&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --black:#1e1d1a;--white:#f5f4f0;--off:#eeece6;
+  --gray-l:#d8d6cf;--gray-m:#8a8880;--gray-d:#3a3936;
+  --accent:#e8e03a;--red:#ff4d2e;--green:#2eff9e;--teal:#00c9b1;
+  --wave:#1F9EFC;--orange:#FF6900;--moov:#00A651;
+  --fd:'Bebas Neue',sans-serif;--fb:'DM Sans',sans-serif;--fm:'DM Mono',monospace;
+}
+html{scroll-behavior:smooth;}
+body{font-family:var(--fb);background:var(--white);color:var(--black);min-height:100vh;}
+
+/* ── NAV ─────────────────────────────────────────────────── */
+.nav{position:fixed;top:0;left:0;right:0;z-index:200;height:56px;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 1.8rem;background:rgba(245,244,240,.97);backdrop-filter:blur(16px);
+  border-bottom:1px solid rgba(30,29,26,.08);}
+.nav-logo{font-family:var(--fd);font-size:1.5rem;letter-spacing:3px;color:var(--black);text-decoration:none;}
+.nav-logo span{color:var(--accent);}
+.nav-back{display:flex;align-items:center;gap:.4rem;font-family:var(--fm);font-size:.65rem;
+  letter-spacing:1px;color:var(--gray-m);text-decoration:none;transition:color .2s;}
+.nav-back:hover{color:var(--black);}
+
+/* ── HERO / BALANCE ──────────────────────────────────────── */
+.balance-hero{padding:80px 1.8rem 2.5rem;background:var(--black);color:var(--white);position:relative;overflow:hidden;}
+.balance-hero::after{content:'';position:absolute;right:-80px;top:-80px;width:350px;height:350px;
+  background:radial-gradient(circle,rgba(232,224,58,.1) 0%,transparent 70%);pointer-events:none;}
+.bh-label{font-family:var(--fm);font-size:.6rem;letter-spacing:3px;text-transform:uppercase;
+  color:rgba(245,244,240,.3);margin-bottom:.4rem;}
+.bh-amount{font-family:var(--fd);font-size:clamp(2.8rem,10vw,5rem);letter-spacing:2px;
+  line-height:1;color:var(--white);margin-bottom:.3rem;}
+.bh-amount span{color:var(--accent);}
+.bh-sub{font-size:.82rem;color:rgba(245,244,240,.4);margin-bottom:1.6rem;}
+.bh-stats{display:flex;gap:2rem;flex-wrap:wrap;}
+.bh-stat{display:flex;flex-direction:column;gap:.15rem;}
+.bh-stat-num{font-family:var(--fd);font-size:1.1rem;letter-spacing:.5px;}
+.bh-stat-num.held{color:var(--accent);}
+.bh-stat-num.earned{color:var(--green);}
+.bh-stat-lbl{font-family:var(--fm);font-size:.55rem;letter-spacing:2px;text-transform:uppercase;color:rgba(245,244,240,.3);}
+
+/* ── DEPOSIT SECTION ─────────────────────────────────────── */
+.content{padding:1.8rem;max-width:960px;}
+.sec-head{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:1rem;}
+.sec-title{font-family:var(--fd);font-size:1.4rem;letter-spacing:1px;text-transform:uppercase;}
+.sec-sub{font-size:.78rem;color:var(--gray-m);margin-bottom:1.2rem;}
+
+/* ── METHOD CARDS ────────────────────────────────────────── */
+.method-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:.8rem;margin-bottom:2rem;}
+@media(max-width:540px){.method-grid{grid-template-columns:1fr;}}
+.method-card{border:2px solid rgba(30,29,26,.1);padding:1.2rem;cursor:pointer;
+  transition:all .2s;position:relative;background:var(--white);}
+.method-card:hover{border-color:rgba(30,29,26,.3);transform:translateY(-2px);}
+.method-card.selected{border-color:var(--black);background:var(--off);}
+.method-card.selected::after{content:'✓';position:absolute;top:.6rem;right:.7rem;
+  font-family:var(--fm);font-size:.65rem;color:var(--black);}
+.mc-logo{font-family:var(--fd);font-size:1.3rem;letter-spacing:1px;margin-bottom:.3rem;}
+.mc-logo.wave{color:var(--wave);}
+.mc-logo.orange{color:var(--orange);}
+.mc-logo.moov{color:var(--moov);}
+.mc-name{font-size:.82rem;font-weight:600;margin-bottom:.15rem;}
+.mc-desc{font-family:var(--fm);font-size:.6rem;color:var(--gray-m);letter-spacing:.5px;}
+
+/* ── AMOUNT PRESETS ──────────────────────────────────────── */
+.amounts-row{display:flex;gap:.5rem;flex-wrap:wrap;margin-bottom:1rem;}
+.amt-chip{padding:.5rem 1rem;border:1px solid rgba(30,29,26,.18);
+  font-family:var(--fm);font-size:.65rem;letter-spacing:1.5px;
+  cursor:pointer;transition:all .15s;background:var(--white);}
+.amt-chip:hover,.amt-chip.active{background:var(--black);color:var(--white);border-color:var(--black);}
+
+/* ── INPUT GROUP ─────────────────────────────────────────── */
+.input-group{margin-bottom:1rem;}
+.input-label{font-family:var(--fm);font-size:.6rem;letter-spacing:2px;text-transform:uppercase;
+  color:var(--gray-m);margin-bottom:.35rem;display:block;}
+.input-field{width:100%;padding:.85rem 1.1rem;border:1px solid rgba(30,29,26,.2);
+  font-family:var(--fb);font-size:1rem;color:var(--black);background:var(--white);
+  outline:none;transition:border-color .2s;}
+.input-field:focus{border-color:var(--black);}
+.input-field.error{border-color:var(--red);}
+
+/* ── PHONE INPUT ─────────────────────────────────────────── */
+.phone-wrap{display:flex;gap:0;}
+.phone-prefix{padding:.85rem 1rem;background:var(--off);border:1px solid rgba(30,29,26,.2);
+  border-right:none;font-family:var(--fm);font-size:.75rem;color:var(--gray-m);white-space:nowrap;}
+
+/* ── SUBMIT ──────────────────────────────────────────────── */
+.submit-btn{width:100%;padding:.95rem;font-family:var(--fm);font-size:.72rem;letter-spacing:2px;
+  text-transform:uppercase;cursor:pointer;border:none;transition:all .2s;margin-top:.5rem;}
+.submit-btn.wave-btn{background:var(--wave);color:var(--white);}
+.submit-btn.wave-btn:hover{background:#1a8de0;}
+.submit-btn.orange-btn{background:var(--orange);color:var(--white);}
+.submit-btn.orange-btn:hover{background:#e05d00;}
+.submit-btn.moov-btn{background:var(--moov);color:var(--white);}
+.submit-btn.moov-btn:hover{background:#009040;}
+.submit-btn:disabled{opacity:.5;cursor:not-allowed;}
+
+/* ── TRANSACTIONS ────────────────────────────────────────── */
+.tx-list{display:flex;flex-direction:column;gap:0;border:1px solid rgba(30,29,26,.1);margin-bottom:2rem;}
+.tx-item{display:flex;align-items:center;gap:1rem;padding:.85rem 1rem;
+  border-bottom:1px solid rgba(30,29,26,.06);background:var(--white);}
+.tx-item:last-child{border-bottom:none;}
+.tx-icon{width:34px;height:34px;flex-shrink:0;display:flex;align-items:center;justify-content:center;
+  font-size:.9rem;}
+.tx-icon.deposit{background:rgba(46,255,158,.12);}
+.tx-icon.payment{background:rgba(255,77,46,.08);}
+.tx-icon.receipt{background:rgba(46,255,158,.12);}
+.tx-icon.commission{background:rgba(30,29,26,.06);}
+.tx-icon.refund{background:rgba(0,201,177,.1);}
+.tx-icon.held{background:rgba(232,224,58,.1);}
+.tx-icon.released{background:rgba(46,255,158,.12);}
+.tx-body{flex:1;min-width:0;}
+.tx-desc{font-size:.82rem;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.tx-meta{font-family:var(--fm);font-size:.6rem;color:var(--gray-m);margin-top:.1rem;}
+.tx-amount{font-family:var(--fd);font-size:1rem;flex-shrink:0;letter-spacing:.5px;}
+.tx-amount.plus{color:#00a651;}
+.tx-amount.minus{color:var(--red);}
+.tx-amount.neutral{color:var(--gray-m);}
+.tx-ref{font-family:var(--fm);font-size:.56rem;color:var(--gray-l);margin-top:.1rem;text-align:right;}
+
+/* ── SKELETON ─────────────────────────────────────────────── */
+.skel{background:linear-gradient(90deg,var(--off) 25%,var(--gray-l) 50%,var(--off) 75%);
+  background-size:200% 100%;animation:shimmer 1.4s infinite;}
+@keyframes shimmer{0%{background-position:200% 0;}100%{background-position:-200% 0;}}
+
+/* ── MODAL ───────────────────────────────────────────────── */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(30,29,26,.75);
+  z-index:500;align-items:center;justify-content:center;padding:1rem;}
+.modal-overlay.open{display:flex;}
+.modal-box{background:var(--white);width:100%;max-width:400px;overflow:hidden;}
+.modal-head{padding:1.3rem 1.5rem 1.1rem;border-bottom:1px solid rgba(30,29,26,.08);
+  display:flex;align-items:center;justify-content:space-between;}
+.modal-htitle{font-family:var(--fd);font-size:1.2rem;letter-spacing:1px;text-transform:uppercase;}
+.modal-close{background:none;border:none;font-size:1.1rem;cursor:pointer;color:var(--gray-m);}
+.modal-body{padding:1.4rem 1.5rem;}
+/* Sim steps */
+.sim-step{display:flex;align-items:flex-start;gap:1rem;padding:.7rem 0;border-bottom:1px solid rgba(30,29,26,.06);}
+.sim-step:last-child{border-bottom:none;}
+.sim-num{width:22px;height:22px;flex-shrink:0;background:var(--off);
+  display:flex;align-items:center;justify-content:center;
+  font-family:var(--fm);font-size:.6rem;color:var(--gray-m);}
+.sim-num.done{background:var(--green);color:var(--black);}
+.sim-num.active{background:var(--black);color:var(--accent);animation:blink .8s infinite;}
+@keyframes blink{0%,100%{opacity:1;}50%{opacity:.5;}}
+.sim-text{font-size:.82rem;color:var(--gray-m);}
+.sim-text.active{color:var(--black);font-weight:500;}
+.sim-text.done{color:var(--black);}
+.sim-code{font-family:var(--fm);font-size:1.1rem;letter-spacing:3px;text-align:center;
+  padding:.8rem;background:var(--off);margin:.8rem 0;font-weight:500;}
+.modal-foot{padding:.8rem 1.5rem 1.4rem;display:flex;gap:.6rem;}
+.modal-btn{flex:1;padding:.75rem;font-family:var(--fm);font-size:.65rem;letter-spacing:2px;
+  text-transform:uppercase;cursor:pointer;border:none;transition:all .2s;}
+.modal-btn.primary{background:var(--black);color:var(--white);}
+.modal-btn.primary:hover{background:var(--gray-d);}
+.modal-btn.muted{background:var(--off);color:var(--gray-d);}
+.success-wrap{padding:2rem 1.5rem;text-align:center;}
+.success-icon{font-size:2.5rem;margin-bottom:.7rem;}
+.success-title{font-family:var(--fd);font-size:1.5rem;letter-spacing:1px;margin-bottom:.3rem;}
+.success-sub{font-size:.82rem;color:var(--gray-m);margin-bottom:.6rem;}
+.success-ref{font-family:var(--fm);font-size:.65rem;color:var(--gray-m);letter-spacing:1px;}
+
+@media(max-width:600px){.content{padding:1.2rem;}.nav{padding:0 1rem;}.balance-hero{padding:76px 1.2rem 2rem;}}
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <a href="#" id="navBack" class="nav-back">← Accueil</a>
+  <a href="#" id="navHome" class="nav-logo">Skill<span>Map</span></a>
+</nav>
+
+<!-- BALANCE HERO -->
+<div class="balance-hero">
+  <div class="bh-label">Votre portefeuille</div>
+  <div class="bh-amount"><span id="heroBalance">—</span> <span style="font-size:.45em;color:rgba(245,244,240,.3);">FCFA</span></div>
+  <div class="bh-sub" id="heroSub">Chargement…</div>
+  <div class="bh-stats">
+    <div class="bh-stat">
+      <div class="bh-stat-num held" id="statHeld">—</div>
+      <div class="bh-stat-lbl">En séquestre</div>
+    </div>
+    <div class="bh-stat">
+      <div class="bh-stat-num earned" id="statEarned">—</div>
+      <div class="bh-stat-lbl">Total gagné</div>
+    </div>
+    <div class="bh-stat">
+      <div class="bh-stat-num" style="color:rgba(245,244,240,.5);" id="statSpent">—</div>
+      <div class="bh-stat-lbl">Total dépensé</div>
+    </div>
+  </div>
+</div>
+
+<div class="content">
+
+  <!-- DEPOSIT -->
+  <div class="sec-head"><div class="sec-title">Recharger mon compte</div></div>
+  <p class="sec-sub">Choisissez votre méthode de paiement mobile.</p>
+
+  <!-- METHOD SELECTION -->
+  <div class="method-grid">
+    <div class="method-card" id="method-wave" onclick="selectMethod('wave')">
+      <div class="mc-logo wave">WAVE</div>
+      <div class="mc-name">Wave</div>
+      <div class="mc-desc">Paiement instantané</div>
+    </div>
+    <div class="method-card" id="method-orange_money" onclick="selectMethod('orange_money')">
+      <div class="mc-logo orange">ORANGE</div>
+      <div class="mc-name">Orange Money</div>
+      <div class="mc-desc">Via *144#</div>
+    </div>
+    <div class="method-card" id="method-moov_money" onclick="selectMethod('moov_money')">
+      <div class="mc-logo moov">MOOV</div>
+      <div class="mc-name">Moov Money</div>
+      <div class="mc-desc">Via *555#</div>
+    </div>
+  </div>
+
+  <!-- AMOUNT PRESETS -->
+  <div class="input-group">
+    <label class="input-label">Montant à recharger (FCFA)</label>
+    <div class="amounts-row" id="amountsRow">
+      <button class="amt-chip" onclick="setAmount(1000)">1 000</button>
+      <button class="amt-chip" onclick="setAmount(2000)">2 000</button>
+      <button class="amt-chip" onclick="setAmount(5000)">5 000</button>
+      <button class="amt-chip" onclick="setAmount(10000)">10 000</button>
+      <button class="amt-chip" onclick="setAmount(25000)">25 000</button>
+      <button class="amt-chip" onclick="setAmount(50000)">50 000</button>
+    </div>
+    <input type="number" class="input-field" id="amountInput" placeholder="Autre montant…"
+      min="500" step="100" oninput="onAmountInput()"/>
+  </div>
+
+  <!-- PHONE -->
+  <div class="input-group">
+    <label class="input-label">Numéro de téléphone</label>
+    <div class="phone-wrap">
+      <div class="phone-prefix" id="phonePrefix">+225</div>
+      <input type="tel" class="input-field" id="phoneInput" placeholder="07 XX XX XX XX"
+        style="border-radius:0;flex:1;" maxlength="14"/>
+    </div>
+  </div>
+
+  <button class="submit-btn wave-btn" id="depositBtn" onclick="startDeposit()">
+    Recharger avec Wave
+  </button>
+
+  <!-- TRANSACTIONS -->
+  <div style="margin-top:2.5rem;">
+    <div class="sec-head">
+      <div class="sec-title">Historique</div>
+    </div>
+    <div id="txList">
+      <div class="skel" style="height:58px;margin-bottom:1px;"></div>
+      <div class="skel" style="height:58px;margin-bottom:1px;"></div>
+      <div class="skel" style="height:58px;"></div>
+    </div>
+  </div>
+
+</div><!-- /content -->
+
+<!-- MODAL -->
+<div class="modal-overlay" id="modalOverlay" onclick="if(event.target===this&&!simRunning)closeModal()">
+  <div class="modal-box" id="modalBox">
+    <div class="modal-head">
+      <span class="modal-htitle" id="modalTitle">Paiement</span>
+      <button class="modal-close" onclick="if(!simRunning)closeModal()">✕</button>
+    </div>
+    <div id="modalContent"></div>
+  </div>
+</div>
+
+<script src="frontend/js/auth.js"></script>
+<script src="frontend/js/api.js"></script>
+<script>
+AUTH.requireAuth();
+const user = AUTH.getUser();
+const role = user?.role;
+document.getElementById('navBack').href = role === 'provider' ? 'home-prestataire.html' : 'home-client.html';
+document.getElementById('navHome').href = role === 'provider' ? 'home-prestataire.html' : 'home-client.html';
+
+const METHODS = {
+  wave:         { name:'Wave',         color:'#1F9EFC', ussd:'*141#', prefix:'+225', btnClass:'wave-btn' },
+  orange_money: { name:'Orange Money', color:'#FF6900', ussd:'*144#', prefix:'+225', btnClass:'orange-btn' },
+  moov_money:   { name:'Moov Money',   color:'#00A651', ussd:'*555#', prefix:'+225', btnClass:'moov-btn' },
+};
+
+let selectedMethod = 'wave';
+let selectedAmount = 0;
+let simRunning = false;
+
+function fmt(n) {
+  if (n === null || n === undefined) return '—';
+  return Number(n).toLocaleString('fr-FR');
+}
+
+// ── Method selection ───────────────────────────────────────
+function selectMethod(m) {
+  selectedMethod = m;
+  document.querySelectorAll('.method-card').forEach(c => c.classList.remove('selected'));
+  document.getElementById('method-' + m).classList.add('selected');
+  const info = METHODS[m];
+  const btn = document.getElementById('depositBtn');
+  btn.className = 'submit-btn ' + info.btnClass;
+  btn.textContent = `Recharger avec ${info.name}`;
+  document.getElementById('phonePrefix').textContent = info.prefix;
+}
+
+// ── Amount presets ─────────────────────────────────────────
+function setAmount(v) {
+  selectedAmount = v;
+  document.getElementById('amountInput').value = v;
+  document.querySelectorAll('.amt-chip').forEach(c => {
+    c.classList.toggle('active', parseInt(c.textContent.replace(/\s/g,'')) === v);
+  });
+}
+function onAmountInput() {
+  selectedAmount = parseInt(document.getElementById('amountInput').value) || 0;
+  document.querySelectorAll('.amt-chip').forEach(c => c.classList.remove('active'));
+}
+
+// Init
+selectMethod('wave');
+
+// ── Load wallet ────────────────────────────────────────────
+async function loadWallet() {
+  try {
+    const [walletData] = await Promise.all([ api.wallet.get() ]);
+    const w = walletData.wallet || {};
+    document.getElementById('heroBalance').textContent = fmt(w.balance || 0);
+    document.getElementById('heroSub').textContent = `Solde disponible · mis à jour à l'instant`;
+    document.getElementById('statHeld').textContent   = fmt(w.held_balance || 0) + ' F';
+    document.getElementById('statEarned').textContent = fmt(w.total_earned || 0) + ' F';
+    document.getElementById('statSpent').textContent  = fmt(w.total_spent  || 0) + ' F';
+
+    renderTransactions(walletData.transactions || []);
+  } catch {}
+}
+
+// ── Render transactions ────────────────────────────────────
+const TX_ICONS  = { deposit:'💳', payment:'→', receipt:'←', commission:'%', refund:'↩', held:'🔒', released:'🔓' };
+const TX_LABELS = { deposit:'Rechargement', payment:'Paiement prestation', receipt:'Prestation reçue', commission:'Commission', refund:'Remboursement', held:'Séquestre', released:'Libération' };
+
+function renderTransactions(txs) {
+  const el = document.getElementById('txList');
+  if (txs.length === 0) {
+    el.innerHTML = `<div style="padding:2rem;text-align:center;border:1px dashed rgba(30,29,26,.15);">
+      <div style="font-family:var(--fm);font-size:.72rem;color:var(--gray-m);letter-spacing:1px;">AUCUNE TRANSACTION</div>
+    </div>`;
+    return;
+  }
+  el.innerHTML = `<div class="tx-list">${txs.map(t => {
+    const isPlus  = ['deposit','receipt','released'].includes(t.type);
+    const isMinus = ['payment','commission'].includes(t.type);
+    const d = new Date(t.created_at);
+    const dateStr = `${d.getDate()} ${['Jan','Fév','Mar','Avr','Mai','Jun','Jul','Aoû','Sep','Oct','Nov','Déc'][d.getMonth()]} · ${d.getHours()}h${String(d.getMinutes()).padStart(2,'0')}`;
+    return `<div class="tx-item">
+      <div class="tx-icon ${t.type}">${TX_ICONS[t.type] || '·'}</div>
+      <div class="tx-body">
+        <div class="tx-desc">${t.description || TX_LABELS[t.type] || t.type}</div>
+        <div class="tx-meta">${dateStr}${t.payment_method ? ' · ' + t.payment_method.replace('_',' ').toUpperCase() : ''}</div>
+      </div>
+      <div>
+        <div class="tx-amount ${isPlus ? 'plus' : isMinus ? 'minus' : 'neutral'}">
+          ${isPlus ? '+' : isMinus ? '-' : ''}${fmt(t.amount)} F
+        </div>
+        ${t.reference ? `<div class="tx-ref">${t.reference}</div>` : ''}
+      </div>
+    </div>`;
+  }).join('')}</div>`;
+}
+
+// ── Start deposit flow ─────────────────────────────────────
+function startDeposit() {
+  const amount = selectedAmount || parseInt(document.getElementById('amountInput').value) || 0;
+  const phone  = document.getElementById('phoneInput').value.trim().replace(/\s/g,'');
+
+  if (amount < 500) {
+    document.getElementById('amountInput').classList.add('error');
+    document.getElementById('amountInput').focus();
+    setTimeout(() => document.getElementById('amountInput').classList.remove('error'), 2000);
+    return;
+  }
+  if (!phone || phone.length < 8) {
+    document.getElementById('phoneInput').classList.add('error');
+    document.getElementById('phoneInput').focus();
+    setTimeout(() => document.getElementById('phoneInput').classList.remove('error'), 2000);
+    return;
+  }
+
+  const info = METHODS[selectedMethod];
+  const code = Math.floor(100000 + Math.random() * 900000).toString();
+
+  document.getElementById('modalTitle').textContent = `Paiement ${info.name}`;
+  document.getElementById('modalContent').innerHTML = buildSimUI(info, amount, phone, code, 0);
+  openModal();
+
+  simRunning = true;
+  runSimulation(info, amount, phone, code);
+}
+
+function buildSimUI(info, amount, phone, code, step) {
+  const steps = [
+    { label: `Connexion à ${info.name}…` },
+    { label: `Envoi de la demande de paiement au ${phone}…` },
+    { label: `Confirmation en attente sur votre téléphone…` },
+    { label: `Paiement autorisé. Crédit en cours…` },
+  ];
+  const stepsHtml = steps.map((s, i) => `
+    <div class="sim-step">
+      <div class="sim-num ${i < step ? 'done' : i === step ? 'active' : ''}">${i < step ? '✓' : i+1}</div>
+      <div class="sim-text ${i < step ? 'done' : i === step ? 'active' : ''}">${s.label}</div>
+    </div>`).join('');
+
+  return `<div class="modal-body">
+    <p style="font-size:.82rem;margin-bottom:1rem;">
+      Rechargement de <strong style="font-family:var(--fd);font-size:1.1rem;">${Number(amount).toLocaleString('fr-FR')} FCFA</strong>
+      via <strong style="color:${info.color}">${info.name}</strong>
+    </p>
+    <div class="sim-code">${code}</div>
+    <p style="font-family:var(--fm);font-size:.6rem;color:var(--gray-m);letter-spacing:1px;text-align:center;margin-bottom:1rem;">
+      CODE DE TRANSACTION
+    </p>
+    ${stepsHtml}
+  </div>
+  <div class="modal-foot">
+    <button class="modal-btn muted" disabled>Traitement en cours…</button>
+  </div>`;
+}
+
+async function runSimulation(info, amount, phone, code) {
+  for (let step = 0; step <= 3; step++) {
+    await delay(900 + Math.random() * 700);
+    if (document.getElementById('modalContent'))
+      document.getElementById('modalContent').innerHTML = buildSimUI(info, amount, phone, code, step + 1);
+  }
+
+  await delay(600);
+  try {
+    const res = await api.wallet.deposit({
+      amount,
+      payment_method: selectedMethod,
+      phone,
+      reference: code,
+    });
+    simRunning = false;
+    showSuccess(info, amount, res.reference || code);
+    loadWallet();
+  } catch (e) {
+    simRunning = false;
+    document.getElementById('modalContent').innerHTML = `
+      <div class="modal-body">
+        <div style="background:rgba(255,77,46,.07);border:1px solid rgba(255,77,46,.2);padding:.8rem 1rem;font-size:.8rem;color:var(--red);">
+          ${e.message}
+        </div>
+      </div>
+      <div class="modal-foot">
+        <button class="modal-btn primary" onclick="closeModal()">Fermer</button>
+      </div>`;
+  }
+}
+
+function showSuccess(info, amount, ref) {
+  document.getElementById('modalContent').innerHTML = `
+    <div class="success-wrap">
+      <div class="success-icon">✅</div>
+      <div class="success-title">Rechargement réussi !</div>
+      <div class="success-sub">
+        <strong style="font-family:var(--fd);font-size:1.1rem;">${Number(amount).toLocaleString('fr-FR')} FCFA</strong>
+        ont été ajoutés à votre compte SkillMap via <span style="color:${info.color};font-weight:600;">${info.name}</span>.
+      </div>
+      <div class="success-ref">${ref}</div>
+    </div>
+    <div class="modal-foot">
+      <button class="modal-btn primary" onclick="closeModal()">Fermer</button>
+    </div>`;
+}
+
+function delay(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+function openModal()  { document.getElementById('modalOverlay').classList.add('open'); }
+function closeModal() {
+  if (simRunning) return;
+  document.getElementById('modalOverlay').classList.remove('open');
+  document.getElementById('modalContent').innerHTML = '';
+}
+document.addEventListener('keydown', e => { if (e.key === 'Escape' && !simRunning) closeModal(); });
+
+loadWallet();
+</script>
+</body>
+</html>
