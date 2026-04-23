@@ -114,14 +114,14 @@ async function loadRequests() {
           <span style="font-size:.6rem;font-family:var(--font-mono);letter-spacing:1px;padding:.25rem .7rem;border:1px solid ${statusColors[r.status] || 'var(--gray-light)'};color:${statusColors[r.status] || 'var(--gray-mid)'};">${statusLabels[r.status] || r.status}</span>
         </div>
         ${r.description ? `<p style="font-size:.8rem;color:var(--gray-dark);margin-bottom:.8rem;font-weight:300;">${r.description}</p>` : ''}
-        ${r.client_phone ? `<div style="font-size:.72rem;font-family:var(--font-mono);color:var(--gray-mid);margin-bottom:.8rem;">📞 ${r.client_phone}</div>` : ''}
+        ${r.client_phone ? `<div style="font-size:.72rem;font-family:var(--font-mono);color:var(--gray-mid);margin-bottom:.8rem;"><i data-lucide="phone"></i> ${r.client_phone}</div>` : ''}
         ${r.status === 'pending' ? `
           <div style="display:flex;gap:.6rem;">
-            <button onclick="updateStatus(${r.id},'accepted')" style="padding:.5rem 1rem;background:var(--accent3);color:var(--black);border:none;cursor:pointer;font-family:var(--font-body);font-size:.72rem;letter-spacing:1px;text-transform:uppercase;">✓ Accepter</button>
-            <button onclick="updateStatus(${r.id},'rejected')" style="padding:.5rem 1rem;background:transparent;border:1px solid rgba(30,29,26,.2);cursor:pointer;font-family:var(--font-body);font-size:.72rem;letter-spacing:1px;text-transform:uppercase;">✗ Refuser</button>
+            <button onclick="updateStatus(${r.id},'accepted')" style="padding:.5rem 1rem;background:var(--accent3);color:var(--black);border:none;cursor:pointer;font-family:var(--font-body);font-size:.72rem;letter-spacing:1px;text-transform:uppercase;">Accepter</button>
+            <button onclick="updateStatus(${r.id},'rejected')" style="padding:.5rem 1rem;background:transparent;border:1px solid rgba(30,29,26,.2);cursor:pointer;font-family:var(--font-body);font-size:.72rem;letter-spacing:1px;text-transform:uppercase;">Refuser</button>
           </div>
         ` : r.status === 'accepted' ? `
-          <button onclick="updateStatus(${r.id},'completed')" style="padding:.5rem 1rem;background:var(--black);color:var(--white);border:none;cursor:pointer;font-family:var(--font-body);font-size:.72rem;letter-spacing:1px;text-transform:uppercase;">✅ Marquer terminé</button>
+          <button onclick="updateStatus(${r.id},'completed')" style="padding:.5rem 1rem;background:var(--black);color:var(--white);border:none;cursor:pointer;font-family:var(--font-body);font-size:.72rem;letter-spacing:1px;text-transform:uppercase;">Marquer terminé</button>
         ` : ''}
       </div>
     `).join('') || '<div style="color:var(--gray-mid);font-size:.8rem;font-family:var(--font-mono);">Aucune demande</div>';

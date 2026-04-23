@@ -24,7 +24,7 @@ function initGeolocation() {
     pos => {
       userLat = pos.coords.latitude;
       userLng = pos.coords.longitude;
-      if (locEl) locEl.textContent = '📍 Position détectée';
+      if (locEl) { locEl.innerHTML = '<i data-lucide="map-pin"></i> Position détectée'; lucide.createIcons({ el: locEl }); }
       loadProviders();
     },
     () => {
@@ -91,11 +91,11 @@ function renderList(providers) {
       <div class="pcard" data-id="${p.id}" onclick="openDetail(${p.id})">
         <div class="pcard-av" style="background:rgba(232,224,58,.1);color:var(--accent);border:1px solid rgba(232,224,58,.2);">${initials}</div>
         <div class="pcard-info">
-          <div class="pcard-name">${p.full_name} ${p.is_verified ? '🛡️' : ''}</div>
+          <div class="pcard-name">${p.full_name} ${p.is_verified ? '<i data-lucide="shield-check"></i>' : ''}</div>
           <div class="pcard-role">${p.title} · ${p.neighborhood || p.city}</div>
           <div style="display:flex;gap:.8rem;margin-top:.3rem;align-items:center;">
             ${avail}
-            ${dist ? `<span style="font-size:.65rem;font-family:var(--font-mono);color:var(--gray-mid);">📍 ${dist}</span>` : ''}
+            ${dist ? `<span style="font-size:.65rem;font-family:var(--font-mono);color:var(--gray-mid);"><i data-lucide="map-pin"></i> ${dist}</span>` : ''}
             ${p.avg_rating ? `<span style="font-size:.68rem;color:var(--accent);">${stars} ${p.avg_rating}</span>` : ''}
           </div>
         </div>
@@ -125,7 +125,7 @@ async function openDetail(providerOrId) {
 
     const initials = p.full_name?.split(' ').map(w => w[0]).join('').slice(0,2).toUpperCase();
     const stars = p.avg_rating ? '★'.repeat(Math.round(p.avg_rating)) + '☆'.repeat(5 - Math.round(p.avg_rating)) : '—';
-    const dist  = p.distance_km !== null ? `📍 ${p.distance_km} km` : '';
+    const dist  = p.distance_km !== null ? `<i data-lucide="map-pin"></i> ${p.distance_km} km` : '';
     const skillsHtml = (p.skills || []).map(s => `<span class="tag">${s}</span>`).join('');
     const reviewsHtml = (p.reviews || []).slice(0,3).map(r => `
       <div style="padding:1rem;border:1px solid rgba(30,29,26,.08);margin-bottom:.6rem;">
@@ -145,7 +145,7 @@ async function openDetail(providerOrId) {
           <div style="flex:1;">
             <div style="display:flex;align-items:center;gap:.6rem;flex-wrap:wrap;">
               <h2 style="font-size:1.2rem;font-weight:500;">${p.full_name}</h2>
-              ${p.is_verified ? '<span style="background:var(--black);color:var(--accent3);font-size:.6rem;letter-spacing:1px;padding:.25rem .6rem;font-family:var(--font-mono);">🛡️ VÉRIFIÉ</span>' : ''}
+              ${p.is_verified ? '<span style="background:var(--black);color:var(--accent3);font-size:.6rem;letter-spacing:1px;padding:.25rem .6rem;font-family:var(--font-mono);"><i data-lucide="shield-check"></i> VÉRIFIÉ</span>' : ''}
               ${p.is_available ? '<span style="background:rgba(46,255,158,.1);color:var(--accent3);border:1px solid rgba(46,255,158,.3);font-size:.6rem;letter-spacing:1px;padding:.25rem .6rem;font-family:var(--font-mono);">DISPONIBLE</span>' : '<span style="background:rgba(30,29,26,.05);color:var(--gray-mid);border:1px solid rgba(30,29,26,.1);font-size:.6rem;letter-spacing:1px;padding:.25rem .6rem;font-family:var(--font-mono);">OCCUPÉ</span>'}
             </div>
             <div style="font-family:var(--font-mono);font-size:.72rem;color:var(--gray-mid);margin-top:.3rem;letter-spacing:1px;">${p.title} · ${p.neighborhood || p.city}</div>
@@ -163,9 +163,9 @@ async function openDetail(providerOrId) {
         ${skillsHtml ? `<div style="margin-bottom:1.5rem;"><div style="font-size:.68rem;font-family:var(--font-mono);letter-spacing:2px;text-transform:uppercase;color:var(--gray-mid);margin-bottom:.6rem;">COMPÉTENCES</div><div style="display:flex;flex-wrap:wrap;gap:.4rem;">${skillsHtml}</div></div>` : ''}
 
         <div style="display:flex;gap:.8rem;margin-bottom:2rem;flex-wrap:wrap;">
-          <button onclick="contactProvider(${p.user_id}, '${p.full_name}')" style="flex:1;min-width:120px;padding:.8rem 1.2rem;background:var(--accent);color:var(--black);border:none;cursor:pointer;font-family:var(--font-body);font-size:.78rem;letter-spacing:1.5px;text-transform:uppercase;font-weight:500;transition:background .2s;" onmouseover="this.style.background='var(--black)';this.style.color='var(--white)'" onmouseout="this.style.background='var(--accent)';this.style.color='var(--black)'">💬 Contacter</button>
-          <button onclick="requestService(${p.id}, '${p.full_name}')" style="flex:1;min-width:120px;padding:.8rem 1.2rem;background:transparent;color:var(--black);border:1px solid rgba(30,29,26,.3);cursor:pointer;font-family:var(--font-body);font-size:.78rem;letter-spacing:1.5px;text-transform:uppercase;font-weight:500;transition:border-color .2s;">✅ Demander</button>
-          <button onclick="toggleFavorite(${p.id}, this)" id="favBtn-${p.id}" style="padding:.8rem 1rem;background:transparent;border:1px solid rgba(30,29,26,.2);cursor:pointer;font-size:1.1rem;transition:border-color .2s;" title="Ajouter aux favoris">🤍</button>
+          <button onclick="contactProvider(${p.user_id}, '${p.full_name}')" style="flex:1;min-width:120px;padding:.8rem 1.2rem;background:var(--accent);color:var(--black);border:none;cursor:pointer;font-family:var(--font-body);font-size:.78rem;letter-spacing:1.5px;text-transform:uppercase;font-weight:500;transition:background .2s;" onmouseover="this.style.background='var(--black)';this.style.color='var(--white)'" onmouseout="this.style.background='var(--accent)';this.style.color='var(--black)'"><i data-lucide="message-circle"></i> Contacter</button>
+          <button onclick="requestService(${p.id}, '${p.full_name}')" style="flex:1;min-width:120px;padding:.8rem 1.2rem;background:transparent;color:var(--black);border:1px solid rgba(30,29,26,.3);cursor:pointer;font-family:var(--font-body);font-size:.78rem;letter-spacing:1.5px;text-transform:uppercase;font-weight:500;transition:border-color .2s;"><i data-lucide="check-circle"></i> Demander</button>
+          <button onclick="toggleFavorite(${p.id}, this)" id="favBtn-${p.id}" data-fav="false" style="padding:.8rem 1rem;background:transparent;border:1px solid rgba(30,29,26,.2);cursor:pointer;font-size:1.1rem;transition:border-color .2s;" title="Ajouter aux favoris"><i data-lucide="heart"></i></button>
           <a href="provider-profile.html?id=${p.id}" style="padding:.8rem 1rem;background:transparent;border:1px solid rgba(30,29,26,.2);cursor:pointer;font-family:var(--font-mono);font-size:.68rem;letter-spacing:1px;text-transform:uppercase;color:var(--black);text-decoration:none;display:flex;align-items:center;">Profil complet →</a>
         </div>
 
@@ -177,6 +177,7 @@ async function openDetail(providerOrId) {
       </div>
     `;
 
+    lucide.createIcons();
     checkFavorite(p.id);
 
   } catch (err) {
@@ -221,20 +222,22 @@ async function checkFavorite(providerId) {
   try {
     const { is_favorite } = await api.favorites.check(providerId);
     const btn = document.getElementById(`favBtn-${providerId}`);
-    if (btn) btn.textContent = is_favorite ? '❤️' : '🤍';
+    if (btn) { btn.dataset.fav = is_favorite ? 'true' : 'false'; btn.innerHTML = '<i data-lucide="heart"></i>'; btn.style.color = is_favorite ? 'var(--accent2)' : ''; lucide.createIcons({ el: btn }); }
   } catch {}
 }
 
 async function toggleFavorite(providerId, btn) {
   try {
-    const isFav = btn.textContent === '❤️';
+    const isFav = btn.dataset.fav === 'true';
     if (isFav) {
       await api.favorites.remove(providerId);
-      btn.textContent = '🤍';
+      btn.dataset.fav = 'false'; btn.style.color = '';
     } else {
       await api.favorites.add(providerId);
-      btn.textContent = '❤️';
+      btn.dataset.fav = 'true'; btn.style.color = 'var(--accent2)';
     }
+    btn.innerHTML = '<i data-lucide="heart"></i>';
+    lucide.createIcons({ el: btn });
   } catch (err) {
     alert(err.message);
   }

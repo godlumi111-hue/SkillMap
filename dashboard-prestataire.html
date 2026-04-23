@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>SkillMap — Mon espace prestataire</title>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
   :root {
@@ -193,21 +194,21 @@
         <span class="snav-icon">◉</span> Tableau de bord
       </a>
       <a class="snav-item" href="#" onclick="showSection('requests'); return false;">
-        <span class="snav-icon">📋</span> Demandes
+        <span class="snav-icon"><i data-lucide="clipboard-list"></i></span> Demandes
         <span class="snav-badge">3</span>
       </a>
       <a class="snav-item" href="messages.html">
-        <span class="snav-icon">💬</span> Messages
+        <span class="snav-icon"><i data-lucide="message-circle"></i></span> Messages
         <span class="snav-badge green" id="msgBadge" style="display:none;">0</span>
       </a>
       <a class="snav-item" href="#" id="navMonProfil">
-        <span class="snav-icon">👤</span> Mon profil
+        <span class="snav-icon"><i data-lucide="user"></i></span> Mon profil
       </a>
       <a class="snav-item" href="#">
-        <span class="snav-icon">📊</span> Statistiques
+        <span class="snav-icon"><i data-lucide="bar-chart-2"></i></span> Statistiques
       </a>
       <a class="snav-item" href="parametres-prestataire.html">
-        <span class="snav-icon">⚙️</span> Paramètres
+        <span class="snav-icon"><i data-lucide="settings"></i></span> Paramètres
       </a>
     </nav>
 
@@ -223,7 +224,7 @@
     <!-- Header -->
     <div class="main-header">
       <div>
-        <div class="main-greeting">Bonjour, Aïcha ✦</div>
+        <div class="main-greeting">Bonjour, Aïcha</div>
         <div class="main-date">Mercredi · Abidjan · Plateau</div>
       </div>
       <div class="avail-block">
@@ -377,10 +378,10 @@
         <div style="margin-bottom:1rem;">
           <div class="sec-header"><h2 class="sec-title">Actions rapides</h2></div>
           <div class="quick-actions">
-            <button class="qa-btn" onclick="window.location.href='parametres-prestataire.html'"><span class="qa-icon">📅</span><span class="qa-label">Disponibilités</span></button>
-            <button class="qa-btn" id="btnModifierProfil" onclick=""><span class="qa-icon">✏️</span><span class="qa-label">Modifier profil</span></button>
-            <button class="qa-btn"><span class="qa-icon">📸</span><span class="qa-label">Ajouter portfolio</span></button>
-            <button class="qa-btn"><span class="qa-icon">💳</span><span class="qa-label">Tarifs</span></button>
+            <button class="qa-btn" onclick="window.location.href='parametres-prestataire.html'"><span class="qa-icon"><i data-lucide="calendar"></i></span><span class="qa-label">Disponibilités</span></button>
+            <button class="qa-btn" id="btnModifierProfil" onclick=""><span class="qa-icon"><i data-lucide="pencil"></i></span><span class="qa-label">Modifier profil</span></button>
+            <button class="qa-btn"><span class="qa-icon"><i data-lucide="camera"></i></span><span class="qa-label">Ajouter portfolio</span></button>
+            <button class="qa-btn"><span class="qa-icon"><i data-lucide="credit-card"></i></span><span class="qa-label">Tarifs</span></button>
           </div>
         </div>
 
@@ -460,5 +461,6 @@
 <script src="frontend/js/api.js"></script>
 <script src="frontend/js/auth.js"></script>
 <script src="frontend/js/dashboard-prestataire.js"></script>
+<script>lucide.createIcons();</script>
 </body>
 </html>

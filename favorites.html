@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>SkillMap — Mes favoris</title>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
 <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 :root {
@@ -97,7 +98,7 @@ async function loadFavorites() {
     if (!favs.length) {
       grid.innerHTML = `
         <div class="empty-state" style="grid-column:1/-1;">
-          <div class="empty-state-icon">🤍</div>
+          <div class="empty-state-icon"><i data-lucide="heart"></i></div>
           <h2>Aucun favori</h2>
           <p>Explorez les prestataires et ajoutez vos préférés ici.</p>
           <a href="prestataires.html" class="btn-primary">Explorer les prestataires →</a>
@@ -111,23 +112,23 @@ async function loadFavorites() {
       const stars = p.avg_rating ? '★'.repeat(Math.round(p.avg_rating)) + '☆'.repeat(5-Math.round(p.avg_rating)) : '';
       return `
         <div class="fav-card" id="fav-card-${p.id}">
-          <button class="btn-unfav" onclick="removeFav(${p.id})" title="Retirer des favoris">❤️</button>
+          <button class="btn-unfav" onclick="removeFav(${p.id})" title="Retirer des favoris"><i data-lucide="heart"></i></button>
           <div class="fav-card-header">
             <div class="fav-av">${initials}</div>
             <div>
               <div class="fav-name">${p.full_name}</div>
               <div class="fav-title">${p.title}</div>
-              <div class="fav-loc">📍 ${p.neighborhood || p.city}</div>
+              <div class="fav-loc"><i data-lucide="map-pin"></i> ${p.neighborhood || p.city}</div>
             </div>
           </div>
           ${stars ? `<div class="fav-rating">${stars} <span style="font-size:.72rem;color:var(--gray-mid);font-family:var(--font-mono);">${p.avg_rating}/5</span></div>` : ''}
           <div class="fav-badges">
             ${p.is_available ? '<span class="badge badge-avail">● DISPONIBLE</span>' : ''}
-            ${p.is_verified ? '<span class="badge badge-verified">🛡️ VÉRIFIÉ</span>' : ''}
+            ${p.is_verified ? '<span class="badge badge-verified"><i data-lucide="shield-check"></i> VÉRIFIÉ</span>' : ''}
             ${p.hourly_rate ? `<span class="badge" style="color:var(--gray-mid);border-color:var(--gray-light);">${p.hourly_rate.toLocaleString('fr-FR')} FCFA/h</span>` : ''}
           </div>
           <div class="fav-actions">
-            <button class="btn-contact" onclick="contactProvider(${p.user_id}, '${p.full_name}')">💬 Contacter</button>
+            <button class="btn-contact" onclick="contactProvider(${p.user_id}, '${p.full_name}')"><i data-lucide="message-circle"></i> Contacter</button>
             <a href="provider-profile.html?id=${p.id}" class="btn-view">Voir profil</a>
           </div>
         </div>
@@ -151,6 +152,7 @@ function contactProvider(userId, name) {
 }
 
 loadFavorites();
+lucide.createIcons();
 </script>
 </body>
 </html>

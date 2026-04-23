@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>SkillMap — Trouvez les bons talents près de chez vous</title>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -931,20 +932,20 @@
     <h2>Quel service cherchez-vous ?</h2>
     <div class="search-bar">
       <input type="text" placeholder="Ex : plombier, coiffeur, graphiste…" id="searchInput" onkeydown="if(event.key==='Enter') goSearch()" />
-      <span class="search-bar-loc" id="searchLoc">📍 Abidjan</span>
+      <span class="search-bar-loc" id="searchLoc"><i data-lucide="map-pin"></i> Abidjan</span>
       <button class="search-btn" onclick="goSearch()">Rechercher</button>
     </div>
     <div class="categories">
       <button class="cat-pill active" onclick="goCategory('')">Tous</button>
-      <button class="cat-pill" onclick="goCategory('artisanat')">🔧 Artisanat</button>
-      <button class="cat-pill" onclick="goCategory('electricite')">⚡ Électricité</button>
-      <button class="cat-pill" onclick="goCategory('plomberie')">🚿 Plomberie</button>
-      <button class="cat-pill" onclick="goCategory('beaute')">✂️ Beauté</button>
-      <button class="cat-pill" onclick="goCategory('design')">🎨 Design</button>
-      <button class="cat-pill" onclick="goCategory('education')">📚 Éducation</button>
-      <button class="cat-pill" onclick="goCategory('telephonie')">🔌 Téléphonie</button>
-      <button class="cat-pill" onclick="goCategory('mecanique')">🚗 Mécanique</button>
-      <button class="cat-pill" onclick="goCategory('couture')">🪡 Couture</button>
+      <button class="cat-pill" onclick="goCategory('artisanat')"><i data-lucide="wrench"></i> Artisanat</button>
+      <button class="cat-pill" onclick="goCategory('electricite')"><i data-lucide="zap"></i> Électricité</button>
+      <button class="cat-pill" onclick="goCategory('plomberie')"><i data-lucide="droplets"></i> Plomberie</button>
+      <button class="cat-pill" onclick="goCategory('beaute')"><i data-lucide="scissors"></i> Beauté</button>
+      <button class="cat-pill" onclick="goCategory('design')"><i data-lucide="palette"></i> Design</button>
+      <button class="cat-pill" onclick="goCategory('education')"><i data-lucide="book-open"></i> Éducation</button>
+      <button class="cat-pill" onclick="goCategory('telephonie')"><i data-lucide="plug"></i> Téléphonie</button>
+      <button class="cat-pill" onclick="goCategory('mecanique')"><i data-lucide="car"></i> Mécanique</button>
+      <button class="cat-pill" onclick="goCategory('couture')"><i data-lucide="scissors"></i> Couture</button>
     </div>
   </div>
 </section>
@@ -958,25 +959,25 @@
   <div class="steps-grid">
     <div class="step-item">
       <div class="step-num">01</div>
-      <div class="step-icon">📍</div>
+      <div class="step-icon"><i data-lucide="map-pin"></i></div>
       <div class="step-title">Activez la géolocalisation</div>
       <p class="step-desc">Ouvrez l'application et autorisez l'accès à votre position. SkillMap détecte instantanément votre quartier.</p>
     </div>
     <div class="step-item">
       <div class="step-num">02</div>
-      <div class="step-icon">🔍</div>
+      <div class="step-icon"><i data-lucide="search"></i></div>
       <div class="step-title">Cherchez votre service</div>
       <p class="step-desc">Tapez un mot-clé ou choisissez une catégorie. Filtrez par distance, disponibilité, note ou tarif.</p>
     </div>
     <div class="step-item">
       <div class="step-num">03</div>
-      <div class="step-icon">👤</div>
+      <div class="step-icon"><i data-lucide="user"></i></div>
       <div class="step-title">Consultez les profils</div>
       <p class="step-desc">Explorez les fiches détaillées — compétences, portfolio, tarifs indicatifs et avis vérifiés.</p>
     </div>
     <div class="step-item">
       <div class="step-num">04</div>
-      <div class="step-icon">✅</div>
+      <div class="step-icon"><i data-lucide="check-circle"></i></div>
       <div class="step-title">Contactez & évaluez</div>
       <p class="step-desc">Lancez le contact directement depuis la fiche. Après la prestation, partagez votre avis.</p>
     </div>
@@ -1002,7 +1003,7 @@
         <span class="tag">Urgence</span>
       </div>
       <div class="provider-card-footer">
-        <span class="card-dist">📍 0.8 km</span>
+        <span class="card-dist"><i data-lucide="map-pin"></i>0.8 km</span>
         <div class="card-rating">
           <span class="rating-score">4.9 ★</span>
           <span class="rating-count">(47 avis)</span>
@@ -1021,7 +1022,7 @@
         <span class="tag">UI/UX</span>
       </div>
       <div class="provider-card-footer">
-        <span class="card-dist">📍 1.4 km</span>
+        <span class="card-dist"><i data-lucide="map-pin"></i>1.4 km</span>
         <div class="card-rating">
           <span class="rating-score">5.0 ★</span>
           <span class="rating-count">(82 avis)</span>
@@ -1040,7 +1041,7 @@
         <span class="tag">Dépannage</span>
       </div>
       <div class="provider-card-footer">
-        <span class="card-dist">📍 2.1 km</span>
+        <span class="card-dist"><i data-lucide="map-pin"></i>2.1 km</span>
         <div class="card-rating">
           <span class="rating-score">4.8 ★</span>
           <span class="rating-count">(63 avis)</span>
@@ -1059,7 +1060,7 @@
         <span class="tag">Soins</span>
       </div>
       <div class="provider-card-footer">
-        <span class="card-dist">📍 1.1 km</span>
+        <span class="card-dist"><i data-lucide="map-pin"></i>1.1 km</span>
         <div class="card-rating">
           <span class="rating-score">4.9 ★</span>
           <span class="rating-count">(115 avis)</span>
@@ -1078,7 +1079,7 @@
         <span class="tag">Freinage</span>
       </div>
       <div class="provider-card-footer">
-        <span class="card-dist">📍 3.2 km</span>
+        <span class="card-dist"><i data-lucide="map-pin"></i>3.2 km</span>
         <div class="card-rating">
           <span class="rating-score">4.7 ★</span>
           <span class="rating-count">(38 avis)</span>
@@ -1097,7 +1098,7 @@
         <span class="tag">Software</span>
       </div>
       <div class="provider-card-footer">
-        <span class="card-dist">📍 1.8 km</span>
+        <span class="card-dist"><i data-lucide="map-pin"></i>1.8 km</span>
         <div class="card-rating">
           <span class="rating-score">4.8 ★</span>
           <span class="rating-count">(91 avis)</span>
@@ -1118,37 +1119,37 @@
   </div>
   <div class="features-grid">
     <div class="feature-item">
-      <div class="feature-icon-wrap">📡</div>
+      <div class="feature-icon-wrap"><i data-lucide="radio"></i></div>
       <div class="feature-title">Géolocalisation temps réel</div>
       <p class="feature-desc">Visualisez sur une carte interactive tous les prestataires disponibles autour de vous, avec mise à jour en continu de leur position et statut.</p>
       <span class="feature-num">01</span>
     </div>
     <div class="feature-item">
-      <div class="feature-icon-wrap">🔎</div>
+      <div class="feature-icon-wrap"><i data-lucide="search"></i></div>
       <div class="feature-title">Filtres avancés</div>
       <p class="feature-desc">Affinez vos résultats par distance, disponibilité, note, tarif indicatif ou zone d'intervention. Trouvez exactement ce dont vous avez besoin.</p>
       <span class="feature-num">02</span>
     </div>
     <div class="feature-item">
-      <div class="feature-icon-wrap">💬</div>
+      <div class="feature-icon-wrap"><i data-lucide="message-circle"></i></div>
       <div class="feature-title">Messagerie intégrée</div>
       <p class="feature-desc">Échangez directement avec votre prestataire depuis l'application. Historique des conversations accessible à tout moment depuis le tableau de bord.</p>
       <span class="feature-num">03</span>
     </div>
     <div class="feature-item">
-      <div class="feature-icon-wrap">⭐</div>
+      <div class="feature-icon-wrap"><i data-lucide="star"></i></div>
       <div class="feature-title">Avis vérifiés</div>
       <p class="feature-desc">Chaque évaluation est authentifiée et liée à une prestation réelle. La note moyenne se met à jour automatiquement pour garantir une transparence totale.</p>
       <span class="feature-num">04</span>
     </div>
     <div class="feature-item">
-      <div class="feature-icon-wrap">🛡️</div>
+      <div class="feature-icon-wrap"><i data-lucide="shield-check"></i></div>
       <div class="feature-title">Profils vérifiés</div>
       <p class="feature-desc">Les prestataires peuvent obtenir un badge de vérification après validation de leurs documents. Un gage de confiance pour les clients.</p>
       <span class="feature-num">05</span>
     </div>
     <div class="feature-item">
-      <div class="feature-icon-wrap">📊</div>
+      <div class="feature-icon-wrap"><i data-lucide="bar-chart-2"></i></div>
       <div class="feature-title">Tableau de bord prestataire</div>
       <p class="feature-desc">Gérez votre profil, vos disponibilités, suivez vos demandes entrantes et consultez vos statistiques d'activité depuis un espace centralisé.</p>
       <span class="feature-num">06</span>
@@ -1382,7 +1383,8 @@
   // Détection géoloc sur la page d'accueil
   if (navigator.geolocation) {
     navigator.geolocation.getCurrentPosition(pos => {
-      document.getElementById('searchLoc').textContent = '📍 Position détectée';
+      document.getElementById('searchLoc').innerHTML = '<i data-lucide="map-pin"></i> Position détectée';
+      lucide.createIcons();
     }, () => {});
   }
 
@@ -1409,6 +1411,7 @@
       revealObs.observe(el);
     });
   });
+  lucide.createIcons();
 </script>
 </body>
 </html>

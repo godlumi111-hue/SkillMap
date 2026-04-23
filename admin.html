@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>SkillMap — Administration</title>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
 <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 :root {
@@ -124,14 +125,14 @@ body { font-family: var(--font-body); background: var(--off-white); color: var(-
   </div>
   <nav class="sidebar-nav">
     <a class="snav-item active" href="#" onclick="showSection('overview')"><span class="snav-icon">◉</span> Vue d'ensemble</a>
-    <a class="snav-item" href="#" onclick="showSection('users')"><span class="snav-icon">👥</span> Utilisateurs</a>
-    <a class="snav-item" href="#" onclick="showSection('providers')"><span class="snav-icon">🛡️</span> Prestataires</a>
-    <a class="snav-item" href="#" onclick="showSection('requests')"><span class="snav-icon">📋</span> Demandes</a>
+    <a class="snav-item" href="#" onclick="showSection('users')"><span class="snav-icon"><i data-lucide="users"></i></span> Utilisateurs</a>
+    <a class="snav-item" href="#" onclick="showSection('providers')"><span class="snav-icon"><i data-lucide="shield-check"></i></span> Prestataires</a>
+    <a class="snav-item" href="#" onclick="showSection('requests')"><span class="snav-icon"><i data-lucide="clipboard-list"></i></span> Demandes</a>
     <a class="snav-item" href="#" onclick="showSection('reports')">
-      <span class="snav-icon">🚩</span> Signalements
+      <span class="snav-icon"><i data-lucide="flag"></i></span> Signalements
       <span class="snav-badge" id="reportsBadge" style="display:none;"></span>
     </a>
-    <a class="snav-item" href="#" onclick="showSection('reviews')"><span class="snav-icon">⭐</span> Avis</a>
+    <a class="snav-item" href="#" onclick="showSection('reviews')"><span class="snav-icon"><i data-lucide="star"></i></span> Avis</a>
   </nav>
   <div class="sidebar-footer">
     <a href="skillmap.html">Voir le site public</a>
@@ -238,7 +239,7 @@ async function loadOverview() {
         <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:1px;background:rgba(30,29,26,.08);">
           ${['users','providers','requests','reports','reviews'].map((s,i)=>{
             const labels=['Gérer utilisateurs','Vérifier prestataires','Voir demandes','Traiter signalements','Modérer avis'];
-            const icons=['👥','🛡️','📋','🚩','⭐'];
+            const icons=['<i data-lucide="users"></i>','<i data-lucide="shield-check"></i>','<i data-lucide="clipboard-list"></i>','<i data-lucide="flag"></i>','<i data-lucide="star"></i>'];
             return `<div style="background:var(--white);padding:1.4rem;cursor:pointer;transition:background .15s;" onclick="showSection('${s}')" onmouseover="this.style.background='rgba(232,224,58,.05)'" onmouseout="this.style.background='var(--white)'">
               <div style="font-size:1.5rem;margin-bottom:.5rem;">${icons[i]}</div>
               <div style="font-family:var(--font-display);font-size:1rem;letter-spacing:1px;">${labels[i]}</div>
@@ -247,6 +248,7 @@ async function loadOverview() {
         </div>
       </div>
     `;
+    lucide.createIcons();
   } catch (err) {
     el.innerHTML = `<div class="section"><p style="color:var(--accent2);">${err.message}</p></div>`;
   }
@@ -316,7 +318,7 @@ async function loadProviders() {
                 <td style="font-size:.78rem;">${p.neighborhood||p.city}</td>
                 <td>${p.avg_rating ? `<span style="color:var(--accent);">${p.avg_rating}★</span>` : '—'}</td>
                 <td>
-                  ${p.is_verified ? '<span style="color:var(--accent3);font-family:var(--font-mono);font-size:.62rem;">🛡️ Vérifié</span>' : '<span style="color:var(--gray-mid);font-family:var(--font-mono);font-size:.62rem;">Non vérifié</span>'}
+                  ${p.is_verified ? '<span style="color:var(--accent3);font-family:var(--font-mono);font-size:.62rem;"><i data-lucide="shield-check"></i> Vérifié</span>' : '<span style="color:var(--gray-mid);font-family:var(--font-mono);font-size:.62rem;">Non vérifié</span>'}
                   <br/>${p.is_available ? '<span class="status-active">● Disponible</span>' : '<span style="color:var(--gray-mid);font-size:.65rem;font-family:var(--font-mono);">● Occupé</span>'}
                 </td>
                 <td><div class="table-actions">
@@ -362,7 +364,8 @@ async function loadReports() {
     const data = await api.admin.reports();
     const reports = data.reports || [];
     if (!reports.length) {
-      el.innerHTML = `<div class="section"><div style="text-align:center;padding:3rem;"><div style="font-size:2.5rem;margin-bottom:1rem;">✅</div><p style="font-family:var(--font-mono);font-size:.72rem;color:var(--gray-mid);letter-spacing:1.5px;">AUCUN SIGNALEMENT EN ATTENTE</p></div></div>`;
+      el.innerHTML = `<div class="section"><div style="text-align:center;padding:3rem;"><div style="font-size:2.5rem;margin-bottom:1rem;"><i data-lucide="check-circle"></i></div><p style="font-family:var(--font-mono);font-size:.72rem;color:var(--gray-mid);letter-spacing:1.5px;">AUCUN SIGNALEMENT EN ATTENTE</p></div></div>`;
+      lucide.createIcons();
       return;
     }
     el.innerHTML = `<div class="section">
@@ -459,6 +462,7 @@ function filterTable(q, tableId) {
 
 // ── INIT ──────────────────────────────────────────────────────
 loadOverview();
+lucide.createIcons();
 </script>
 </body>
 </html>

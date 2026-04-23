@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>SkillMap — Recherche</title>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
   :root {
@@ -189,11 +190,11 @@
   <a href="skillmap.html" class="nav-logo">Skill<span>Map</span></a>
   <div class="nav-search-wrap">
     <input class="nav-search-input" type="text" placeholder="Plombier, graphiste, coiffeur…" id="navSearch" />
-    <span class="nav-loc">📍 Abidjan</span>
-    <button class="nav-search-btn">🔍</button>
+    <span class="nav-loc"><i data-lucide="map-pin"></i> Abidjan</span>
+    <button class="nav-search-btn"><i data-lucide="search"></i></button>
   </div>
   <div class="nav-right">
-    <a href="notifications.html" class="nav-notif" style="text-decoration:none;">🔔<span class="notif-dot"></span></a>
+    <a href="notifications.html" class="nav-notif" style="text-decoration:none;"><i data-lucide="bell"></i><span class="notif-dot"></span></a>
     <a href="home-client.html" class="nav-notif" style="text-decoration:none;font-size:.7rem;letter-spacing:.5px;font-family:var(--font-mono);padding:0 .6rem;width:auto;">Accueil</a>
     <div class="nav-avatar" id="navAvatar" title="Mon profil" onclick="window.location.href='profil-utilisateur.html'">U</div>
   </div>
@@ -208,12 +209,12 @@
       <div class="sidebar-count"><span id="resultCount">24</span> prestataires trouvés</div>
       <div class="cats-wrap">
         <button class="cat-pill active" onclick="filterCat(this,'all')">Tous</button>
-        <button class="cat-pill" onclick="filterCat(this,'artisanat')">🔧 Artisanat</button>
-        <button class="cat-pill" onclick="filterCat(this,'elec')">⚡ Élec.</button>
-        <button class="cat-pill" onclick="filterCat(this,'beaute')">✂️ Beauté</button>
-        <button class="cat-pill" onclick="filterCat(this,'design')">🎨 Design</button>
-        <button class="cat-pill" onclick="filterCat(this,'mecanique')">🚗 Méca.</button>
-        <button class="cat-pill" onclick="filterCat(this,'education')">📚 Éducation</button>
+        <button class="cat-pill" onclick="filterCat(this,'artisanat')"><i data-lucide="wrench"></i> Artisanat</button>
+        <button class="cat-pill" onclick="filterCat(this,'elec')"><i data-lucide="zap"></i> Élec.</button>
+        <button class="cat-pill" onclick="filterCat(this,'beaute')"><i data-lucide="scissors"></i> Beauté</button>
+        <button class="cat-pill" onclick="filterCat(this,'design')"><i data-lucide="palette"></i> Design</button>
+        <button class="cat-pill" onclick="filterCat(this,'mecanique')"><i data-lucide="car"></i> Méca.</button>
+        <button class="cat-pill" onclick="filterCat(this,'education')"><i data-lucide="book-open"></i> Éducation</button>
       </div>
     </div>
 
@@ -263,9 +264,9 @@
 
     <!-- Filter chips -->
     <div class="map-overlay-top">
-      <div class="map-filter-chip active">📍 Tous</div>
+      <div class="map-filter-chip active"><i data-lucide="map-pin"></i> Tous</div>
       <div class="map-filter-chip">✓ Disponible</div>
-      <div class="map-filter-chip">⭐ 4.5+</div>
+      <div class="map-filter-chip"><i data-lucide="star"></i> 4.5+</div>
       <div class="map-filter-chip">📏 &lt; 2km</div>
     </div>
 
@@ -299,7 +300,7 @@
       </div>
       <div class="popup-body">
         <div class="popup-meta">
-          <span class="popup-dist" id="popupDist">📍 0.8 km</span>
+          <span class="popup-dist" id="popupDist"><i data-lucide="map-pin"></i> 0.8 km</span>
           <span class="popup-rating" id="popupRating">★ 4.9</span>
           <span class="popup-avail" id="popupAvail">● Disponible</span>
         </div>
@@ -342,7 +343,7 @@
           <div class="pcard-name">${p.name}</div>
           <div class="pcard-role">${p.role} · ${p.zone}</div>
           <div class="pcard-meta">
-            <span class="pcard-dist">📍 ${p.dist} km</span>
+            <span class="pcard-dist"><i data-lucide="map-pin"></i> ${p.dist} km</span>
             <span class="pcard-rating">★ ${p.rating}</span>
             <span class="pcard-badge ${p.avail?'':'busy'}">${p.avail?'Disponible':'Occupé'}</span>
           </div>
@@ -382,7 +383,8 @@
     document.getElementById('popupAvatar').style.cssText = `background:${p.bg};color:${p.color};border:1px solid ${p.color}44;width:44px;height:44px;display:flex;align-items:center;justify-content:center;font-family:var(--font-display);font-size:1.1rem;flex-shrink:0;`;
     document.getElementById('popupName').textContent = p.name;
     document.getElementById('popupRole').textContent = `${p.role} · ${p.zone}`;
-    document.getElementById('popupDist').textContent = `📍 ${p.dist} km`;
+    document.getElementById('popupDist').innerHTML = `<i data-lucide="map-pin"></i> ${p.dist} km`;
+    lucide.createIcons({ el: document.getElementById('popupDist') });
     document.getElementById('popupRating').textContent = `★ ${p.rating}`;
     document.getElementById('popupAvail').textContent = p.avail ? '● Disponible' : '● Occupé';
     document.getElementById('popupAvail').style.color = p.avail ? 'var(--accent3)' : 'var(--accent2)';
@@ -464,5 +466,6 @@
 <script src="frontend/js/api.js"></script>
 <script src="frontend/js/auth.js"></script>
 <script src="frontend/js/dashboard-client.js"></script>
+<script>lucide.createIcons();</script>
 </body>
 </html>

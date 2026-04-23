@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>SkillMap — Messages</title>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
 <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 :root {
@@ -133,7 +134,7 @@ body { font-family: var(--font-body); background: var(--white); color: var(--bla
   <!-- Thread -->
   <div class="thread-panel" id="threadPanel">
     <div class="empty-thread" id="emptyThread">
-      <div class="empty-icon">💬</div>
+      <div class="empty-icon"><i data-lucide="message-circle"></i></div>
       <div class="empty-title">VOS MESSAGES</div>
       <div class="empty-sub">Sélectionnez une conversation ou démarrez-en une nouvelle.</div>
     </div>
@@ -354,6 +355,7 @@ function escapeHtml(s) {
 }
 
 loadConversations();
+lucide.createIcons();
 </script>
 </body>
 </html>

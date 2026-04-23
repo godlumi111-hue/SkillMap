@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>SkillMap — Mes demandes</title>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
 <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 :root {
@@ -127,7 +128,7 @@ function renderRequests() {
   if (!filtered.length) {
     list.innerHTML = `
       <div class="empty-state">
-        <div class="empty-state-icon">${_filter === 'all' ? '📋' : '🔍'}</div>
+        <div class="empty-state-icon">${_filter === 'all' ? '<i data-lucide="clipboard-list"></i>' : '<i data-lucide="search"></i>'}</div>
         <h2>${_filter === 'all' ? 'Aucune demande' : 'Aucune demande ' + (statusMap[_filter]?.label || '').toLowerCase()}</h2>
         <p>${_filter === 'all' ? 'Vous n\'avez pas encore fait de demande de prestation.' : 'Pas de demande avec ce statut.'}</p>
         ${_filter === 'all' ? '<a href="prestataires.html" class="btn-primary">Trouver un prestataire →</a>' : ''}
@@ -149,7 +150,7 @@ function renderRequests() {
         </div>
         <div class="req-right">
           <span class="status-badge ${s.cls}">${s.label}</span>
-          <button class="btn-msg" onclick="contactProvider(${r.provider_user_id}, '${r.provider_name || 'le prestataire'}')">💬 Message</button>
+          <button class="btn-msg" onclick="contactProvider(${r.provider_user_id}, '${r.provider_name || 'le prestataire'}')"><i data-lucide="message-circle"></i> Message</button>
         </div>
       </div>
     `;
@@ -169,6 +170,7 @@ function contactProvider(userId, name) {
 }
 
 loadRequests();
+lucide.createIcons();
 </script>
 </body>
 </html>

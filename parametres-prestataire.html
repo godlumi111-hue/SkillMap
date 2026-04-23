@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>SkillMap — Paramètres</title>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
 <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 :root {
@@ -112,10 +113,10 @@ body { font-family: var(--font-body); background: var(--off-white); color: var(-
   </div>
   <nav class="sidebar-nav">
     <a class="snav-item" href="dashboard-prestataire.html"><span class="snav-icon">◉</span> Tableau de bord</a>
-    <a class="snav-item" href="dashboard-prestataire.html#demandes"><span class="snav-icon">📋</span> Demandes</a>
-    <a class="snav-item" href="messages.html"><span class="snav-icon">💬</span> Messages</a>
-    <a class="snav-item" href="profil-prestataire.html"><span class="snav-icon">👤</span> Mon profil public</a>
-    <a class="snav-item active" href="parametres-prestataire.html"><span class="snav-icon">⚙️</span> Paramètres</a>
+    <a class="snav-item" href="dashboard-prestataire.html#demandes"><span class="snav-icon"><i data-lucide="clipboard-list"></i></span> Demandes</a>
+    <a class="snav-item" href="messages.html"><span class="snav-icon"><i data-lucide="message-circle"></i></span> Messages</a>
+    <a class="snav-item" href="profil-prestataire.html"><span class="snav-icon"><i data-lucide="user"></i></span> Mon profil public</a>
+    <a class="snav-item active" href="parametres-prestataire.html"><span class="snav-icon"><i data-lucide="settings"></i></span> Paramètres</a>
   </nav>
   <div class="sidebar-footer">
     <a href="home-client.html">Vue client</a>
@@ -133,7 +134,7 @@ body { font-family: var(--font-body); background: var(--off-white); color: var(-
   <!-- Informations personnelles -->
   <div class="settings-card">
     <div class="settings-card-header">
-      <span class="settings-card-icon">👤</span>
+      <span class="settings-card-icon"><i data-lucide="user"></i></span>
       <span class="settings-card-title">Informations personnelles</span>
     </div>
     <div class="settings-card-body">
@@ -165,7 +166,7 @@ body { font-family: var(--font-body); background: var(--off-white); color: var(-
   <!-- Profil professionnel -->
   <div class="settings-card">
     <div class="settings-card-header">
-      <span class="settings-card-icon">💼</span>
+      <span class="settings-card-icon"><i data-lucide="briefcase"></i></span>
       <span class="settings-card-title">Profil professionnel</span>
     </div>
     <div class="settings-card-body">
@@ -201,7 +202,7 @@ body { font-family: var(--font-body); background: var(--off-white); color: var(-
   <!-- Compétences -->
   <div class="settings-card">
     <div class="settings-card-header">
-      <span class="settings-card-icon">🏷️</span>
+      <span class="settings-card-icon"><i data-lucide="tag"></i></span>
       <span class="settings-card-title">Compétences</span>
     </div>
     <div class="settings-card-body">
@@ -220,7 +221,7 @@ body { font-family: var(--font-body); background: var(--off-white); color: var(-
   <!-- Disponibilité -->
   <div class="settings-card">
     <div class="settings-card-header">
-      <span class="settings-card-icon">📅</span>
+      <span class="settings-card-icon"><i data-lucide="calendar"></i></span>
       <span class="settings-card-title">Disponibilité</span>
     </div>
     <div class="settings-card-body">
@@ -240,7 +241,7 @@ body { font-family: var(--font-body); background: var(--off-white); color: var(-
   <!-- Mot de passe -->
   <div class="settings-card">
     <div class="settings-card-header">
-      <span class="settings-card-icon">🔒</span>
+      <span class="settings-card-icon"><i data-lucide="lock"></i></span>
       <span class="settings-card-title">Sécurité</span>
     </div>
     <div class="settings-card-body">
@@ -419,6 +420,7 @@ async function changePassword() {
 }
 
 loadProfile();
+lucide.createIcons();
 </script>
 </body>
 </html>

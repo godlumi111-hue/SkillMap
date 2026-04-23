@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>SkillMap — Connexion</title>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
   :root {
@@ -194,7 +195,7 @@
     <div class="auth-visual">
 
       <div class="visual-panel active" id="visualClient">
-        <div class="visual-badge">📍 Autour de vous</div>
+        <div class="visual-badge"><i data-lucide="map-pin"></i> Autour de vous</div>
         <h2 class="visual-title">Trouvez<br>le bon <span>talent</span></h2>
         <div class="mini-card" onclick="window.location.href='provider-profile.html?id=1'">
           <div class="mini-avatar" style="background:rgba(46,255,158,.1);color:#2eff9e;border:1px solid rgba(46,255,158,.3);">KO</div>
@@ -215,7 +216,7 @@
       </div>
 
       <div class="visual-panel" id="visualPresta">
-        <div class="visual-badge">📊 Votre espace pro</div>
+        <div class="visual-badge"><i data-lucide="bar-chart-2"></i> Votre espace pro</div>
         <h2 class="visual-title">Développez<br>votre <span>activité</span></h2>
         <div class="mini-stats">
           <div class="mini-stat"><div class="mini-stat-num">47</div><div class="mini-stat-label">Clients ce mois</div></div>
@@ -279,5 +280,6 @@
 <!-- ── Intégration API SkillMap ── -->
 <script src="frontend/js/api.js"></script>
 <script src="frontend/js/auth.js"></script>
+<script>lucide.createIcons();</script>
 </body>
 </html>

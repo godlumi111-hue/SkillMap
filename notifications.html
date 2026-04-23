@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>SkillMap — Notifications</title>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
 <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 :root {
@@ -94,19 +95,19 @@ async function loadNotifications() {
     // Status-change notifications from requests
     reqs.forEach(r => {
       if (r.status === 'accepted') {
-        notifs.push({ icon: '✅', title: 'Demande acceptée', text: `${r.provider_name || 'Un prestataire'} a accepté votre demande "${r.title}"`, time: r.updated_at || r.created_at, unread: true, link: 'mes-demandes.html' });
+        notifs.push({ icon: '<i data-lucide="check-circle"></i>', title: 'Demande acceptée', text: `${r.provider_name || 'Un prestataire'} a accepté votre demande "${r.title}"`, time: r.updated_at || r.created_at, unread: true, link: 'mes-demandes.html' });
       } else if (r.status === 'completed') {
-        notifs.push({ icon: '🎉', title: 'Prestation terminée', text: `La prestation "${r.title}" est terminée. Pensez à laisser un avis !`, time: r.updated_at || r.created_at, unread: false, link: `provider-profile.html?id=${r.provider_id}` });
+        notifs.push({ icon: '<i data-lucide="check-circle-2"></i>', title: 'Prestation terminée', text: `La prestation "${r.title}" est terminée. Pensez à laisser un avis !`, time: r.updated_at || r.created_at, unread: false, link: `provider-profile.html?id=${r.provider_id}` });
       } else if (r.status === 'rejected') {
-        notifs.push({ icon: '❌', title: 'Demande refusée', text: `Votre demande "${r.title}" a été refusée. Cherchez un autre prestataire.`, time: r.updated_at || r.created_at, unread: true, link: 'prestataires.html' });
+        notifs.push({ icon: '<i data-lucide="x-circle"></i>', title: 'Demande refusée', text: `Votre demande "${r.title}" a été refusée. Cherchez un autre prestataire.`, time: r.updated_at || r.created_at, unread: true, link: 'prestataires.html' });
       } else {
-        notifs.push({ icon: '📋', title: 'Demande envoyée', text: `Votre demande "${r.title}" a été transmise. En attente de confirmation.`, time: r.created_at, unread: false, link: 'mes-demandes.html' });
+        notifs.push({ icon: '<i data-lucide="clipboard-list"></i>', title: 'Demande envoyée', text: `Votre demande "${r.title}" a été transmise. En attente de confirmation.`, time: r.created_at, unread: false, link: 'mes-demandes.html' });
       }
     });
 
     // Message notifications
     convs.slice(0, 3).forEach(c => {
-      notifs.push({ icon: '💬', title: 'Nouveau message', text: `Message de ${c.other_name || c.other_user_name || 'un prestataire'}`, time: c.last_message_at || c.created_at, unread: true, link: `messages.html?user=${c.partner_id || c.other_user_id || ''}` });
+      notifs.push({ icon: '<i data-lucide="message-circle"></i>', title: 'Nouveau message', text: `Message de ${c.other_name || c.other_user_name || 'un prestataire'}`, time: c.last_message_at || c.created_at, unread: true, link: `messages.html?user=${c.partner_id || c.other_user_id || ''}` });
     });
 
     // Sort by time descending
@@ -116,7 +117,8 @@ async function loadNotifications() {
     countEl.textContent = `${notifs.length} notification(s)${unreadCount ? ` · ${unreadCount} non lue(s)` : ''}`;
 
     if (!notifs.length) {
-      list.innerHTML = `<div class="empty-state"><div class="empty-state-icon">🔔</div><h2>Tout est calme</h2><p>Vous n'avez aucune notification pour le moment.</p></div>`;
+      list.innerHTML = `<div class="empty-state"><div class="empty-state-icon"><i data-lucide="bell"></i></div><h2>Tout est calme</h2><p>Vous n'avez aucune notification pour le moment.</p></div>`;
+      lucide.createIcons();
       return;
     }
 
@@ -133,6 +135,7 @@ async function loadNotifications() {
         </div>
       `;
     }).join('')}</div>`;
+    lucide.createIcons();
   } catch (err) {
     list.innerHTML = `<p style="color:var(--accent2);font-size:.85rem;">${err.message}</p>`;
   }

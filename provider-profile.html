@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>SkillMap — Profil prestataire</title>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
 <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 :root {
@@ -216,7 +217,7 @@ async function loadProfile() {
 function renderPage(p) {
   const initials = (p.full_name||'??').split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
   const stars = p.avg_rating ? '★'.repeat(Math.round(p.avg_rating))+'☆'.repeat(5-Math.round(p.avg_rating)) : '☆☆☆☆☆';
-  const dist = p.distance_km != null ? `📍 ${p.distance_km} km` : '';
+  const dist = p.distance_km != null ? `<i data-lucide="map-pin"></i> ${p.distance_km} km` : '';
   document.title = `${p.full_name} — SkillMap`;
 
   // Rating bars (simulated distribution)
@@ -232,9 +233,9 @@ function renderPage(p) {
 
   const skillsHtml = (p.skills||[]).map(s=>`<span class="skill-tag">${s}</span>`).join('');
   const portfolioHtml = p.portfolio_items?.length
-    ? p.portfolio_items.map(item=>`<div class="portfolio-item" title="${item.title||''}"><span>${item.image_url?'🖼️':'📄'}</span></div>`).join('')
+    ? p.portfolio_items.map(item=>`<div class="portfolio-item" title="${item.title||''}"><span>${item.image_url?'<i data-lucide="image"></i>':'<i data-lucide="file-text"></i>'}</span></div>`).join('')
     : [1,2,3,4].map((_, i) => {
-        const icons = ['🎨','📐','✂️','🔧','📸','🏗️','💡','🖥️'];
+        const icons = ['<i data-lucide="palette"></i>','<i data-lucide="ruler"></i>','<i data-lucide="scissors"></i>','<i data-lucide="wrench"></i>','<i data-lucide="camera"></i>','<i data-lucide="building-2"></i>','<i data-lucide="lightbulb"></i>','<i data-lucide="monitor"></i>'];
         const cats = p.categories||[];
         const icon = cats[0]?.icon || icons[i % icons.length];
         return `<div class="portfolio-item" title="Réalisation ${i+1}">${icon}</div>`;
@@ -260,13 +261,13 @@ function renderPage(p) {
           <h1 class="hero-name">${p.full_name}</h1>
           <div class="hero-meta">
             <span class="hero-title">${p.title}</span>
-            <span class="hero-loc">📍 ${p.neighborhood || p.city}</span>
+            <span class="hero-loc"><i data-lucide="map-pin"></i> ${p.neighborhood || p.city}</span>
             ${dist ? `<span class="hero-loc" style="color:var(--accent3);">${dist}</span>` : ''}
             ${p.experience_years ? `<span class="hero-loc">${p.experience_years} ans d'exp.</span>` : ''}
           </div>
           <div class="hero-badges">
             ${p.is_available ? '<span class="badge badge-avail">● DISPONIBLE</span>' : '<span class="badge badge-busy">● OCCUPÉ</span>'}
-            ${p.is_verified ? '<span class="badge badge-verified">🛡️ VÉRIFIÉ</span>' : ''}
+            ${p.is_verified ? '<span class="badge badge-verified"><i data-lucide="shield-check"></i> VÉRIFIÉ</span>' : ''}
           </div>
         </div>
         <div class="hero-rating">
@@ -305,7 +306,7 @@ function renderPage(p) {
         <div class="section">
           <div class="section-title">Réalisations</div>
           <div class="portfolio-grid">${portfolioHtml}</div>
-          <p style="font-family:var(--font-mono);font-size:.62rem;letter-spacing:1px;color:var(--gray-mid);margin-top:.8rem;">📷 Contactez le prestataire pour voir ses réalisations en détail</p>
+          <p style="font-family:var(--font-mono);font-size:.62rem;letter-spacing:1px;color:var(--gray-mid);margin-top:.8rem;"><i data-lucide="camera"></i> Contactez le prestataire pour voir ses réalisations en détail</p>
         </div>
 
         <!-- Avis clients -->
@@ -356,28 +357,28 @@ function renderPage(p) {
             <div class="action-price-label">/ heure</div>
           ` : '<div class="action-price-label" style="margin-bottom:1.4rem;">Tarif sur devis</div>'}
 
-          <button class="action-btn primary" onclick="contactProvider()">💬 Envoyer un message</button>
-          ${_user?.role === 'client' ? `<button class="action-btn secondary" onclick="requestService()">📋 Faire une demande</button>` : ''}
-          <button class="action-btn fav" id="favBtn" onclick="toggleFav()">🤍 Ajouter aux favoris</button>
+          <button class="action-btn primary" onclick="contactProvider()"><i data-lucide="message-circle"></i> Envoyer un message</button>
+          ${_user?.role === 'client' ? `<button class="action-btn secondary" onclick="requestService()"><i data-lucide="clipboard-list"></i> Faire une demande</button>` : ''}
+          <button class="action-btn fav" id="favBtn" onclick="toggleFav()"><i data-lucide="heart"></i> Ajouter aux favoris</button>
 
           <div class="action-sep"></div>
 
           <div class="action-info-row">
-            <span class="action-info-icon">📍</span>
+            <span class="action-info-icon"><i data-lucide="map-pin"></i></span>
             <div><div class="action-info-label">Zone</div><div class="action-info-val">${p.neighborhood || p.city}</div></div>
           </div>
           ${p.experience_years ? `
           <div class="action-info-row">
-            <span class="action-info-icon">🏆</span>
+            <span class="action-info-icon"><i data-lucide="trophy"></i></span>
             <div><div class="action-info-label">Expérience</div><div class="action-info-val">${p.experience_years} ans</div></div>
           </div>` : ''}
           <div class="action-info-row">
-            <span class="action-info-icon">${p.is_available ? '✅' : '⏸️'}</span>
+            <span class="action-info-icon">${p.is_available ? '<i data-lucide="check-circle"></i>' : '<i data-lucide="pause-circle"></i>'}</span>
             <div><div class="action-info-label">Statut</div><div class="action-info-val" style="color:${p.is_available?'var(--accent3)':'var(--gray-mid)'};">${p.is_available ? 'Disponible' : 'Occupé'}</div></div>
           </div>
           ${p.phone ? `
           <div class="action-info-row">
-            <span class="action-info-icon">📞</span>
+            <span class="action-info-icon"><i data-lucide="phone"></i></span>
             <div><div class="action-info-label">Contact</div><div class="action-info-val">${p.phone}</div></div>
           </div>` : ''}
         </div>
@@ -387,6 +388,7 @@ function renderPage(p) {
 
   // Check favorite status
   checkFav();
+  lucide.createIcons();
 }
 
 function setRating(val) {
@@ -446,7 +448,7 @@ async function sendMessage() {
   btn.disabled = true; btn.textContent = 'Envoi…';
   try {
     await api.messages.send(_provider.user_id, input.value.trim());
-    modalSuccess('💬', 'Message envoyé ! Il vous répondra bientôt.');
+    modalSuccess('<i data-lucide="message-circle"></i>', 'Message envoyé ! Il vous répondra bientôt.');
   } catch (err) {
     btn.disabled = false; btn.textContent = 'Envoyer →';
     document.getElementById('msgInput').insertAdjacentHTML('beforebegin', `<p style="color:var(--accent2);font-size:.75rem;margin-bottom:.5rem;">${err.message}</p>`);
@@ -473,7 +475,7 @@ async function sendRequest() {
   btn.disabled = true; btn.textContent = 'Envoi…';
   try {
     await api.services.create({ provider_id: _provider.id, title: titleEl.value.trim(), description: descEl?.value?.trim() || '' });
-    modalSuccess('✅', 'Demande envoyée ! Vous serez notifié dès acceptation.');
+    modalSuccess('<i data-lucide="check-circle"></i>', 'Demande envoyée ! Vous serez notifié dès acceptation.');
   } catch (err) {
     btn.disabled = false; btn.textContent = 'Envoyer la demande →';
     btn.insertAdjacentHTML('beforebegin', `<p style="color:var(--accent2);font-size:.75rem;margin-bottom:.5rem;">${err.message}</p>`);
@@ -484,7 +486,8 @@ async function checkFav() {
   try {
     const { is_favorite } = await api.favorites.check(providerId);
     const btn = document.getElementById('favBtn');
-    if (btn) btn.textContent = (is_favorite ? '❤️' : '🤍') + ' ' + (is_favorite ? 'Retirer des favoris' : 'Ajouter aux favoris');
+    if (btn) btn.innerHTML = '<i data-lucide="heart"></i> ' + (is_favorite ? 'Retirer des favoris' : 'Ajouter aux favoris');
+    if (btn) lucide.createIcons({ el: btn });
     if (btn) btn.classList.toggle('fav', !is_favorite);
     if (btn) btn.style.color = is_favorite ? 'var(--accent2)' : '';
     if (btn) btn.style.borderColor = is_favorite ? 'rgba(255,77,46,.3)' : '';
@@ -493,7 +496,7 @@ async function checkFav() {
 
 async function toggleFav() {
   const btn = document.getElementById('favBtn');
-  const isFav = btn?.textContent?.includes('❤️');
+  const isFav = btn?.textContent?.includes('Retirer des favoris');
   try {
     if (isFav) { await api.favorites.remove(providerId); }
     else { await api.favorites.add(providerId); }

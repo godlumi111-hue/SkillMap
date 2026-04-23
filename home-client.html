@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>SkillMap — Accueil</title>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
 <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 :root {
@@ -171,7 +172,7 @@ body { font-family: var(--font-body); background: var(--white); color: var(--bla
     <a href="mes-demandes.html" class="nav-link">Mes demandes</a>
     <a href="favorites.html" class="nav-link">Favoris</a>
     <a href="notifications.html" class="nav-notif" title="Notifications">
-      🔔<span class="notif-dot" id="notifDot" style="display:none;"></span>
+      <i data-lucide="bell"></i><span class="notif-dot" id="notifDot" style="display:none;"></span>
     </a>
     <div class="nav-avatar-menu">
       <div class="nav-avatar" id="navAvatar" onclick="toggleAvatarMenu()">?</div>
@@ -226,19 +227,19 @@ body { font-family: var(--font-body); background: var(--white); color: var(--bla
     </div>
     <div class="quick-actions" style="margin-bottom:2.5rem;">
       <a href="prestataires.html" class="qa-card">
-        <span class="qa-icon">🔍</span>
+        <span class="qa-icon"><i data-lucide="search"></i></span>
         <div><div class="qa-label">Rechercher</div><div class="qa-sub">Trouver un prestataire</div></div>
       </a>
       <a href="mes-demandes.html" class="qa-card">
-        <span class="qa-icon">📋</span>
+        <span class="qa-icon"><i data-lucide="clipboard-list"></i></span>
         <div><div class="qa-label">Mes demandes</div><div class="qa-sub" id="qaRequestsSub">Voir le suivi</div></div>
       </a>
       <a href="favorites.html" class="qa-card">
-        <span class="qa-icon">❤️</span>
+        <span class="qa-icon"><i data-lucide="heart"></i></span>
         <div><div class="qa-label">Favoris</div><div class="qa-sub" id="qaFavsSub">Mes prestataires préférés</div></div>
       </a>
       <a href="profil-utilisateur.html" class="qa-card">
-        <span class="qa-icon">👤</span>
+        <span class="qa-icon"><i data-lucide="user"></i></span>
         <div><div class="qa-label">Mon profil</div><div class="qa-sub">Paramètres du compte</div></div>
       </a>
     </div>
@@ -291,7 +292,7 @@ const _user = AUTH.getUser();
   const greet = h < 12 ? 'Bon matin' : h < 18 ? 'Bon après-midi' : 'Bonne soirée';
   document.getElementById('heroGreeting').textContent = greet + ' ·';
   const firstName = _user?.full_name?.split(' ')[0] || 'toi';
-  document.getElementById('heroName').textContent = firstName + ' 👋';
+  document.getElementById('heroName').textContent = firstName;
   document.getElementById('navAvatar').textContent = (_user?.full_name?.split(' ').map(w=>w[0]).join('').slice(0,2) || 'U').toUpperCase();
 })();
 
@@ -320,7 +321,7 @@ async function loadCategories() {
     document.getElementById('statCategories').textContent = categories.length;
     grid.innerHTML = categories.map(c => `
       <a href="prestataires.html?category=${c.slug}" class="cat-card">
-        <span class="cat-card-icon">${c.icon || '🔧'}</span>
+        <span class="cat-card-icon">${c.icon || '<i data-lucide="wrench"></i>'}</span>
         <span class="cat-card-name">${c.name}</span>
       </a>
     `).join('');
@@ -342,14 +343,14 @@ async function loadNearby() {
     document.getElementById('statNearby').textContent = nearby.length + '+';
 
     if (nearby.length === 0) {
-      grid.innerHTML = `<div class="empty-state" style="grid-column:1/-1;"><div class="empty-state-icon">📍</div><p>Aucun prestataire disponible en ce moment.</p></div>`;
+      grid.innerHTML = `<div class="empty-state" style="grid-column:1/-1;"><div class="empty-state-icon"><i data-lucide="map-pin"></i></div><p>Aucun prestataire disponible en ce moment.</p></div>`;
       return;
     }
 
     grid.innerHTML = nearby.map(p => {
       const initials = (p.full_name||'??').split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
       const stars = p.avg_rating ? '★'.repeat(Math.round(p.avg_rating)) + '<span style="color:var(--gray-light);">★</span>'.repeat(5-Math.round(p.avg_rating)) : '';
-      const dist = p.distance_km != null ? `<span class="prov-dist">📍 ${p.distance_km} km</span>` : '';
+      const dist = p.distance_km != null ? `<span class="prov-dist"><i data-lucide="map-pin"></i> ${p.distance_km} km</span>` : '';
       return `
         <a href="provider-profile.html?id=${p.id}" class="prov-card">
           <div class="prov-card-header">
@@ -357,12 +358,12 @@ async function loadNearby() {
             <div>
               <div class="prov-name">${p.full_name}</div>
               <div class="prov-title">${p.title}</div>
-              <div class="prov-loc">📍 ${p.neighborhood || p.city}</div>
+              <div class="prov-loc"><i data-lucide="map-pin"></i> ${p.neighborhood || p.city}</div>
             </div>
           </div>
           <div class="prov-badges">
             ${p.is_available ? '<span class="badge badge-avail">● DISPONIBLE</span>' : '<span class="badge badge-busy">● OCCUPÉ</span>'}
-            ${p.is_verified ? '<span class="badge badge-verified">🛡️ VÉRIFIÉ</span>' : ''}
+            ${p.is_verified ? '<span class="badge badge-verified"><i data-lucide="shield-check"></i> VÉRIFIÉ</span>' : ''}
           </div>
           <div class="prov-rating">
             <span class="prov-stars">${stars}</span>
@@ -389,7 +390,7 @@ async function loadActivity() {
     if (!requests.length) {
       feed.innerHTML = `
         <div class="empty-state">
-          <div class="empty-state-icon">📋</div>
+          <div class="empty-state-icon"><i data-lucide="clipboard-list"></i></div>
           <p>Vous n'avez pas encore fait de demande.</p>
         </div>
         <div style="margin-top:1rem;">
@@ -400,10 +401,10 @@ async function loadActivity() {
     }
 
     const statusMap = {
-      pending:   { label: 'En attente',  cls: 'status-pending',   icon: '⏳' },
-      accepted:  { label: 'Acceptée',    cls: 'status-accepted',  icon: '✅' },
-      completed: { label: 'Terminée',    cls: 'status-completed', icon: '🎉' },
-      rejected:  { label: 'Refusée',     cls: 'status-pending',   icon: '❌' },
+      pending:   { label: 'En attente',  cls: 'status-pending',   icon: '<i data-lucide="clock"></i>' },
+      accepted:  { label: 'Acceptée',    cls: 'status-accepted',  icon: '<i data-lucide="check-circle"></i>' },
+      completed: { label: 'Terminée',    cls: 'status-completed', icon: '<i data-lucide="check-circle-2"></i>' },
+      rejected:  { label: 'Refusée',     cls: 'status-pending',   icon: '<i data-lucide="x-circle"></i>' },
     };
 
     feed.innerHTML = requests.map(r => {
@@ -421,7 +422,7 @@ async function loadActivity() {
       `;
     }).join('');
   } catch {
-    feed.innerHTML = `<div class="empty-state"><div class="empty-state-icon">📋</div><p>Aucune activité récente.</p></div>`;
+    feed.innerHTML = `<div class="empty-state"><div class="empty-state-icon"><i data-lucide="clipboard-list"></i></div><p>Aucune activité récente.</p></div>`;
   }
 }
 
@@ -459,6 +460,7 @@ loadCategories();
 initGeo();
 loadActivity();
 loadFavsCount();
+lucide.createIcons();
 </script>
 </body>
 </html>
