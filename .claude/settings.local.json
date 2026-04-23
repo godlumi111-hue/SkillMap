@@ -1,0 +1,22 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(cp .env.example .env)",
+      "Bash(echo \"JWT_SECRET=skillmap_hackathon_secret_2025\")",
+      "Bash(npm install *)",
+      "Bash(node -e \"const { DatabaseSync } = require\\('node:sqlite'\\); const db = new DatabaseSync\\(':memory:'\\); db.exec\\('CREATE TABLE t \\(id INTEGER PRIMARY KEY, val TEXT\\)'\\); db.prepare\\('INSERT INTO t \\(val\\) VALUES \\(?\\)'\\).run\\('test'\\); console.log\\(db.prepare\\('SELECT * FROM t'\\).all\\(\\)\\); db.close\\(\\); console.log\\('node:sqlite OK'\\)\")",
+      "Bash(node -e ' *)",
+      "Bash(grep -v \"Use \\\\`node\")",
+      "Bash(node database/init.js)",
+      "Bash(node server.js)",
+      "Bash(curl -s http://localhost:3001/api/health)",
+      "Bash(curl -s \"http://localhost:3001/api/providers?limit=3\")",
+      "Bash(node -e \"const d=require\\('fs'\\).readFileSync\\('/dev/stdin','utf8'\\);const j=JSON.parse\\(d\\);console.log\\('Total:',j.total,'Providers:',j.providers?.map\\(p=>p.full_name\\)\\)\")",
+      "Bash(curl -s -X POST http://localhost:3001/api/auth/login -H \"Content-Type: application/json\" -d '{\"email\":\"kone@test.ci\",\"password\":\"password123\"}')",
+      "Bash(node -e \"const d=require\\('fs'\\).readFileSync\\('/dev/stdin','utf8'\\);const j=JSON.parse\\(d\\);console.log\\('Login OK, role:',j.user?.role,'name:',j.user?.full_name,'token:',j.token?.slice\\(0,20\\)+'...'\\)\")",
+      "Bash(curl -s http://localhost:3001/api/providers?limit=3)",
+      "Bash(curl -s -X POST http://localhost:3001/api/auth/login -H \"Content-Type: application/json\" -d \"{\\\\\"email\\\\\":\\\\\"kone@test.ci\\\\\",\\\\\"password\\\\\":\\\\\"password123\\\\\"}\")",
+      "Bash(curl -s -X POST http://localhost:3001/api/auth/login -H 'Content-Type: application/json' -d '{\"email\":\"marie@test.ci\",\"password\":\"password123\"}')"
+    ]
+  }
+}

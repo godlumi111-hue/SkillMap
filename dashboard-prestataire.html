@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>SkillMap — Mon espace prestataire</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --black: #1e1d1a; --white: #f5f4f0; --off-white: #eeece6;
+    --gray-light: #d8d6cf; --gray-mid: #8a8880; --gray-dark: #3a3936;
+    --accent: #e8e03a; --accent2: #ff4d2e; --accent3: #2eff9e;
+    --font-display: 'Bebas Neue', sans-serif;
+    --font-body: 'DM Sans', sans-serif;
+    --font-mono: 'DM Mono', monospace;
+  }
+  html, body { height: 100%; overflow: hidden; }
+  body { font-family: var(--font-body); background: var(--off-white); color: var(--black); }
+
+  .cursor { position: fixed; width: 12px; height: 12px; background: var(--accent); border-radius: 50%; pointer-events: none; z-index: 9999; transform: translate(-50%,-50%); transition: width .2s, height .2s; mix-blend-mode: multiply; }
+  .cursor-ring { position: fixed; width: 40px; height: 40px; border: 1px solid rgba(232,224,58,.5); border-radius: 50%; pointer-events: none; z-index: 9998; transform: translate(-50%,-50%); transition: width .3s, height .3s; }
+
+  /* ── APP SHELL ── */
+  .app-shell { display: flex; height: 100vh; }
+
+  /* ── SIDEBAR ── */
+  .app-sidebar {
+    width: 240px; flex-shrink: 0;
+    background: var(--black); color: var(--white);
+    display: flex; flex-direction: column;
+    border-right: 1px solid rgba(245,244,240,.06);
+  }
+  .sidebar-brand { padding: 1.4rem 1.5rem; border-bottom: 1px solid rgba(245,244,240,.08); }
+  .sidebar-logo { font-family: var(--font-display); font-size: 1.6rem; letter-spacing: 3px; color: var(--white); text-decoration: none; }
+  .sidebar-logo span { color: var(--accent); }
+  .sidebar-role { font-family: var(--font-mono); font-size: .6rem; letter-spacing: 2px; text-transform: uppercase; color: rgba(245,244,240,.3); margin-top: .3rem; }
+
+  .sidebar-user { padding: 1.2rem 1.5rem; display: flex; align-items: center; gap: .9rem; border-bottom: 1px solid rgba(245,244,240,.06); }
+  .sidebar-av { width: 38px; height: 38px; background: rgba(232,224,58,.15); color: var(--accent); display: flex; align-items: center; justify-content: center; font-family: var(--font-display); font-size: 1rem; border: 1px solid rgba(232,224,58,.3); flex-shrink: 0; }
+  .sidebar-uname { font-size: .85rem; font-weight: 500; }
+  .sidebar-ustatus { font-family: var(--font-mono); font-size: .6rem; letter-spacing: 1px; color: var(--accent3); display: flex; align-items: center; gap: .3rem; margin-top: 2px; }
+  .sidebar-ustatus::before { content: ''; width: 5px; height: 5px; border-radius: 50%; background: var(--accent3); animation: pulse 1.5s infinite; }
+  @keyframes pulse { 0%,100%{opacity:1;transform:scale(1);} 50%{opacity:.4;transform:scale(.7);} }
+
+  .sidebar-nav { flex: 1; padding: .8rem 0; }
+  .snav-item {
+    display: flex; align-items: center; gap: .9rem;
+    padding: .7rem 1.5rem; cursor: pointer;
+    font-size: .8rem; letter-spacing: .5px; color: rgba(245,244,240,.5);
+    transition: color .2s, background .2s; position: relative;
+    text-decoration: none;
+  }
+  .snav-item:hover { color: var(--white); background: rgba(245,244,240,.05); }
+  .snav-item.active { color: var(--white); background: rgba(245,244,240,.07); }
+  .snav-item.active::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 2px; background: var(--accent); }
+  .snav-icon { font-size: 1rem; width: 20px; text-align: center; flex-shrink: 0; }
+  .snav-badge { margin-left: auto; background: var(--accent2); color: var(--white); font-size: .58rem; font-family: var(--font-mono); padding: .15rem .45rem; border-radius: 2px; }
+  .snav-badge.green { background: var(--accent3); color: var(--black); }
+
+  .sidebar-footer { padding: 1.2rem 1.5rem; border-top: 1px solid rgba(245,244,240,.06); }
+  .sidebar-footer a { font-size: .72rem; font-family: var(--font-mono); letter-spacing: 1px; color: rgba(245,244,240,.3); text-decoration: none; transition: color .2s; display: block; margin-bottom: .4rem; }
+  .sidebar-footer a:hover { color: rgba(245,244,240,.7); }
+
+  /* ── MAIN ── */
+  .app-main { flex: 1; overflow-y: auto; background: var(--off-white); }
+  .app-main::-webkit-scrollbar { width: 3px; }
+  .app-main::-webkit-scrollbar-thumb { background: var(--gray-light); }
+
+  .main-header { padding: 2rem 2.5rem 1.5rem; background: var(--white); border-bottom: 1px solid rgba(30,29,26,.08); display: flex; align-items: center; justify-content: space-between; }
+  .main-greeting { font-family: var(--font-display); font-size: 2rem; letter-spacing: 1px; text-transform: uppercase; }
+  .main-date { font-family: var(--font-mono); font-size: .68rem; letter-spacing: 2px; text-transform: uppercase; color: var(--gray-mid); margin-top: .3rem; }
+
+  /* Availability toggle */
+  .avail-block { display: flex; align-items: center; gap: 1rem; padding: .7rem 1.2rem; border: 1px solid rgba(30,29,26,.1); background: var(--white); }
+  .avail-label { font-size: .72rem; font-family: var(--font-mono); letter-spacing: 1.5px; text-transform: uppercase; color: var(--gray-mid); }
+  .avail-status { font-size: .78rem; font-weight: 500; color: var(--accent3); }
+  .toggle-pill { width: 44px; height: 24px; background: var(--accent3); border-radius: 12px; position: relative; cursor: pointer; transition: background .2s; flex-shrink: 0; }
+  .toggle-pill.off { background: var(--gray-light); }
+  .toggle-knob { position: absolute; top: 3px; left: 3px; width: 18px; height: 18px; border-radius: 50%; background: var(--white); transition: left .2s; box-shadow: 0 1px 4px rgba(0,0,0,.2); }
+  .toggle-pill:not(.off) .toggle-knob { left: 23px; }
+
+  /* Stats grid */
+  .stats-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 1px; background: rgba(30,29,26,.08); margin: 1.5rem 2.5rem; }
+  .stat-card { background: var(--white); padding: 1.5rem; transition: background .2s, transform .2s; cursor: default; }
+  .stat-card:hover { background: var(--off-white); }
+  .stat-card-num { font-family: var(--font-display); font-size: 2.8rem; line-height: 1; margin-bottom: .3rem; }
+  .stat-card-label { font-family: var(--font-mono); font-size: .62rem; letter-spacing: 2px; text-transform: uppercase; color: var(--gray-mid); }
+  .stat-card-delta { font-size: .72rem; margin-top: .5rem; font-family: var(--font-mono); }
+  .delta-up { color: var(--accent3); }
+  .delta-down { color: var(--accent2); }
+
+  /* Two columns */
+  .main-cols { display: grid; grid-template-columns: 1fr 320px; gap: 1.5rem; padding: 0 2.5rem 2rem; }
+
+  /* Section headers */
+  .sec-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem; }
+  .sec-title { font-family: var(--font-display); font-size: 1.4rem; letter-spacing: 1px; text-transform: uppercase; }
+  .sec-link { font-family: var(--font-mono); font-size: .65rem; letter-spacing: 2px; text-transform: uppercase; color: var(--gray-mid); text-decoration: none; border-bottom: 1px solid var(--gray-light); padding-bottom: 1px; transition: color .2s; }
+  .sec-link:hover { color: var(--black); }
+
+  /* Request cards */
+  .request-list { display: flex; flex-direction: column; gap: 1px; background: rgba(30,29,26,.08); }
+  .req-card { background: var(--white); padding: 1.2rem 1.4rem; display: flex; align-items: center; gap: 1rem; transition: background .2s; cursor: pointer; position: relative; overflow: hidden; }
+  .req-card::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; background: var(--accent); transform: scaleY(0); transform-origin: top; transition: transform .25s cubic-bezier(.22,1,.36,1); }
+  .req-card:hover { background: rgba(232,224,58,.04); }
+  .req-card:hover::before { transform: scaleY(1); }
+  .req-av { width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; font-family: var(--font-display); font-size: 1rem; flex-shrink: 0; }
+  .req-body { flex: 1; min-width: 0; }
+  .req-name { font-size: .88rem; font-weight: 500; }
+  .req-desc { font-size: .75rem; color: var(--gray-mid); margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .req-meta { display: flex; align-items: center; gap: .5rem; margin-top: .35rem; }
+  .req-time { font-family: var(--font-mono); font-size: .62rem; color: var(--gray-mid); letter-spacing: 1px; }
+  .req-status { font-family: var(--font-mono); font-size: .58rem; letter-spacing: 1.5px; text-transform: uppercase; padding: .15rem .5rem; }
+  .req-status.new { background: rgba(232,224,58,.15); color: #b8a800; border: 1px solid rgba(232,224,58,.4); }
+  .req-status.pending { background: rgba(30,29,26,.06); color: var(--gray-mid); border: 1px solid rgba(30,29,26,.12); }
+  .req-status.done { background: rgba(46,255,158,.1); color: #1a9e6e; border: 1px solid rgba(46,255,158,.3); }
+  .req-actions { display: flex; gap: .4rem; flex-shrink: 0; }
+  .req-btn { padding: .4rem .7rem; font-size: .65rem; letter-spacing: 1px; font-family: var(--font-mono); text-transform: uppercase; border: 1px solid rgba(30,29,26,.15); background: transparent; cursor: pointer; transition: background .15s, border-color .15s; }
+  .req-btn:hover { border-color: var(--black); }
+  .req-btn.accept { background: var(--accent); border-color: var(--accent); color: var(--black); font-weight: 500; }
+  .req-btn.accept:hover { background: var(--black); border-color: var(--black); color: var(--white); }
+
+  /* Messages */
+  .msg-list { display: flex; flex-direction: column; gap: 1px; background: rgba(30,29,26,.08); }
+  .msg-card { background: var(--white); padding: 1rem; display: flex; align-items: center; gap: .8rem; transition: background .2s, transform .2s; cursor: pointer; }
+  .msg-card:hover { background: rgba(232,224,58,.04); transform: translateX(2px); }
+  .msg-av { width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; font-family: var(--font-display); font-size: .9rem; flex-shrink: 0; border: 1px solid var(--gray-light); }
+  .msg-body { flex: 1; min-width: 0; }
+  .msg-name { font-size: .83rem; font-weight: 500; }
+  .msg-preview { font-size: .72rem; color: var(--gray-mid); margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .msg-right { text-align: right; flex-shrink: 0; }
+  .msg-time { font-family: var(--font-mono); font-size: .6rem; color: var(--gray-mid); letter-spacing: 1px; }
+  .msg-unread { width: 8px; height: 8px; border-radius: 50%; background: var(--accent); margin: .3rem 0 0 auto; }
+
+  /* Profile preview */
+  .profile-preview { background: var(--white); border: 1px solid rgba(30,29,26,.08); padding: 1.5rem; margin-bottom: 1rem; }
+  .pp-header { display: flex; align-items: center; gap: 1rem; margin-bottom: 1.2rem; }
+  .pp-av { width: 52px; height: 52px; background: rgba(232,224,58,.12); color: var(--accent); display: flex; align-items: center; justify-content: center; font-family: var(--font-display); font-size: 1.3rem; border: 1px solid rgba(232,224,58,.3); }
+  .pp-name { font-size: 1rem; font-weight: 500; }
+  .pp-role { font-size: .72rem; font-family: var(--font-mono); color: var(--gray-mid); letter-spacing: 1px; margin-top: 2px; }
+  .pp-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 1px; background: rgba(30,29,26,.08); margin-bottom: 1rem; }
+  .pp-stat { background: var(--off-white); padding: .7rem; text-align: center; }
+  .pp-stat-num { font-family: var(--font-display); font-size: 1.4rem; }
+  .pp-stat-label { font-family: var(--font-mono); font-size: .58rem; letter-spacing: 1.5px; text-transform: uppercase; color: var(--gray-mid); }
+  .pp-btn { width: 100%; padding: .7rem; background: transparent; border: 1px solid rgba(30,29,26,.2); font-family: var(--font-body); font-size: .75rem; letter-spacing: 1.5px; text-transform: uppercase; font-weight: 500; cursor: pointer; transition: background .2s, border-color .2s; text-decoration: none; display: block; text-align: center; color: var(--black); }
+  .pp-btn:hover { background: var(--black); color: var(--white); border-color: var(--black); }
+
+  /* Activity chart (visual) */
+  .activity-card { background: var(--white); border: 1px solid rgba(30,29,26,.08); padding: 1.4rem; margin-bottom: 1rem; }
+  .activity-chart { height: 60px; display: flex; align-items: flex-end; gap: 4px; margin-top: .8rem; }
+  .chart-bar { flex: 1; background: rgba(30,29,26,.1); transition: background .2s, height .5s cubic-bezier(.22,1,.36,1); cursor: pointer; border-radius: 1px 1px 0 0; }
+  .chart-bar:hover { background: var(--accent); }
+  .chart-bar.today { background: var(--accent3); }
+
+  /* Quick actions */
+  .quick-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 1px; background: rgba(30,29,26,.08); margin-bottom: 1rem; }
+  .qa-btn { background: var(--white); padding: 1rem; display: flex; flex-direction: column; align-items: center; gap: .4rem; cursor: pointer; transition: background .2s; border: none; }
+  .qa-btn:hover { background: var(--off-white); }
+  .qa-icon { font-size: 1.3rem; }
+  .qa-label { font-family: var(--font-mono); font-size: .62rem; letter-spacing: 1.5px; text-transform: uppercase; color: var(--gray-mid); }
+
+  @keyframes fadeUp { from{opacity:0;transform:translateY(12px);} to{opacity:1;transform:translateY(0);} }
+  .stat-card { animation: fadeUp .4s cubic-bezier(.22,1,.36,1) both; }
+  .stat-card:nth-child(1){animation-delay:0ms;} .stat-card:nth-child(2){animation-delay:60ms;} .stat-card:nth-child(3){animation-delay:120ms;} .stat-card:nth-child(4){animation-delay:180ms;}
+
+  @media (max-width:1100px) { .main-cols { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+<div class="cursor" id="cursor"></div>
+<div class="cursor-ring" id="cursorRing"></div>
+
+<div class="app-shell">
+
+  <!-- SIDEBAR -->
+  <aside class="app-sidebar">
+    <div class="sidebar-brand">
+      <a href="skillmap.html" class="sidebar-logo">Skill<span>Map</span></a>
+      <div class="sidebar-role">Espace prestataire</div>
+    </div>
+
+    <div class="sidebar-user">
+      <div class="sidebar-av">AT</div>
+      <div>
+        <div class="sidebar-uname">Aïcha Touré</div>
+        <div class="sidebar-ustatus">Disponible</div>
+      </div>
+    </div>
+
+    <nav class="sidebar-nav">
+      <a class="snav-item active" href="dashboard-prestataire.html">
+        <span class="snav-icon">◉</span> Tableau de bord
+      </a>
+      <a class="snav-item" href="#" onclick="showSection('requests'); return false;">
+        <span class="snav-icon">📋</span> Demandes
+        <span class="snav-badge">3</span>
+      </a>
+      <a class="snav-item" href="messages.html">
+        <span class="snav-icon">💬</span> Messages
+        <span class="snav-badge green" id="msgBadge" style="display:none;">0</span>
+      </a>
+      <a class="snav-item" href="#" id="navMonProfil">
+        <span class="snav-icon">👤</span> Mon profil
+      </a>
+      <a class="snav-item" href="#">
+        <span class="snav-icon">📊</span> Statistiques
+      </a>
+      <a class="snav-item" href="parametres-prestataire.html">
+        <span class="snav-icon">⚙️</span> Paramètres
+      </a>
+    </nav>
+
+    <div class="sidebar-footer">
+      <a href="home-client.html">Passer en mode client</a>
+      <a href="#" onclick="AUTH.logout(); return false;">Déconnexion</a>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="app-main">
+
+    <!-- Header -->
+    <div class="main-header">
+      <div>
+        <div class="main-greeting">Bonjour, Aïcha ✦</div>
+        <div class="main-date">Mercredi · Abidjan · Plateau</div>
+      </div>
+      <div class="avail-block">
+        <div>
+          <div class="avail-label">Statut</div>
+          <div class="avail-status" id="availStatus">Disponible</div>
+        </div>
+        <div class="toggle-pill" id="togglePill" onclick="toggleAvail()">
+          <div class="toggle-knob"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Stats -->
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-card-num" style="color:var(--accent);">47</div>
+        <div class="stat-card-label">Clients ce mois</div>
+        <div class="stat-card-delta delta-up">↑ +12% vs mois dernier</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-card-num">5.0★</div>
+        <div class="stat-card-label">Note moyenne</div>
+        <div class="stat-card-delta delta-up">↑ +0.1 ce mois</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-card-num" style="color:var(--accent3);">286</div>
+        <div class="stat-card-label">Vues de profil</div>
+        <div class="stat-card-delta delta-up">↑ +34 cette semaine</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-card-num">98%</div>
+        <div class="stat-card-label">Taux de réponse</div>
+        <div class="stat-card-delta" style="color:var(--gray-mid);">→ Stable</div>
+      </div>
+    </div>
+
+    <!-- Two columns -->
+    <div class="main-cols">
+
+      <!-- Left: requests + messages -->
+      <div>
+        <!-- Requests -->
+        <div class="sec-header">
+          <h2 class="sec-title">Demandes récentes</h2>
+          <a href="#" onclick="showSection('requests'); return false;" class="sec-link">Voir toutes →</a>
+        </div>
+        <div class="request-list" id="requestsList">
+
+          <div class="req-card">
+            <div class="req-av" style="background:rgba(232,224,58,.1);color:#b8a800;border:1px solid rgba(232,224,58,.3);">MC</div>
+            <div class="req-body">
+              <div class="req-name">Marie-Claire Gnahore</div>
+              <div class="req-desc">Logo pour mon restaurant — livraison sous 5 jours</div>
+              <div class="req-meta">
+                <span class="req-time">Il y a 12 min</span>
+                <span class="req-status new">Nouvelle</span>
+              </div>
+            </div>
+            <div class="req-actions">
+              <button class="req-btn accept" onclick="acceptReq(this)">Accepter</button>
+              <button class="req-btn" onclick="declineReq(this)">Refuser</button>
+            </div>
+          </div>
+
+          <div class="req-card">
+            <div class="req-av" style="background:rgba(46,255,158,.08);color:#1a9e6e;border:1px solid rgba(46,255,158,.25);">JP</div>
+            <div class="req-body">
+              <div class="req-name">Jean-Paul Kouassi</div>
+              <div class="req-desc">Affiche événementielle format A1 · urgent</div>
+              <div class="req-meta">
+                <span class="req-time">Il y a 1h</span>
+                <span class="req-status pending">En attente</span>
+              </div>
+            </div>
+            <div class="req-actions">
+              <button class="req-btn accept" onclick="acceptReq(this)">Accepter</button>
+              <button class="req-btn" onclick="declineReq(this)">Refuser</button>
+            </div>
+          </div>
+
+          <div class="req-card">
+            <div class="req-av" style="background:rgba(255,77,46,.08);color:#c0341a;border:1px solid rgba(255,77,46,.25);">SA</div>
+            <div class="req-body">
+              <div class="req-name">Sylvie Adjoua</div>
+              <div class="req-desc">Charte graphique complète — marque de couture</div>
+              <div class="req-meta">
+                <span class="req-time">Il y a 3h</span>
+                <span class="req-status new">Nouvelle</span>
+              </div>
+            </div>
+            <div class="req-actions">
+              <button class="req-btn accept" onclick="acceptReq(this)">Accepter</button>
+              <button class="req-btn" onclick="declineReq(this)">Refuser</button>
+            </div>
+          </div>
+
+          <div class="req-card">
+            <div class="req-av" style="background:rgba(30,29,26,.06);color:var(--gray-mid);border:1px solid rgba(30,29,26,.12);">AB</div>
+            <div class="req-body">
+              <div class="req-name">Ange Brou</div>
+              <div class="req-desc">Interface application mobile — 4 écrans</div>
+              <div class="req-meta">
+                <span class="req-time">Hier</span>
+                <span class="req-status done">Terminé</span>
+              </div>
+            </div>
+            <div class="req-actions">
+              <button class="req-btn" onclick="this.textContent='✓';this.style.background='rgba(46,255,158,.15)';this.style.color='#1a9e6e';">Évaluer</button>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Activity chart -->
+        <div style="margin-top:1.5rem;">
+          <div class="sec-header">
+            <h2 class="sec-title">Activité — 14 jours</h2>
+            <span style="font-family:var(--font-mono);font-size:.65rem;color:var(--gray-mid);letter-spacing:1px;">Demandes reçues</span>
+          </div>
+          <div class="activity-card">
+            <div class="activity-chart" id="activityChart"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right: profile + messages + quick actions -->
+      <div>
+        <!-- Profile preview -->
+        <div style="margin-bottom:1rem;">
+          <div class="sec-header"><h2 class="sec-title">Mon profil</h2></div>
+          <div class="profile-preview">
+            <div class="pp-header">
+              <div class="pp-av">AT</div>
+              <div>
+                <div class="pp-name">Aïcha Touré</div>
+                <div class="pp-role">Graphiste & UI Designer · Plateau</div>
+              </div>
+            </div>
+            <div class="pp-stats">
+              <div class="pp-stat"><div class="pp-stat-num" style="color:var(--accent);">5.0★</div><div class="pp-stat-label">Note</div></div>
+              <div class="pp-stat"><div class="pp-stat-num">82</div><div class="pp-stat-label">Avis</div></div>
+              <div class="pp-stat"><div class="pp-stat-num" style="color:var(--accent3);">286</div><div class="pp-stat-label">Vues</div></div>
+              <div class="pp-stat"><div class="pp-stat-num">1.4</div><div class="pp-stat-label">km</div></div>
+            </div>
+            <a href="#" id="btnVoirProfil" class="pp-btn">Voir mon profil public →</a>
+          </div>
+        </div>
+
+        <!-- Quick actions -->
+        <div style="margin-bottom:1rem;">
+          <div class="sec-header"><h2 class="sec-title">Actions rapides</h2></div>
+          <div class="quick-actions">
+            <button class="qa-btn" onclick="window.location.href='parametres-prestataire.html'"><span class="qa-icon">📅</span><span class="qa-label">Disponibilités</span></button>
+            <button class="qa-btn" id="btnModifierProfil" onclick=""><span class="qa-icon">✏️</span><span class="qa-label">Modifier profil</span></button>
+            <button class="qa-btn"><span class="qa-icon">📸</span><span class="qa-label">Ajouter portfolio</span></button>
+            <button class="qa-btn"><span class="qa-icon">💳</span><span class="qa-label">Tarifs</span></button>
+          </div>
+        </div>
+
+        <!-- Messages -->
+        <div class="sec-header">
+          <h2 class="sec-title">Messages</h2>
+          <a href="messages.html" class="sec-link">Voir tous →</a>
+        </div>
+        <div class="msg-list" id="messagesList">
+          <!-- Chargé dynamiquement depuis l'API -->
+        </div>
+        <!-- Panel de conversation -->
+        <div id="chatPanel" style="display:none;margin-top:1rem;background:var(--white);border:1px solid rgba(30,29,26,.1);padding:1.2rem;"></div>
+      </div>
+
+    </div>
+  </main>
+</div>
+
+<script>
+  const cursor = document.getElementById('cursor'), ring = document.getElementById('cursorRing');
+  let mx=0,my=0,rx=0,ry=0;
+  document.addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY;});
+  (function anim(){cursor.style.left=mx+'px';cursor.style.top=my+'px';rx+=(mx-rx)*.12;ry+=(my-ry)*.12;ring.style.left=rx+'px';ring.style.top=ry+'px';requestAnimationFrame(anim);})();
+  document.querySelectorAll('a,button,.req-card,.msg-card,.stat-card,.qa-btn').forEach(el=>{
+    el.addEventListener('mouseenter',()=>{cursor.style.width='20px';cursor.style.height='20px';ring.style.width='60px';ring.style.height='60px';});
+    el.addEventListener('mouseleave',()=>{cursor.style.width='12px';cursor.style.height='12px';ring.style.width='40px';ring.style.height='40px';});
+  });
+
+  // Availability toggle
+  let isAvail = true;
+  function toggleAvail() {
+    isAvail = !isAvail;
+    document.getElementById('togglePill').classList.toggle('off', !isAvail);
+    const s = document.getElementById('availStatus');
+    s.textContent = isAvail ? 'Disponible' : 'Occupé';
+    s.style.color = isAvail ? 'var(--accent3)' : 'var(--accent2)';
+  }
+
+  // Request actions
+  function acceptReq(btn) {
+    const card = btn.closest('.req-card');
+    card.style.opacity = '.5';
+    card.style.pointerEvents = 'none';
+    const badge = card.querySelector('.req-status');
+    badge.textContent = 'Acceptée'; badge.className = 'req-status done';
+    btn.closest('.req-actions').innerHTML = '<span style="font-family:var(--font-mono);font-size:.65rem;color:var(--accent3);letter-spacing:1px;">✓ Acceptée</span>';
+  }
+  function declineReq(btn) {
+    const card = btn.closest('.req-card');
+    card.style.transition = 'opacity .3s, max-height .4s, padding .4s';
+    card.style.opacity = '0';
+    setTimeout(()=>{ card.style.maxHeight = '0'; card.style.padding = '0'; card.style.overflow = 'hidden'; }, 300);
+  }
+
+  // Activity chart
+  const data = [2,4,1,6,3,5,7,4,8,5,9,6,11,7];
+  const max = Math.max(...data);
+  const chart = document.getElementById('activityChart');
+  data.forEach((v,i)=>{
+    const bar = document.createElement('div');
+    bar.className = 'chart-bar' + (i===data.length-1?' today':'');
+    bar.style.height = '0';
+    bar.title = `${v} demandes`;
+    chart.appendChild(bar);
+    setTimeout(()=>{ bar.style.height = Math.round((v/max)*100)+'%'; }, 100 + i*40);
+  });
+
+  // Section nav
+  function showSection(name) {
+    document.querySelectorAll('.snav-item').forEach(el => el.classList.remove('active'));
+    document.querySelector(`.snav-item[onclick*="${name}"]`)?.classList.add('active');
+  }
+</script>
+
+<!-- ── Intégration API SkillMap ── -->
+<script src="frontend/js/api.js"></script>
+<script src="frontend/js/auth.js"></script>
+<script src="frontend/js/dashboard-prestataire.js"></script>
+</body>
+</html>

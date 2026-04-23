@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>SkillMap — Mes favoris</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --black: #1e1d1a; --white: #f5f4f0; --off-white: #eeece6;
+  --gray-light: #d8d6cf; --gray-mid: #8a8880; --gray-dark: #3a3936;
+  --accent: #e8e03a; --accent2: #ff4d2e; --accent3: #2eff9e;
+  --font-display: 'Bebas Neue', sans-serif; --font-body: 'DM Sans', sans-serif; --font-mono: 'DM Mono', monospace;
+}
+body { font-family: var(--font-body); background: var(--white); color: var(--black); }
+.top-nav { position: fixed; top: 0; left: 0; right: 0; z-index: 200; height: 60px; display: flex; align-items: center; padding: 0 2rem; gap: 1.5rem; background: rgba(245,244,240,.97); backdrop-filter: blur(12px); border-bottom: 1px solid rgba(30,29,26,.1); }
+.nav-logo { font-family: var(--font-display); font-size: 1.6rem; letter-spacing: 3px; color: var(--black); text-decoration: none; }
+.nav-logo span { color: var(--accent); }
+.nav-back { font-family: var(--font-mono); font-size: .68rem; letter-spacing: 1.5px; color: var(--gray-mid); text-decoration: none; padding: .4rem .8rem; border: 1px solid rgba(30,29,26,.15); transition: all .2s; }
+.nav-back:hover { color: var(--black); border-color: var(--black); }
+.nav-right { margin-left: auto; display: flex; align-items: center; gap: 1rem; }
+.nav-avatar { width: 36px; height: 36px; border-radius: 50%; background: var(--black); color: var(--accent); display: flex; align-items: center; justify-content: center; font-family: var(--font-display); font-size: .9rem; cursor: pointer; }
+
+.main-wrap { padding-top: 60px; max-width: 900px; margin: 0 auto; padding-left: 2rem; padding-right: 2rem; padding-bottom: 4rem; }
+.page-header { padding: 2.5rem 0 2rem; border-bottom: 1px solid rgba(30,29,26,.08); margin-bottom: 2rem; }
+.page-title { font-family: var(--font-display); font-size: 2.5rem; letter-spacing: 3px; margin-bottom: .4rem; }
+.page-sub { font-family: var(--font-mono); font-size: .68rem; letter-spacing: 2px; text-transform: uppercase; color: var(--gray-mid); }
+
+.favs-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 1rem; }
+.fav-card { border: 1px solid rgba(30,29,26,.1); padding: 1.4rem; position: relative; }
+.fav-card-header { display: flex; align-items: flex-start; gap: 1rem; margin-bottom: 1rem; }
+.fav-av { width: 48px; height: 48px; flex-shrink: 0; background: rgba(232,224,58,.1); color: var(--accent); border: 1px solid rgba(232,224,58,.2); display: flex; align-items: center; justify-content: center; font-family: var(--font-display); font-size: 1rem; }
+.fav-name { font-size: .9rem; font-weight: 500; margin-bottom: .2rem; }
+.fav-title { font-family: var(--font-mono); font-size: .65rem; letter-spacing: 1px; color: var(--gray-mid); }
+.fav-loc { font-size: .68rem; color: var(--gray-mid); margin-top: .15rem; }
+.fav-badges { display: flex; gap: .4rem; flex-wrap: wrap; margin-bottom: .9rem; }
+.badge { font-size: .58rem; font-family: var(--font-mono); letter-spacing: 1px; padding: .22rem .55rem; border: 1px solid; }
+.badge-avail { color: var(--accent3); border-color: rgba(46,255,158,.3); background: rgba(46,255,158,.05); }
+.badge-verified { color: var(--accent); border-color: rgba(232,224,58,.3); }
+.fav-actions { display: flex; gap: .6rem; }
+.btn-contact { flex: 1; padding: .65rem; background: var(--accent); color: var(--black); border: none; cursor: pointer; font-family: var(--font-mono); font-size: .65rem; letter-spacing: 1.5px; text-transform: uppercase; font-weight: 500; transition: background .2s; }
+.btn-contact:hover { background: #f5f500; }
+.btn-view { flex: 1; padding: .65rem; background: transparent; color: var(--black); border: 1px solid rgba(30,29,26,.2); cursor: pointer; font-family: var(--font-mono); font-size: .65rem; letter-spacing: 1.5px; text-transform: uppercase; transition: border-color .2s; text-decoration: none; display: flex; align-items: center; justify-content: center; }
+.btn-view:hover { border-color: var(--black); }
+.btn-unfav { position: absolute; top: 1rem; right: 1rem; background: transparent; border: none; cursor: pointer; font-size: 1.1rem; padding: .2rem; opacity: .6; transition: opacity .2s; }
+.btn-unfav:hover { opacity: 1; }
+.fav-rating { font-size: .75rem; color: var(--accent); margin-bottom: .8rem; }
+
+.empty-state { text-align: center; padding: 5rem 2rem; }
+.empty-state-icon { font-size: 3rem; margin-bottom: 1rem; }
+.empty-state h2 { font-family: var(--font-display); font-size: 1.8rem; letter-spacing: 2px; margin-bottom: .6rem; }
+.empty-state p { color: var(--gray-mid); font-size: .85rem; margin-bottom: 2rem; }
+.btn-primary { display: inline-block; padding: .8rem 2rem; background: var(--black); color: var(--white); text-decoration: none; font-family: var(--font-mono); font-size: .72rem; letter-spacing: 2px; text-transform: uppercase; transition: background .2s; }
+.btn-primary:hover { background: var(--gray-dark); }
+
+.skeleton { background: linear-gradient(90deg, var(--gray-light) 25%, var(--off-white) 50%, var(--gray-light) 75%); background-size: 200% 100%; animation: shimmer 1.5s infinite; }
+@keyframes shimmer { 0% { background-position: -200% 0; } 100% { background-position: 200% 0; } }
+</style>
+</head>
+<body>
+<nav class="top-nav">
+  <a href="home-client.html" class="nav-logo">SKILL<span>MAP</span></a>
+  <a href="home-client.html" class="nav-back">← Accueil</a>
+  <div class="nav-right">
+    <div class="nav-avatar" id="navAvatar">?</div>
+  </div>
+</nav>
+
+<div class="main-wrap">
+  <div class="page-header">
+    <h1 class="page-title">MES FAVORIS</h1>
+    <p class="page-sub" id="favsCount">Chargement…</p>
+  </div>
+  <div class="favs-grid" id="favsGrid">
+    <div style="height:180px;" class="skeleton"></div>
+    <div style="height:180px;" class="skeleton"></div>
+    <div style="height:180px;" class="skeleton"></div>
+  </div>
+</div>
+
+<script src="frontend/js/api.js"></script>
+<script src="frontend/js/auth.js"></script>
+<script>
+AUTH.requireAuth();
+const _user = AUTH.getUser();
+document.getElementById('navAvatar').textContent = (_user?.full_name?.split(' ').map(w=>w[0]).join('').slice(0,2)||'U').toUpperCase();
+
+async function loadFavorites() {
+  const grid = document.getElementById('favsGrid');
+  const countEl = document.getElementById('favsCount');
+  try {
+    const data = await api.favorites.list();
+    const favs = data.favorites || data;
+    countEl.textContent = favs.length + ' prestataire(s) sauvegardé(s)';
+
+    if (!favs.length) {
+      grid.innerHTML = `
+        <div class="empty-state" style="grid-column:1/-1;">
+          <div class="empty-state-icon">🤍</div>
+          <h2>Aucun favori</h2>
+          <p>Explorez les prestataires et ajoutez vos préférés ici.</p>
+          <a href="prestataires.html" class="btn-primary">Explorer les prestataires →</a>
+        </div>
+      `;
+      return;
+    }
+
+    grid.innerHTML = favs.map(p => {
+      const initials = (p.full_name||'??').split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
+      const stars = p.avg_rating ? '★'.repeat(Math.round(p.avg_rating)) + '☆'.repeat(5-Math.round(p.avg_rating)) : '';
+      return `
+        <div class="fav-card" id="fav-card-${p.id}">
+          <button class="btn-unfav" onclick="removeFav(${p.id})" title="Retirer des favoris">❤️</button>
+          <div class="fav-card-header">
+            <div class="fav-av">${initials}</div>
+            <div>
+              <div class="fav-name">${p.full_name}</div>
+              <div class="fav-title">${p.title}</div>
+              <div class="fav-loc">📍 ${p.neighborhood || p.city}</div>
+            </div>
+          </div>
+          ${stars ? `<div class="fav-rating">${stars} <span style="font-size:.72rem;color:var(--gray-mid);font-family:var(--font-mono);">${p.avg_rating}/5</span></div>` : ''}
+          <div class="fav-badges">
+            ${p.is_available ? '<span class="badge badge-avail">● DISPONIBLE</span>' : ''}
+            ${p.is_verified ? '<span class="badge badge-verified">🛡️ VÉRIFIÉ</span>' : ''}
+            ${p.hourly_rate ? `<span class="badge" style="color:var(--gray-mid);border-color:var(--gray-light);">${p.hourly_rate.toLocaleString('fr-FR')} FCFA/h</span>` : ''}
+          </div>
+          <div class="fav-actions">
+            <button class="btn-contact" onclick="contactProvider(${p.user_id}, '${p.full_name}')">💬 Contacter</button>
+            <a href="provider-profile.html?id=${p.id}" class="btn-view">Voir profil</a>
+          </div>
+        </div>
+      `;
+    }).join('');
+  } catch (err) {
+    grid.innerHTML = `<p style="color:var(--accent2);font-size:.85rem;">${err.message}</p>`;
+  }
+}
+
+async function removeFav(id) {
+  try {
+    await api.favorites.remove(id);
+    const card = document.getElementById('fav-card-' + id);
+    if (card) { card.style.opacity = '0'; card.style.transition = 'opacity .3s'; setTimeout(() => { card.remove(); loadFavorites(); }, 300); }
+  } catch (err) { alert(err.message); }
+}
+
+function contactProvider(userId, name) {
+  window.location.href = `messages.html?user=${userId}&name=${encodeURIComponent(name)}`;
+}
+
+loadFavorites();
+</script>
+</body>
+</html>

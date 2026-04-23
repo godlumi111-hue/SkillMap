@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>SkillMap — Administration</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --black: #1e1d1a; --white: #f5f4f0; --off-white: #eeece6;
+  --gray-light: #d8d6cf; --gray-mid: #8a8880; --gray-dark: #3a3936;
+  --accent: #e8e03a; --accent2: #ff4d2e; --accent3: #2eff9e;
+  --font-display: 'Bebas Neue', sans-serif; --font-body: 'DM Sans', sans-serif; --font-mono: 'DM Mono', monospace;
+}
+html, body { height: 100%; }
+body { font-family: var(--font-body); background: var(--off-white); color: var(--black); display: flex; }
+
+/* SIDEBAR */
+.sidebar { width: 220px; flex-shrink: 0; background: var(--black); color: var(--white); display: flex; flex-direction: column; }
+.sidebar-brand { padding: 1.4rem 1.5rem; border-bottom: 1px solid rgba(245,244,240,.08); }
+.sidebar-logo { font-family: var(--font-display); font-size: 1.5rem; letter-spacing: 3px; color: var(--white); text-decoration: none; }
+.sidebar-logo span { color: var(--accent); }
+.sidebar-role { font-family: var(--font-mono); font-size: .58rem; letter-spacing: 2px; text-transform: uppercase; color: rgba(245,244,240,.3); margin-top: .3rem; }
+.sidebar-user { padding: 1rem 1.5rem; border-bottom: 1px solid rgba(245,244,240,.06); display: flex; align-items: center; gap: .8rem; }
+.sidebar-av { width: 34px; height: 34px; background: rgba(255,77,46,.2); color: var(--accent2); display: flex; align-items: center; justify-content: center; font-family: var(--font-display); font-size: .9rem; border: 1px solid rgba(255,77,46,.4); flex-shrink: 0; }
+.sidebar-uname { font-size: .82rem; font-weight: 500; }
+.sidebar-badge { font-family: var(--font-mono); font-size: .55rem; letter-spacing: 2px; text-transform: uppercase; color: var(--accent2); }
+.sidebar-nav { flex: 1; padding: .8rem 0; }
+.snav-item { display: flex; align-items: center; gap: .8rem; padding: .65rem 1.5rem; cursor: pointer; font-size: .78rem; color: rgba(245,244,240,.5); transition: color .2s, background .2s; text-decoration: none; position: relative; }
+.snav-item:hover { color: var(--white); background: rgba(245,244,240,.05); }
+.snav-item.active { color: var(--white); background: rgba(245,244,240,.07); }
+.snav-item.active::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 2px; background: var(--accent2); }
+.snav-icon { font-size: .95rem; width: 18px; text-align: center; }
+.snav-badge { margin-left: auto; background: var(--accent2); color: var(--white); font-size: .55rem; font-family: var(--font-mono); padding: .12rem .4rem; }
+.sidebar-footer { padding: 1rem 1.5rem; border-top: 1px solid rgba(245,244,240,.06); }
+.sidebar-footer a { font-size: .7rem; font-family: var(--font-mono); color: rgba(245,244,240,.3); text-decoration: none; display: block; margin-bottom: .3rem; cursor: pointer; transition: color .2s; }
+.sidebar-footer a:hover { color: rgba(245,244,240,.6); }
+
+/* MAIN */
+.main { flex: 1; overflow-y: auto; }
+.main::-webkit-scrollbar { width: 3px; }
+.main::-webkit-scrollbar-thumb { background: var(--gray-light); }
+.main-header { padding: 1.5rem 2rem; background: var(--white); border-bottom: 1px solid rgba(30,29,26,.08); display: flex; align-items: center; justify-content: space-between; }
+.main-title { font-family: var(--font-display); font-size: 1.6rem; letter-spacing: 2px; }
+.main-sub { font-family: var(--font-mono); font-size: .62rem; letter-spacing: 2px; text-transform: uppercase; color: var(--gray-mid); margin-top: .2rem; }
+.btn-refresh { padding: .5rem 1rem; background: transparent; border: 1px solid rgba(30,29,26,.15); cursor: pointer; font-family: var(--font-mono); font-size: .62rem; letter-spacing: 1.5px; text-transform: uppercase; transition: all .2s; }
+.btn-refresh:hover { border-color: var(--black); }
+
+/* Sections */
+.section { padding: 1.5rem 2rem; }
+.section + .section { border-top: 1px solid rgba(30,29,26,.06); }
+.sec-title { font-family: var(--font-display); font-size: 1.3rem; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 1.2rem; }
+
+/* Stats */
+.stats-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 1px; background: rgba(30,29,26,.08); }
+.stat-card { background: var(--white); padding: 1.4rem 1.5rem; }
+.stat-num { font-family: var(--font-display); font-size: 2.5rem; line-height: 1; margin-bottom: .3rem; }
+.stat-label { font-family: var(--font-mono); font-size: .6rem; letter-spacing: 2px; text-transform: uppercase; color: var(--gray-mid); }
+.stat-delta { font-size: .7rem; margin-top: .4rem; }
+.up { color: var(--accent3); }
+.down { color: var(--accent2); }
+
+/* Tabs */
+.tabs { display: flex; border-bottom: 1px solid rgba(30,29,26,.1); margin-bottom: 1.2rem; }
+.tab { padding: .65rem 1.2rem; font-family: var(--font-mono); font-size: .65rem; letter-spacing: 1.5px; text-transform: uppercase; cursor: pointer; color: var(--gray-mid); border-bottom: 2px solid transparent; margin-bottom: -1px; transition: all .2s; }
+.tab.active { color: var(--black); border-color: var(--accent2); }
+.tab:hover:not(.active) { color: var(--gray-dark); }
+
+/* Table */
+.data-table { width: 100%; border-collapse: collapse; font-size: .82rem; }
+.data-table th { font-family: var(--font-mono); font-size: .6rem; letter-spacing: 2px; text-transform: uppercase; color: var(--gray-mid); padding: .6rem 1rem; text-align: left; border-bottom: 1px solid rgba(30,29,26,.1); background: var(--white); }
+.data-table td { padding: .8rem 1rem; border-bottom: 1px solid rgba(30,29,26,.05); vertical-align: top; background: var(--white); }
+.data-table tr:hover td { background: rgba(232,224,58,.03); }
+.cell-name { font-weight: 500; }
+.cell-meta { font-family: var(--font-mono); font-size: .6rem; color: var(--gray-mid); margin-top: .15rem; }
+.role-badge { font-size: .58rem; font-family: var(--font-mono); letter-spacing: 1px; padding: .2rem .55rem; border: 1px solid; }
+.role-client { color: #5b9ef4; border-color: rgba(91,158,244,.3); background: rgba(91,158,244,.07); }
+.role-provider { color: var(--accent); border-color: rgba(232,224,58,.3); background: rgba(232,224,58,.07); }
+.role-admin { color: var(--accent2); border-color: rgba(255,77,46,.3); background: rgba(255,77,46,.07); }
+.status-active { color: var(--accent3); font-size: .65rem; font-family: var(--font-mono); }
+.status-inactive { color: var(--accent2); font-size: .65rem; font-family: var(--font-mono); }
+.table-actions { display: flex; gap: .4rem; flex-wrap: wrap; }
+.btn-action { padding: .3rem .7rem; font-size: .62rem; font-family: var(--font-mono); letter-spacing: 1px; border: 1px solid; cursor: pointer; background: transparent; transition: all .15s; white-space: nowrap; }
+.btn-verify { color: var(--accent3); border-color: rgba(46,255,158,.3); }
+.btn-verify:hover { background: rgba(46,255,158,.1); }
+.btn-suspend { color: var(--accent2); border-color: rgba(255,77,46,.3); }
+.btn-suspend:hover { background: rgba(255,77,46,.1); }
+.btn-restore { color: #5b9ef4; border-color: rgba(91,158,244,.3); }
+.btn-restore:hover { background: rgba(91,158,244,.1); }
+.btn-dismiss { color: var(--gray-mid); border-color: var(--gray-light); }
+.btn-dismiss:hover { background: var(--off-white); }
+
+/* Search + filter bar */
+.table-toolbar { display: flex; gap: .8rem; margin-bottom: 1rem; align-items: center; flex-wrap: wrap; }
+.table-search { padding: .55rem .9rem; border: 1px solid rgba(30,29,26,.15); background: transparent; font-family: var(--font-body); font-size: .82rem; color: var(--black); outline: none; flex: 1; max-width: 300px; }
+.table-search:focus { border-color: var(--black); }
+.table-count { font-family: var(--font-mono); font-size: .65rem; letter-spacing: 1.5px; text-transform: uppercase; color: var(--gray-mid); margin-left: auto; }
+
+/* Report card */
+.report-card { border: 1px solid rgba(255,77,46,.15); padding: 1.2rem; margin-bottom: .7rem; background: var(--white); }
+.report-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: .6rem; }
+.report-title { font-size: .88rem; font-weight: 500; }
+.report-meta { font-family: var(--font-mono); font-size: .6rem; color: var(--gray-mid); margin-top: .2rem; }
+.report-reason { font-size: .8rem; color: var(--gray-dark); line-height: 1.55; }
+
+.loading-text { font-family: var(--font-mono); font-size: .72rem; letter-spacing: 2px; text-transform: uppercase; color: var(--gray-mid); padding: 2rem; }
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+  <div class="sidebar-brand">
+    <a href="#" class="sidebar-logo">SKILL<span>MAP</span></a>
+    <div class="sidebar-role">Administration</div>
+  </div>
+  <div class="sidebar-user">
+    <div class="sidebar-av">AD</div>
+    <div>
+      <div class="sidebar-uname" id="adminName">Admin</div>
+      <div class="sidebar-badge">ADMIN</div>
+    </div>
+  </div>
+  <nav class="sidebar-nav">
+    <a class="snav-item active" href="#" onclick="showSection('overview')"><span class="snav-icon">◉</span> Vue d'ensemble</a>
+    <a class="snav-item" href="#" onclick="showSection('users')"><span class="snav-icon">👥</span> Utilisateurs</a>
+    <a class="snav-item" href="#" onclick="showSection('providers')"><span class="snav-icon">🛡️</span> Prestataires</a>
+    <a class="snav-item" href="#" onclick="showSection('requests')"><span class="snav-icon">📋</span> Demandes</a>
+    <a class="snav-item" href="#" onclick="showSection('reports')">
+      <span class="snav-icon">🚩</span> Signalements
+      <span class="snav-badge" id="reportsBadge" style="display:none;"></span>
+    </a>
+    <a class="snav-item" href="#" onclick="showSection('reviews')"><span class="snav-icon">⭐</span> Avis</a>
+  </nav>
+  <div class="sidebar-footer">
+    <a href="skillmap.html">Voir le site public</a>
+    <a id="logoutLink">Déconnexion</a>
+  </div>
+</aside>
+
+<!-- MAIN -->
+<main class="main">
+  <div class="main-header">
+    <div>
+      <div class="main-title" id="sectionTitle">Vue d'ensemble</div>
+      <div class="main-sub" id="sectionSub">Supervision de la plateforme SkillMap</div>
+    </div>
+    <button class="btn-refresh" onclick="refreshSection()">↻ Actualiser</button>
+  </div>
+
+  <div id="sectionContent">
+    <div class="loading-text">Chargement…</div>
+  </div>
+</main>
+
+<script src="frontend/js/api.js"></script>
+<script src="frontend/js/auth.js"></script>
+<script>
+AUTH.requireAuth();
+const _user = AUTH.getUser();
+if (_user?.role !== 'admin') {
+  alert('Accès refusé — Vous n\'êtes pas administrateur.');
+  window.location.href = 'home-client.html';
+}
+document.getElementById('adminName').textContent = _user?.full_name || 'Admin';
+document.getElementById('logoutLink').addEventListener('click', AUTH.logout);
+
+let _currentSection = 'overview';
+
+function showSection(name) {
+  _currentSection = name;
+  document.querySelectorAll('.snav-item').forEach((el, i) => {
+    const sections = ['overview','users','providers','requests','reports','reviews'];
+    el.classList.toggle('active', sections[i] === name);
+  });
+  const titles = { overview: 'Vue d\'ensemble', users: 'Utilisateurs', providers: 'Prestataires', requests: 'Demandes de service', reports: 'Signalements', reviews: 'Modération des avis' };
+  const subs = { overview: 'Supervision de la plateforme SkillMap', users: 'Gérer tous les comptes utilisateurs', providers: 'Vérifier et gérer les prestataires', requests: 'Suivi des prestations', reports: 'Traiter les signalements en attente', reviews: 'Modérer les avis clients' };
+  document.getElementById('sectionTitle').textContent = titles[name] || name;
+  document.getElementById('sectionSub').textContent = subs[name] || '';
+  document.getElementById('sectionContent').innerHTML = '<div class="loading-text">Chargement…</div>';
+
+  const loaders = { overview: loadOverview, users: loadUsers, providers: loadProviders, requests: loadRequests, reports: loadReports, reviews: loadReviews };
+  if (loaders[name]) loaders[name]();
+}
+
+function refreshSection() { showSection(_currentSection); }
+
+// ── OVERVIEW ──────────────────────────────────────────────────
+async function loadOverview() {
+  const el = document.getElementById('sectionContent');
+  try {
+    const s = await api.admin.stats();
+    if (s.pending_reports > 0) {
+      const badge = document.getElementById('reportsBadge');
+      badge.textContent = s.pending_reports; badge.style.display = '';
+    }
+    el.innerHTML = `
+      <div class="section">
+        <div class="sec-title">Statistiques générales</div>
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-num" style="color:var(--accent);">${s.users.total}</div>
+            <div class="stat-label">Utilisateurs actifs</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-num">${s.users.clients}</div>
+            <div class="stat-label">Clients</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-num" style="color:var(--accent3);">${s.providers.total}</div>
+            <div class="stat-label">Prestataires</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-num" style="color:var(--accent3);">${s.providers.available}</div>
+            <div class="stat-label">Disponibles</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-num">${s.services.total}</div>
+            <div class="stat-label">Demandes totales</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-num">${s.services.completed}</div>
+            <div class="stat-label">Terminées</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-num">${s.reviews.total}</div>
+            <div class="stat-label">Avis publiés</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-num" style="color:${s.pending_reports>0?'var(--accent2)':'var(--accent3)'};">${s.pending_reports}</div>
+            <div class="stat-label">Signalements</div>
+          </div>
+        </div>
+      </div>
+      <div class="section">
+        <div class="sec-title">Accès rapides</div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:1px;background:rgba(30,29,26,.08);">
+          ${['users','providers','requests','reports','reviews'].map((s,i)=>{
+            const labels=['Gérer utilisateurs','Vérifier prestataires','Voir demandes','Traiter signalements','Modérer avis'];
+            const icons=['👥','🛡️','📋','🚩','⭐'];
+            return `<div style="background:var(--white);padding:1.4rem;cursor:pointer;transition:background .15s;" onclick="showSection('${s}')" onmouseover="this.style.background='rgba(232,224,58,.05)'" onmouseout="this.style.background='var(--white)'">
+              <div style="font-size:1.5rem;margin-bottom:.5rem;">${icons[i]}</div>
+              <div style="font-family:var(--font-display);font-size:1rem;letter-spacing:1px;">${labels[i]}</div>
+            </div>`;
+          }).join('')}
+        </div>
+      </div>
+    `;
+  } catch (err) {
+    el.innerHTML = `<div class="section"><p style="color:var(--accent2);">${err.message}</p></div>`;
+  }
+}
+
+// ── USERS ─────────────────────────────────────────────────────
+async function loadUsers(role='') {
+  const el = document.getElementById('sectionContent');
+  try {
+    const data = await api.admin.users({ limit: 50, role });
+    const users = data.users || [];
+    el.innerHTML = `
+      <div class="section">
+        <div class="tabs">
+          <div class="tab${!role?' active':''}" onclick="loadUsers('')">Tous (${users.length})</div>
+          <div class="tab${role==='client'?' active':''}" onclick="loadUsers('client')">Clients</div>
+          <div class="tab${role==='provider'?' active':''}" onclick="loadUsers('provider')">Prestataires</div>
+          <div class="tab${role==='admin'?' active':''}" onclick="loadUsers('admin')">Admins</div>
+        </div>
+        <div class="table-toolbar">
+          <input class="table-search" placeholder="Rechercher un utilisateur…" oninput="filterTable(this.value,'usersTable')" />
+          <span class="table-count">${users.length} utilisateur(s)</span>
+        </div>
+        <table class="data-table" id="usersTable">
+          <thead><tr><th>Utilisateur</th><th>Rôle</th><th>Ville</th><th>Statut</th><th>Inscrit le</th><th>Actions</th></tr></thead>
+          <tbody>
+            ${users.map(u => `
+              <tr data-search="${(u.full_name+u.email).toLowerCase()}">
+                <td><div class="cell-name">${u.full_name}</div><div class="cell-meta">${u.email}</div></td>
+                <td><span class="role-badge role-${u.role}">${u.role}</span></td>
+                <td>${u.city || '—'}</td>
+                <td>${u.is_active ? '<span class="status-active">● Actif</span>' : '<span class="status-inactive">● Suspendu</span>'}</td>
+                <td style="font-family:var(--font-mono);font-size:.65rem;color:var(--gray-mid);">${new Date(u.created_at).toLocaleDateString('fr-FR')}</td>
+                <td><div class="table-actions">
+                  ${u.is_active
+                    ? `<button class="btn-action btn-suspend" onclick="toggleUser(${u.id},0)">Suspendre</button>`
+                    : `<button class="btn-action btn-restore" onclick="toggleUser(${u.id},1)">Réactiver</button>`}
+                </div></td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      </div>
+    `;
+  } catch (err) { el.innerHTML = `<div class="section"><p style="color:var(--accent2);">${err.message}</p></div>`; }
+}
+
+// ── PROVIDERS ─────────────────────────────────────────────────
+async function loadProviders() {
+  const el = document.getElementById('sectionContent');
+  try {
+    const data = await api.providers.list({ limit: 50 });
+    const providers = data.providers || [];
+    el.innerHTML = `
+      <div class="section">
+        <div class="table-toolbar">
+          <input class="table-search" placeholder="Rechercher un prestataire…" oninput="filterTable(this.value,'provsTable')" />
+          <span class="table-count">${providers.length} prestataire(s)</span>
+        </div>
+        <table class="data-table" id="provsTable">
+          <thead><tr><th>Prestataire</th><th>Métier</th><th>Zone</th><th>Note</th><th>Statut</th><th>Actions</th></tr></thead>
+          <tbody>
+            ${providers.map(p => `
+              <tr data-search="${(p.full_name+p.title).toLowerCase()}">
+                <td><div class="cell-name">${p.full_name}</div><div class="cell-meta">${p.email||''}</div></td>
+                <td>${p.title}</td>
+                <td style="font-size:.78rem;">${p.neighborhood||p.city}</td>
+                <td>${p.avg_rating ? `<span style="color:var(--accent);">${p.avg_rating}★</span>` : '—'}</td>
+                <td>
+                  ${p.is_verified ? '<span style="color:var(--accent3);font-family:var(--font-mono);font-size:.62rem;">🛡️ Vérifié</span>' : '<span style="color:var(--gray-mid);font-family:var(--font-mono);font-size:.62rem;">Non vérifié</span>'}
+                  <br/>${p.is_available ? '<span class="status-active">● Disponible</span>' : '<span style="color:var(--gray-mid);font-size:.65rem;font-family:var(--font-mono);">● Occupé</span>'}
+                </td>
+                <td><div class="table-actions">
+                  ${!p.is_verified
+                    ? `<button class="btn-action btn-verify" onclick="verifyProvider(${p.id},true)">✓ Vérifier</button>`
+                    : `<button class="btn-action btn-dismiss" onclick="verifyProvider(${p.id},false)">Retirer vérif.</button>`}
+                  <button class="btn-action" style="color:#5b9ef4;border-color:rgba(91,158,244,.3);" onclick="window.open('provider-profile.html?id=${p.id}','_blank')">Voir profil</button>
+                </div></td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      </div>
+    `;
+  } catch (err) { el.innerHTML = `<div class="section"><p style="color:var(--accent2);">${err.message}</p></div>`; }
+}
+
+// ── REQUESTS ──────────────────────────────────────────────────
+async function loadRequests() {
+  const el = document.getElementById('sectionContent');
+  try {
+    // Admin can call services list using admin token
+    const token = localStorage.getItem('skillmap_token');
+    const res = await fetch('http://localhost:3001/api/admin/stats', { headers: { 'Authorization': 'Bearer ' + token } });
+    const stats = await res.json();
+    el.innerHTML = `
+      <div class="section">
+        <div class="stats-grid" style="margin-bottom:1.5rem;">
+          <div class="stat-card"><div class="stat-num">${stats.services?.total||0}</div><div class="stat-label">Total demandes</div></div>
+          <div class="stat-card"><div class="stat-num" style="color:var(--accent3);">${stats.services?.completed||0}</div><div class="stat-label">Terminées</div></div>
+          <div class="stat-card"><div class="stat-num" style="color:var(--accent);">${(stats.services?.total||0)-(stats.services?.completed||0)}</div><div class="stat-label">En cours</div></div>
+        </div>
+        <p style="color:var(--gray-mid);font-family:var(--font-mono);font-size:.72rem;letter-spacing:1px;">Les demandes détaillées sont visibles dans chaque espace prestataire ou client.</p>
+      </div>
+    `;
+  } catch (err) { el.innerHTML = `<div class="section"><p style="color:var(--accent2);">${err.message}</p></div>`; }
+}
+
+// ── REPORTS ───────────────────────────────────────────────────
+async function loadReports() {
+  const el = document.getElementById('sectionContent');
+  try {
+    const data = await api.admin.reports();
+    const reports = data.reports || [];
+    if (!reports.length) {
+      el.innerHTML = `<div class="section"><div style="text-align:center;padding:3rem;"><div style="font-size:2.5rem;margin-bottom:1rem;">✅</div><p style="font-family:var(--font-mono);font-size:.72rem;color:var(--gray-mid);letter-spacing:1.5px;">AUCUN SIGNALEMENT EN ATTENTE</p></div></div>`;
+      return;
+    }
+    el.innerHTML = `<div class="section">
+      <div class="sec-title">Signalements en attente (${reports.length})</div>
+      ${reports.map(r => `
+        <div class="report-card">
+          <div class="report-header">
+            <div>
+              <div class="report-title">Signalement de ${r.reporter_name}</div>
+              <div class="report-meta">Prestataire : ${r.provider_name} (${r.provider_title}) · ${new Date(r.created_at).toLocaleDateString('fr-FR')}</div>
+            </div>
+            <div class="table-actions">
+              <button class="btn-action btn-suspend" onclick="handleReport(${r.id},'reviewed')">⚠ Traiter</button>
+              <button class="btn-action btn-dismiss" onclick="handleReport(${r.id},'dismissed')">Ignorer</button>
+            </div>
+          </div>
+          ${r.reason ? `<p class="report-reason">"${r.reason}"</p>` : ''}
+        </div>
+      `).join('')}
+    </div>`;
+  } catch (err) { el.innerHTML = `<div class="section"><p style="color:var(--accent2);">${err.message}</p></div>`; }
+}
+
+// ── REVIEWS ───────────────────────────────────────────────────
+async function loadReviews() {
+  const el = document.getElementById('sectionContent');
+  try {
+    const data = await api.admin.reviews();
+    const reviews = data.reviews || [];
+    el.innerHTML = `<div class="section">
+      <div class="table-toolbar">
+        <input class="table-search" placeholder="Rechercher…" oninput="filterTable(this.value,'reviewsTable')" />
+        <span class="table-count">${reviews.length} avis</span>
+      </div>
+      <table class="data-table" id="reviewsTable">
+        <thead><tr><th>Client</th><th>Prestataire</th><th>Note</th><th>Commentaire</th><th>Visibilité</th><th>Actions</th></tr></thead>
+        <tbody>
+          ${reviews.map(r => `
+            <tr data-search="${(r.client_name+r.provider_name).toLowerCase()}">
+              <td>${r.client_name}</td>
+              <td>${r.provider_name}</td>
+              <td style="color:var(--accent);">${'★'.repeat(r.rating)}</td>
+              <td style="font-size:.78rem;max-width:200px;">${r.comment || '—'}</td>
+              <td>${r.is_visible ? '<span class="status-active">● Visible</span>' : '<span class="status-inactive">● Masqué</span>'}</td>
+              <td><div class="table-actions">
+                ${r.is_visible
+                  ? `<button class="btn-action btn-suspend" onclick="moderateReview(${r.id},false)">Masquer</button>`
+                  : `<button class="btn-action btn-restore" onclick="moderateReview(${r.id},true)">Publier</button>`}
+              </div></td>
+            </tr>
+          `).join('')}
+        </tbody>
+      </table>
+    </div>`;
+  } catch (err) { el.innerHTML = `<div class="section"><p style="color:var(--accent2);">${err.message}</p></div>`; }
+}
+
+// ── ACTIONS ───────────────────────────────────────────────────
+async function toggleUser(id, active) {
+  try {
+    await api.admin.updateUser(id, { is_active: active });
+    loadUsers();
+  } catch (err) { alert(err.message); }
+}
+
+async function verifyProvider(id, verified) {
+  try {
+    await api.admin.verifyProvider(id, { is_verified: verified });
+    loadProviders();
+  } catch (err) { alert(err.message); }
+}
+
+async function handleReport(id, status) {
+  try {
+    await api.admin.handleReport(id, { status });
+    loadReports();
+  } catch (err) { alert(err.message); }
+}
+
+async function moderateReview(id, visible) {
+  try {
+    await api.admin.moderateReview(id, { is_visible: visible });
+    loadReviews();
+  } catch (err) { alert(err.message); }
+}
+
+function filterTable(q, tableId) {
+  const rows = document.querySelectorAll(`#${tableId} tbody tr`);
+  rows.forEach(row => {
+    const search = row.dataset.search || '';
+    row.style.display = !q || search.includes(q.toLowerCase()) ? '' : 'none';
+  });
+}
+
+// ── INIT ──────────────────────────────────────────────────────
+loadOverview();
+</script>
+</body>
+</html>

@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8" />
+<title>SkillMap — Redirection profil</title>
+<script>
+  // Redirect to provider-profile.html, forwarding any query params
+  const params = new URLSearchParams(window.location.search);
+  // Support legacy ?id=N param or just forward as-is
+  window.location.replace('provider-profile.html' + (params.toString() ? '?' + params.toString() : ''));
+</script>
+</head>
+<body></body>
+</html>

@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>SkillMap — Profil prestataire</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --black: #1e1d1a; --white: #f5f4f0; --off-white: #eeece6;
+  --gray-light: #d8d6cf; --gray-mid: #8a8880; --gray-dark: #3a3936;
+  --accent: #e8e03a; --accent2: #ff4d2e; --accent3: #2eff9e;
+  --font-display: 'Bebas Neue', sans-serif;
+  --font-body: 'DM Sans', sans-serif;
+  --font-mono: 'DM Mono', monospace;
+}
+html { scroll-behavior: smooth; }
+body { font-family: var(--font-body); background: var(--white); color: var(--black); }
+
+.cursor { position: fixed; width: 12px; height: 12px; background: var(--accent); border-radius: 50%; pointer-events: none; z-index: 9999; transform: translate(-50%,-50%); transition: width .2s, height .2s; mix-blend-mode: multiply; }
+.cursor-ring { position: fixed; width: 40px; height: 40px; border: 1px solid rgba(232,224,58,.4); border-radius: 50%; pointer-events: none; z-index: 9998; transform: translate(-50%,-50%); transition: width .3s, height .3s; }
+
+/* NAV */
+.top-nav { position: fixed; top: 0; left: 0; right: 0; z-index: 200; height: 60px; display: flex; align-items: center; padding: 0 2rem; gap: 1.5rem; background: rgba(245,244,240,.97); backdrop-filter: blur(12px); border-bottom: 1px solid rgba(30,29,26,.1); }
+.nav-logo { font-family: var(--font-display); font-size: 1.6rem; letter-spacing: 3px; color: var(--black); text-decoration: none; }
+.nav-logo span { color: var(--accent); }
+.nav-back { font-family: var(--font-mono); font-size: .68rem; letter-spacing: 1.5px; color: var(--gray-mid); text-decoration: none; padding: .4rem .8rem; border: 1px solid rgba(30,29,26,.15); transition: all .2s; }
+.nav-back:hover { color: var(--black); border-color: var(--black); }
+.nav-right { margin-left: auto; display: flex; gap: 1rem; align-items: center; }
+.nav-avatar { width: 36px; height: 36px; border-radius: 50%; background: var(--black); color: var(--accent); display: flex; align-items: center; justify-content: center; font-family: var(--font-display); font-size: .9rem; cursor: pointer; }
+
+/* HERO */
+.hero { background: var(--black); color: var(--white); padding: 4.5rem 2rem 2.5rem; margin-top: 60px; }
+.hero-inner { max-width: 1000px; margin: 0 auto; display: grid; grid-template-columns: auto 1fr auto; gap: 2rem; align-items: center; }
+.hero-av { width: 90px; height: 90px; background: rgba(232,224,58,.12); color: var(--accent); border: 1px solid rgba(232,224,58,.25); display: flex; align-items: center; justify-content: center; font-family: var(--font-display); font-size: 2.2rem; flex-shrink: 0; }
+.hero-name { font-family: var(--font-display); font-size: clamp(2rem,4vw,3.2rem); letter-spacing: 2px; line-height: 1; margin-bottom: .4rem; }
+.hero-meta { display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; margin-bottom: .7rem; }
+.hero-title { font-family: var(--font-mono); font-size: .78rem; letter-spacing: 2px; text-transform: uppercase; color: rgba(245,244,240,.6); }
+.hero-loc { font-family: var(--font-mono); font-size: .72rem; color: rgba(245,244,240,.5); }
+.hero-badges { display: flex; gap: .5rem; flex-wrap: wrap; }
+.badge { font-size: .6rem; font-family: var(--font-mono); letter-spacing: 1px; padding: .25rem .65rem; border: 1px solid; }
+.badge-avail { color: var(--accent3); border-color: rgba(46,255,158,.4); background: rgba(46,255,158,.07); }
+.badge-busy { color: var(--gray-mid); border-color: rgba(245,244,240,.15); }
+.badge-verified { color: var(--accent); border-color: rgba(232,224,58,.4); background: rgba(232,224,58,.07); }
+.hero-rating { text-align: right; }
+.rating-stars { font-size: 1.4rem; color: var(--accent); letter-spacing: 2px; }
+.rating-val { font-family: var(--font-display); font-size: 2.5rem; line-height: 1; color: var(--accent); }
+.rating-count { font-family: var(--font-mono); font-size: .62rem; letter-spacing: 1px; color: rgba(245,244,240,.4); margin-top: .2rem; }
+
+/* CONTENT */
+.content-wrap { max-width: 1000px; margin: 0 auto; padding: 2.5rem 2rem 5rem; display: grid; grid-template-columns: 1fr 300px; gap: 2rem; }
+@media (max-width: 700px) { .content-wrap { grid-template-columns: 1fr; } .hero-inner { grid-template-columns: auto 1fr; } .hero-rating { display: none; } }
+
+/* Sections */
+.section { margin-bottom: 2.5rem; }
+.section-title { font-family: var(--font-display); font-size: 1.4rem; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 1.2rem; padding-bottom: .6rem; border-bottom: 1px solid rgba(30,29,26,.08); }
+.about-text { font-size: .9rem; line-height: 1.8; color: var(--gray-dark); font-weight: 300; }
+
+/* Skills */
+.skills-wrap { display: flex; flex-wrap: wrap; gap: .5rem; }
+.skill-tag { padding: .3rem .9rem; border: 1px solid rgba(30,29,26,.15); font-size: .72rem; font-family: var(--font-mono); letter-spacing: 1px; color: var(--gray-dark); }
+
+/* Portfolio */
+.portfolio-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: .6rem; }
+.portfolio-item { aspect-ratio: 1; background: var(--off-white); border: 1px solid rgba(30,29,26,.1); display: flex; align-items: center; justify-content: center; font-size: 2rem; cursor: pointer; transition: border-color .2s, transform .15s; }
+.portfolio-item:hover { border-color: var(--black); transform: scale(1.02); }
+
+/* Reviews */
+.review-summary { display: grid; grid-template-columns: auto 1fr; gap: 1.5rem; margin-bottom: 1.5rem; padding: 1.4rem; background: var(--off-white); border: 1px solid rgba(30,29,26,.08); }
+.review-big-num { font-family: var(--font-display); font-size: 4rem; line-height: 1; color: var(--accent); }
+.review-bars { display: flex; flex-direction: column; gap: .4rem; justify-content: center; }
+.review-bar-row { display: flex; align-items: center; gap: .6rem; font-family: var(--font-mono); font-size: .62rem; color: var(--gray-mid); }
+.review-bar-track { flex: 1; height: 4px; background: var(--gray-light); }
+.review-bar-fill { height: 100%; background: var(--accent); }
+
+.review-list { display: flex; flex-direction: column; gap: .8rem; }
+.review-card { padding: 1.2rem; border: 1px solid rgba(30,29,26,.08); }
+.review-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: .6rem; }
+.review-author { font-size: .85rem; font-weight: 500; }
+.review-stars { color: var(--accent); font-size: .85rem; }
+.review-date { font-family: var(--font-mono); font-size: .6rem; color: var(--gray-mid); letter-spacing: 1px; }
+.review-text { font-size: .82rem; color: var(--gray-dark); line-height: 1.65; font-style: italic; }
+
+/* Review form */
+.review-form { border: 1px solid rgba(30,29,26,.1); padding: 1.4rem; margin-top: 1.5rem; }
+.review-form-title { font-family: var(--font-mono); font-size: .68rem; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 1rem; color: var(--gray-mid); }
+.star-picker { display: flex; gap: .4rem; margin-bottom: .8rem; }
+.star-picker span { font-size: 1.8rem; cursor: pointer; color: var(--gray-light); transition: color .15s; }
+.star-picker span.active { color: var(--accent); }
+.review-textarea { width: 100%; padding: .75rem 1rem; border: 1px solid rgba(30,29,26,.15); background: transparent; font-family: var(--font-body); font-size: .85rem; color: var(--black); outline: none; resize: vertical; min-height: 80px; margin-bottom: .8rem; }
+.review-textarea:focus { border-color: var(--black); }
+.btn-review-submit { padding: .65rem 1.6rem; background: var(--black); color: var(--white); border: none; cursor: pointer; font-family: var(--font-mono); font-size: .68rem; letter-spacing: 2px; text-transform: uppercase; transition: background .2s; }
+.btn-review-submit:hover { background: var(--gray-dark); }
+
+/* Action card (sticky right) */
+.action-card { position: sticky; top: 80px; align-self: start; border: 1px solid rgba(30,29,26,.12); padding: 1.6rem; background: var(--white); }
+.action-price { font-family: var(--font-display); font-size: 2rem; letter-spacing: 1px; color: var(--black); margin-bottom: .3rem; }
+.action-price-label { font-family: var(--font-mono); font-size: .62rem; letter-spacing: 1.5px; text-transform: uppercase; color: var(--gray-mid); margin-bottom: 1.4rem; }
+.action-btn { display: block; width: 100%; padding: .85rem; text-align: center; font-family: var(--font-mono); font-size: .72rem; letter-spacing: 2px; text-transform: uppercase; cursor: pointer; margin-bottom: .6rem; border: none; transition: background .2s, color .2s; }
+.action-btn.primary { background: var(--accent); color: var(--black); font-weight: 600; }
+.action-btn.primary:hover { background: var(--black); color: var(--white); }
+.action-btn.secondary { background: transparent; color: var(--black); border: 1px solid rgba(30,29,26,.2); }
+.action-btn.secondary:hover { background: var(--black); color: var(--white); border-color: var(--black); }
+.action-btn.fav { background: transparent; border: 1px solid rgba(30,29,26,.12); color: var(--gray-mid); }
+.action-btn.fav:hover { border-color: var(--accent2); color: var(--accent2); }
+.action-sep { height: 1px; background: rgba(30,29,26,.08); margin: 1rem 0; }
+.action-info-row { display: flex; align-items: center; gap: .8rem; padding: .5rem 0; font-size: .8rem; color: var(--gray-dark); border-bottom: 1px solid rgba(30,29,26,.06); }
+.action-info-row:last-child { border-bottom: none; }
+.action-info-icon { font-size: 1rem; width: 20px; text-align: center; flex-shrink: 0; }
+.action-info-label { font-family: var(--font-mono); font-size: .6rem; letter-spacing: 1px; text-transform: uppercase; color: var(--gray-mid); }
+.action-info-val { font-size: .82rem; font-weight: 500; }
+
+/* Loading / Error */
+.page-loading { min-height: 60vh; display: flex; align-items: center; justify-content: center; font-family: var(--font-mono); font-size: .8rem; letter-spacing: 2px; color: var(--gray-mid); }
+.page-error { min-height: 60vh; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1rem; }
+.page-error h2 { font-family: var(--font-display); font-size: 2rem; }
+.page-error p { color: var(--gray-mid); font-size: .85rem; }
+
+/* ── MODAL ── */
+.modal-overlay { display: none; position: fixed; inset: 0; background: rgba(30,29,26,.55); z-index: 500; align-items: center; justify-content: center; backdrop-filter: blur(4px); }
+.modal-overlay.open { display: flex; }
+.modal-box { background: var(--white); padding: 2rem; width: 100%; max-width: 440px; margin: 1rem; position: relative; }
+.modal-title { font-family: var(--font-display); font-size: 1.6rem; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 1.4rem; }
+.modal-close { position: absolute; top: 1rem; right: 1rem; background: none; border: none; font-size: 1.2rem; cursor: pointer; color: var(--gray-mid); line-height: 1; }
+.modal-close:hover { color: var(--black); }
+.modal-input { width: 100%; padding: .75rem .9rem; border: 1px solid rgba(30,29,26,.2); background: var(--white); font-family: var(--font-body); font-size: .88rem; color: var(--black); outline: none; margin-bottom: .8rem; resize: vertical; }
+.modal-input:focus { border-color: var(--black); }
+.modal-submit { width: 100%; padding: .85rem; background: var(--accent); color: var(--black); border: none; font-family: var(--font-mono); font-size: .72rem; letter-spacing: 2px; text-transform: uppercase; cursor: pointer; font-weight: 600; transition: background .2s, color .2s; }
+.modal-submit:hover { background: var(--black); color: var(--white); }
+.modal-submit:disabled { opacity: .5; cursor: not-allowed; }
+.modal-success { text-align: center; padding: 1rem 0; }
+.modal-success-icon { font-size: 2.5rem; margin-bottom: .8rem; }
+.modal-success-text { font-family: var(--font-mono); font-size: .75rem; letter-spacing: 1.5px; color: var(--gray-mid); }
+</style>
+</head>
+<body>
+<div class="cursor" id="cursor"></div>
+<div class="cursor-ring" id="cursorRing"></div>
+
+<!-- ── MODAL CONTACT / DEMANDE ── -->
+<div class="modal-overlay" id="modalOverlay" onclick="if(event.target===this)closeModal()">
+  <div class="modal-box">
+    <button class="modal-close" onclick="closeModal()">✕</button>
+    <div id="modalContent"></div>
+  </div>
+</div>
+
+<nav class="top-nav">
+  <a href="home-client.html" class="nav-logo">SKILL<span>MAP</span></a>
+  <a id="navBack" href="dashboard-client.html" class="nav-back">← Retour</a>
+  <div class="nav-right">
+    <a href="home-client.html" style="font-family:var(--font-mono);font-size:.68rem;letter-spacing:1px;color:var(--gray-mid);text-decoration:none;">Accueil</a>
+    <div class="nav-avatar" id="navAvatar" onclick="window.location.href='profil-utilisateur.html'">?</div>
+  </div>
+</nav>
+
+<div id="pageContent">
+  <div class="page-loading">Chargement du profil…</div>
+</div>
+
+<script src="frontend/js/api.js"></script>
+<script src="frontend/js/auth.js"></script>
+<script>
+AUTH.requireAuth();
+const _user = AUTH.getUser();
+document.getElementById('navAvatar').textContent = (_user?.full_name?.split(' ').map(w=>w[0]).join('').slice(0,2)||'U').toUpperCase();
+
+// Cursor
+(function(){
+  const c=document.getElementById('cursor'),r=document.getElementById('cursorRing');
+  if(!c||!r) return;
+  document.addEventListener('mousemove',e=>{c.style.left=e.clientX+'px';c.style.top=e.clientY+'px';r.style.left=e.clientX+'px';r.style.top=e.clientY+'px';});
+})();
+
+const _params = new URLSearchParams(window.location.search);
+const providerId = parseInt(_params.get('id'));
+const backUrl = _params.get('from') || (document.referrer.includes('dashboard-client') ? 'dashboard-client.html' : 'prestataires.html');
+document.getElementById('navBack').href = backUrl;
+
+if (!providerId) {
+  document.getElementById('pageContent').innerHTML = `
+    <div class="page-error" style="margin-top:60px;padding:4rem 2rem;">
+      <h2>Profil introuvable</h2>
+      <p>Aucun identifiant de prestataire fourni.</p>
+      <a href="prestataires.html" style="padding:.7rem 1.5rem;background:var(--black);color:var(--white);text-decoration:none;font-family:var(--font-mono);font-size:.7rem;letter-spacing:2px;">Voir tous les prestataires</a>
+    </div>`;
+}
+
+let _provider = null;
+let _selectedRating = 0;
+
+async function loadProfile() {
+  try {
+    const params = {};
+    if (navigator.geolocation) {
+      await new Promise(resolve => {
+        navigator.geolocation.getCurrentPosition(pos => {
+          params.lat = pos.coords.latitude; params.lng = pos.coords.longitude;
+          resolve();
+        }, resolve, { timeout: 3000 });
+      });
+    }
+    _provider = await api.providers.get(providerId, params);
+    renderPage(_provider);
+  } catch (err) {
+    document.getElementById('pageContent').innerHTML = `
+      <div class="page-error" style="margin-top:60px;padding:4rem 2rem;">
+        <h2>Profil introuvable</h2>
+        <p>${err.message || 'Ce prestataire n\'existe pas ou a été supprimé.'}</p>
+        <a href="prestataires.html" style="margin-top:.5rem;padding:.7rem 1.5rem;background:var(--black);color:var(--white);text-decoration:none;font-family:var(--font-mono);font-size:.7rem;letter-spacing:2px;">Voir tous les prestataires</a>
+      </div>`;
+  }
+}
+
+function renderPage(p) {
+  const initials = (p.full_name||'??').split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
+  const stars = p.avg_rating ? '★'.repeat(Math.round(p.avg_rating))+'☆'.repeat(5-Math.round(p.avg_rating)) : '☆☆☆☆☆';
+  const dist = p.distance_km != null ? `📍 ${p.distance_km} km` : '';
+  document.title = `${p.full_name} — SkillMap`;
+
+  // Rating bars (simulated distribution)
+  const total = p.review_count || 0;
+  const avg = p.avg_rating || 0;
+  const barPcts = total > 0 ? [
+    Math.round(total * (avg >= 4.5 ? .6 : .3)),
+    Math.round(total * .2),
+    Math.round(total * .1),
+    Math.round(total * .07),
+    Math.round(total * .03),
+  ] : [0,0,0,0,0];
+
+  const skillsHtml = (p.skills||[]).map(s=>`<span class="skill-tag">${s}</span>`).join('');
+  const portfolioHtml = p.portfolio_items?.length
+    ? p.portfolio_items.map(item=>`<div class="portfolio-item" title="${item.title||''}"><span>${item.image_url?'🖼️':'📄'}</span></div>`).join('')
+    : [1,2,3,4].map((_, i) => {
+        const icons = ['🎨','📐','✂️','🔧','📸','🏗️','💡','🖥️'];
+        const cats = p.categories||[];
+        const icon = cats[0]?.icon || icons[i % icons.length];
+        return `<div class="portfolio-item" title="Réalisation ${i+1}">${icon}</div>`;
+      }).join('');
+
+  const reviewsHtml = (p.reviews||[]).map(r => `
+    <div class="review-card">
+      <div class="review-header">
+        <span class="review-author">${r.client_name}</span>
+        <span class="review-stars">${'★'.repeat(r.rating)}${'☆'.repeat(5-r.rating)}</span>
+      </div>
+      ${r.comment ? `<p class="review-text">"${r.comment}"</p>` : ''}
+      <div class="review-date" style="margin-top:.5rem;">${new Date(r.created_at).toLocaleDateString('fr-FR',{day:'2-digit',month:'long',year:'numeric'})}</div>
+    </div>
+  `).join('') || '<p style="color:var(--gray-mid);font-size:.85rem;">Aucun avis pour le moment. Soyez le premier à évaluer !</p>';
+
+  document.getElementById('pageContent').innerHTML = `
+    <!-- HERO -->
+    <div class="hero">
+      <div class="hero-inner">
+        <div class="hero-av">${initials}</div>
+        <div>
+          <h1 class="hero-name">${p.full_name}</h1>
+          <div class="hero-meta">
+            <span class="hero-title">${p.title}</span>
+            <span class="hero-loc">📍 ${p.neighborhood || p.city}</span>
+            ${dist ? `<span class="hero-loc" style="color:var(--accent3);">${dist}</span>` : ''}
+            ${p.experience_years ? `<span class="hero-loc">${p.experience_years} ans d'exp.</span>` : ''}
+          </div>
+          <div class="hero-badges">
+            ${p.is_available ? '<span class="badge badge-avail">● DISPONIBLE</span>' : '<span class="badge badge-busy">● OCCUPÉ</span>'}
+            ${p.is_verified ? '<span class="badge badge-verified">🛡️ VÉRIFIÉ</span>' : ''}
+          </div>
+        </div>
+        <div class="hero-rating">
+          <div class="rating-val">${avg || '—'}</div>
+          <div class="rating-stars">${stars}</div>
+          <div class="rating-count">${total} avis</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CONTENT -->
+    <div class="content-wrap">
+      <!-- LEFT -->
+      <div>
+        <!-- À propos -->
+        <div class="section">
+          <div class="section-title">À propos</div>
+          <p class="about-text">${p.description || 'Ce prestataire n\'a pas encore renseigné de présentation.'}</p>
+        </div>
+
+        <!-- Compétences -->
+        ${skillsHtml ? `
+        <div class="section">
+          <div class="section-title">Compétences</div>
+          <div class="skills-wrap">${skillsHtml}</div>
+        </div>` : ''}
+
+        <!-- Catégories -->
+        ${p.categories?.length ? `
+        <div class="section">
+          <div class="section-title">Domaines</div>
+          <div class="skills-wrap">${p.categories.map(c=>`<span class="skill-tag">${c.icon||''} ${c.name}</span>`).join('')}</div>
+        </div>` : ''}
+
+        <!-- Portfolio -->
+        <div class="section">
+          <div class="section-title">Réalisations</div>
+          <div class="portfolio-grid">${portfolioHtml}</div>
+          <p style="font-family:var(--font-mono);font-size:.62rem;letter-spacing:1px;color:var(--gray-mid);margin-top:.8rem;">📷 Contactez le prestataire pour voir ses réalisations en détail</p>
+        </div>
+
+        <!-- Avis clients -->
+        <div class="section">
+          <div class="section-title">Avis clients (${total})</div>
+          ${total > 0 ? `
+          <div class="review-summary">
+            <div>
+              <div class="review-big-num">${avg || '—'}</div>
+              <div style="color:var(--accent);font-size:.9rem;">${stars}</div>
+              <div style="font-family:var(--font-mono);font-size:.62rem;color:var(--gray-mid);margin-top:.3rem;">${total} avis</div>
+            </div>
+            <div class="review-bars">
+              ${[5,4,3,2,1].map((star,i)=>`
+                <div class="review-bar-row">
+                  <span>${star}★</span>
+                  <div class="review-bar-track"><div class="review-bar-fill" style="width:${total>0?Math.round((barPcts[i]/total)*100):0}%;"></div></div>
+                  <span>${barPcts[i]}</span>
+                </div>
+              `).join('')}
+            </div>
+          </div>` : ''}
+          <div class="review-list">${reviewsHtml}</div>
+
+          <!-- Formulaire avis -->
+          ${_user?.role === 'client' ? `
+          <div class="review-form">
+            <div class="review-form-title">Laisser un avis</div>
+            <div class="star-picker" id="starPicker">
+              <span onclick="setRating(1)" data-val="1">★</span>
+              <span onclick="setRating(2)" data-val="2">★</span>
+              <span onclick="setRating(3)" data-val="3">★</span>
+              <span onclick="setRating(4)" data-val="4">★</span>
+              <span onclick="setRating(5)" data-val="5">★</span>
+            </div>
+            <textarea class="review-textarea" id="reviewText" placeholder="Décrivez votre expérience avec ce prestataire…"></textarea>
+            <button class="btn-review-submit" onclick="submitReview()">Publier mon avis</button>
+            <div id="reviewMsg" style="font-family:var(--font-mono);font-size:.7rem;margin-top:.6rem;"></div>
+          </div>` : ''}
+        </div>
+      </div>
+
+      <!-- RIGHT — Action card -->
+      <div>
+        <div class="action-card">
+          ${p.hourly_rate ? `
+            <div class="action-price">${(p.hourly_rate).toLocaleString('fr-FR')} FCFA</div>
+            <div class="action-price-label">/ heure</div>
+          ` : '<div class="action-price-label" style="margin-bottom:1.4rem;">Tarif sur devis</div>'}
+
+          <button class="action-btn primary" onclick="contactProvider()">💬 Envoyer un message</button>
+          ${_user?.role === 'client' ? `<button class="action-btn secondary" onclick="requestService()">📋 Faire une demande</button>` : ''}
+          <button class="action-btn fav" id="favBtn" onclick="toggleFav()">🤍 Ajouter aux favoris</button>
+
+          <div class="action-sep"></div>
+
+          <div class="action-info-row">
+            <span class="action-info-icon">📍</span>
+            <div><div class="action-info-label">Zone</div><div class="action-info-val">${p.neighborhood || p.city}</div></div>
+          </div>
+          ${p.experience_years ? `
+          <div class="action-info-row">
+            <span class="action-info-icon">🏆</span>
+            <div><div class="action-info-label">Expérience</div><div class="action-info-val">${p.experience_years} ans</div></div>
+          </div>` : ''}
+          <div class="action-info-row">
+            <span class="action-info-icon">${p.is_available ? '✅' : '⏸️'}</span>
+            <div><div class="action-info-label">Statut</div><div class="action-info-val" style="color:${p.is_available?'var(--accent3)':'var(--gray-mid)'};">${p.is_available ? 'Disponible' : 'Occupé'}</div></div>
+          </div>
+          ${p.phone ? `
+          <div class="action-info-row">
+            <span class="action-info-icon">📞</span>
+            <div><div class="action-info-label">Contact</div><div class="action-info-val">${p.phone}</div></div>
+          </div>` : ''}
+        </div>
+      </div>
+    </div>
+  `;
+
+  // Check favorite status
+  checkFav();
+}
+
+function setRating(val) {
+  _selectedRating = val;
+  document.querySelectorAll('#starPicker span').forEach((s,i) => {
+    s.classList.toggle('active', i < val);
+  });
+}
+
+async function submitReview() {
+  if (!_selectedRating) return alert('Veuillez sélectionner une note');
+  const comment = document.getElementById('reviewText')?.value?.trim();
+  const msgEl = document.getElementById('reviewMsg');
+  try {
+    await api.reviews.create(providerId, { rating: _selectedRating, comment });
+    if (msgEl) msgEl.textContent = '✓ Avis publié avec succès !';
+    if (msgEl) msgEl.style.color = 'var(--accent3)';
+    setTimeout(() => loadProfile(), 1200);
+  } catch (err) {
+    if (msgEl) { msgEl.textContent = '⚠ ' + err.message; msgEl.style.color = 'var(--accent2)'; }
+  }
+}
+
+function openModal(html) {
+  document.getElementById('modalContent').innerHTML = html;
+  document.getElementById('modalOverlay').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+function closeModal() {
+  document.getElementById('modalOverlay').classList.remove('open');
+  document.body.style.overflow = '';
+}
+function modalSuccess(icon, text) {
+  document.getElementById('modalContent').innerHTML = `
+    <div class="modal-success">
+      <div class="modal-success-icon">${icon}</div>
+      <div class="modal-success-text">${text}</div>
+    </div>`;
+  setTimeout(closeModal, 2000);
+}
+
+function contactProvider() {
+  if (!_provider) return;
+  openModal(`
+    <div class="modal-title">Envoyer un message</div>
+    <p style="font-size:.82rem;color:var(--gray-mid);margin-bottom:1.2rem;">À <strong>${_provider.full_name}</strong></p>
+    <textarea class="modal-input" id="msgInput" rows="4" placeholder="Bonjour, je suis intéressé par vos services…"></textarea>
+    <button class="modal-submit" id="msgSubmit" onclick="sendMessage()">Envoyer →</button>
+  `);
+  setTimeout(() => document.getElementById('msgInput')?.focus(), 50);
+}
+
+async function sendMessage() {
+  const input = document.getElementById('msgInput');
+  const btn   = document.getElementById('msgSubmit');
+  if (!input?.value?.trim()) return;
+  btn.disabled = true; btn.textContent = 'Envoi…';
+  try {
+    await api.messages.send(_provider.user_id, input.value.trim());
+    modalSuccess('💬', 'Message envoyé ! Il vous répondra bientôt.');
+  } catch (err) {
+    btn.disabled = false; btn.textContent = 'Envoyer →';
+    document.getElementById('msgInput').insertAdjacentHTML('beforebegin', `<p style="color:var(--accent2);font-size:.75rem;margin-bottom:.5rem;">${err.message}</p>`);
+  }
+}
+
+function requestService() {
+  if (!_provider) return;
+  openModal(`
+    <div class="modal-title">Faire une demande</div>
+    <p style="font-size:.82rem;color:var(--gray-mid);margin-bottom:1.2rem;">Prestation avec <strong>${_provider.full_name}</strong></p>
+    <input class="modal-input" id="reqTitle" placeholder="Ex : Réparation fuite cuisine" style="height:auto;resize:none;" />
+    <textarea class="modal-input" id="reqDesc" rows="3" placeholder="Décrivez votre besoin (optionnel)…"></textarea>
+    <button class="modal-submit" id="reqSubmit" onclick="sendRequest()">Envoyer la demande →</button>
+  `);
+  setTimeout(() => document.getElementById('reqTitle')?.focus(), 50);
+}
+
+async function sendRequest() {
+  const titleEl = document.getElementById('reqTitle');
+  const descEl  = document.getElementById('reqDesc');
+  const btn     = document.getElementById('reqSubmit');
+  if (!titleEl?.value?.trim()) { titleEl.style.borderColor = 'var(--accent2)'; return; }
+  btn.disabled = true; btn.textContent = 'Envoi…';
+  try {
+    await api.services.create({ provider_id: _provider.id, title: titleEl.value.trim(), description: descEl?.value?.trim() || '' });
+    modalSuccess('✅', 'Demande envoyée ! Vous serez notifié dès acceptation.');
+  } catch (err) {
+    btn.disabled = false; btn.textContent = 'Envoyer la demande →';
+    btn.insertAdjacentHTML('beforebegin', `<p style="color:var(--accent2);font-size:.75rem;margin-bottom:.5rem;">${err.message}</p>`);
+  }
+}
+
+async function checkFav() {
+  try {
+    const { is_favorite } = await api.favorites.check(providerId);
+    const btn = document.getElementById('favBtn');
+    if (btn) btn.textContent = (is_favorite ? '❤️' : '🤍') + ' ' + (is_favorite ? 'Retirer des favoris' : 'Ajouter aux favoris');
+    if (btn) btn.classList.toggle('fav', !is_favorite);
+    if (btn) btn.style.color = is_favorite ? 'var(--accent2)' : '';
+    if (btn) btn.style.borderColor = is_favorite ? 'rgba(255,77,46,.3)' : '';
+  } catch {}
+}
+
+async function toggleFav() {
+  const btn = document.getElementById('favBtn');
+  const isFav = btn?.textContent?.includes('❤️');
+  try {
+    if (isFav) { await api.favorites.remove(providerId); }
+    else { await api.favorites.add(providerId); }
+    checkFav();
+  } catch (err) { alert(err.message); }
+}
+
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+
+if (providerId) loadProfile().then(() => {
+  if (new URLSearchParams(location.search).get('action') === 'request') requestService();
+});
+</script>
+</body>
+</html>

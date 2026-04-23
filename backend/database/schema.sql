@@ -1,0 +1,136 @@
+-- SkillMap — Schéma complet de la base de données SQLite
+-- Exécuté automatiquement par database/init.js
+
+PRAGMA foreign_keys = ON;
+PRAGMA journal_mode = WAL;
+
+-- ─── UTILISATEURS (base commune) ────────────────────────────
+CREATE TABLE IF NOT EXISTS users (
+  id          INTEGER PRIMARY KEY AUTOINCREMENT,
+  email       TEXT    NOT NULL UNIQUE COLLATE NOCASE,
+  password    TEXT    NOT NULL,
+  role        TEXT    NOT NULL DEFAULT 'client' CHECK(role IN ('client','provider','admin')),
+  full_name   TEXT    NOT NULL,
+  phone       TEXT,
+  avatar_url  TEXT,
+  city        TEXT    DEFAULT 'Abidjan',
+  is_active   INTEGER DEFAULT 1,
+  created_at  TEXT    DEFAULT (datetime('now')),
+  updated_at  TEXT    DEFAULT (datetime('now'))
+);
+
+-- ─── PROFILS PRESTATAIRES ───────────────────────────────────
+CREATE TABLE IF NOT EXISTS providers (
+  id              INTEGER PRIMARY KEY AUTOINCREMENT,
+  user_id         INTEGER NOT NULL UNIQUE REFERENCES users(id) ON DELETE CASCADE,
+  title           TEXT    NOT NULL,           -- "Plombier", "Graphiste"…
+  description     TEXT,
+  city            TEXT    DEFAULT 'Abidjan',
+  neighborhood    TEXT,                       -- Quartier
+  lat             REAL,
+  lng             REAL,
+  is_available    INTEGER DEFAULT 1,
+  is_verified     INTEGER DEFAULT 0,
+  hourly_rate     REAL,
+  experience_years INTEGER DEFAULT 0,
+  views_count     INTEGER DEFAULT 0,
+  created_at      TEXT    DEFAULT (datetime('now')),
+  updated_at      TEXT    DEFAULT (datetime('now'))
+);
+
+-- ─── CATÉGORIES DE SERVICES ──────────────────────────────────
+CREATE TABLE IF NOT EXISTS categories (
+  id    INTEGER PRIMARY KEY AUTOINCREMENT,
+  name  TEXT    NOT NULL UNIQUE,
+  slug  TEXT    NOT NULL UNIQUE,
+  icon  TEXT    DEFAULT '🔧'
+);
+
+-- ─── PRESTATAIRES ↔ CATÉGORIES ───────────────────────────────
+CREATE TABLE IF NOT EXISTS provider_categories (
+  provider_id INTEGER NOT NULL REFERENCES providers(id) ON DELETE CASCADE,
+  category_id INTEGER NOT NULL REFERENCES categories(id) ON DELETE CASCADE,
+  PRIMARY KEY (provider_id, category_id)
+);
+
+-- ─── COMPÉTENCES DES PRESTATAIRES ────────────────────────────
+CREATE TABLE IF NOT EXISTS provider_skills (
+  id          INTEGER PRIMARY KEY AUTOINCREMENT,
+  provider_id INTEGER NOT NULL REFERENCES providers(id) ON DELETE CASCADE,
+  skill       TEXT    NOT NULL
+);
+
+-- ─── PORTFOLIO ───────────────────────────────────────────────
+CREATE TABLE IF NOT EXISTS portfolio_items (
+  id          INTEGER PRIMARY KEY AUTOINCREMENT,
+  provider_id INTEGER NOT NULL REFERENCES providers(id) ON DELETE CASCADE,
+  title       TEXT    NOT NULL,
+  description TEXT,
+  image_url   TEXT,
+  created_at  TEXT    DEFAULT (datetime('now'))
+);
+
+-- ─── DEMANDES DE SERVICE ─────────────────────────────────────
+CREATE TABLE IF NOT EXISTS service_requests (
+  id           INTEGER PRIMARY KEY AUTOINCREMENT,
+  client_id    INTEGER NOT NULL REFERENCES users(id),
+  provider_id  INTEGER NOT NULL REFERENCES providers(id),
+  title        TEXT    NOT NULL,
+  description  TEXT,
+  status       TEXT    DEFAULT 'pending'
+                CHECK(status IN ('pending','accepted','in_progress','completed','cancelled','rejected')),
+  scheduled_at TEXT,
+  completed_at TEXT,
+  created_at   TEXT    DEFAULT (datetime('now')),
+  updated_at   TEXT    DEFAULT (datetime('now'))
+);
+
+-- ─── AVIS ET NOTATIONS ───────────────────────────────────────
+CREATE TABLE IF NOT EXISTS reviews (
+  id          INTEGER PRIMARY KEY AUTOINCREMENT,
+  request_id  INTEGER REFERENCES service_requests(id),
+  client_id   INTEGER NOT NULL REFERENCES users(id),
+  provider_id INTEGER NOT NULL REFERENCES providers(id),
+  rating      INTEGER NOT NULL CHECK(rating BETWEEN 1 AND 5),
+  comment     TEXT,
+  is_visible  INTEGER DEFAULT 1,
+  created_at  TEXT    DEFAULT (datetime('now'))
+);
+
+-- ─── FAVORIS ─────────────────────────────────────────────────
+CREATE TABLE IF NOT EXISTS favorites (
+  client_id   INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  provider_id INTEGER NOT NULL REFERENCES providers(id) ON DELETE CASCADE,
+  created_at  TEXT    DEFAULT (datetime('now')),
+  PRIMARY KEY (client_id, provider_id)
+);
+
+-- ─── MESSAGES ────────────────────────────────────────────────
+CREATE TABLE IF NOT EXISTS messages (
+  id          INTEGER PRIMARY KEY AUTOINCREMENT,
+  sender_id   INTEGER NOT NULL REFERENCES users(id),
+  receiver_id INTEGER NOT NULL REFERENCES users(id),
+  content     TEXT    NOT NULL,
+  is_read     INTEGER DEFAULT 0,
+  created_at  TEXT    DEFAULT (datetime('now'))
+);
+
+-- ─── SIGNALEMENTS ────────────────────────────────────────────
+CREATE TABLE IF NOT EXISTS reports (
+  id          INTEGER PRIMARY KEY AUTOINCREMENT,
+  reporter_id INTEGER NOT NULL REFERENCES users(id),
+  provider_id INTEGER NOT NULL REFERENCES providers(id),
+  reason      TEXT    NOT NULL CHECK(reason IN ('fake','inappropriate','spam','other')),
+  description TEXT,
+  status      TEXT    DEFAULT 'pending' CHECK(status IN ('pending','reviewed','dismissed')),
+  created_at  TEXT    DEFAULT (datetime('now'))
+);
+
+-- ─── INDEX pour les performances ─────────────────────────────
+CREATE INDEX IF NOT EXISTS idx_providers_available ON providers(is_available);
+CREATE INDEX IF NOT EXISTS idx_providers_lat_lng   ON providers(lat, lng);
+CREATE INDEX IF NOT EXISTS idx_providers_city      ON providers(city);
+CREATE INDEX IF NOT EXISTS idx_reviews_provider    ON reviews(provider_id);
+CREATE INDEX IF NOT EXISTS idx_messages_receiver   ON messages(receiver_id, is_read);
+CREATE INDEX IF NOT EXISTS idx_service_requests_provider ON service_requests(provider_id, status);
+CREATE INDEX IF NOT EXISTS idx_service_requests_client   ON service_requests(client_id, status);

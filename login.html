@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>SkillMap — Connexion</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --black: #1e1d1a; --white: #f5f4f0; --off-white: #eeece6;
+    --gray-light: #d8d6cf; --gray-mid: #8a8880; --gray-dark: #3a3936;
+    --accent: #e8e03a; --accent2: #ff4d2e; --accent3: #2eff9e;
+    --font-display: 'Bebas Neue', sans-serif;
+    --font-body: 'DM Sans', sans-serif;
+    --font-mono: 'DM Mono', monospace;
+  }
+  html { scroll-behavior: smooth; }
+  body { font-family: var(--font-body); background: var(--white); color: var(--black); overflow-x: hidden; min-height: 100vh; }
+
+  .cursor { position: fixed; width: 12px; height: 12px; background: var(--accent); border-radius: 50%; pointer-events: none; z-index: 9999; transform: translate(-50%,-50%); transition: width .2s, height .2s; mix-blend-mode: multiply; }
+  .cursor-ring { position: fixed; width: 40px; height: 40px; border: 1px solid rgba(232,224,58,0.5); border-radius: 50%; pointer-events: none; z-index: 9998; transform: translate(-50%,-50%); transition: width .3s, height .3s; }
+
+  nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 1.1rem 3rem;
+    border-bottom: 1px solid rgba(30,29,26,0.1);
+    background: rgba(245,244,240,0.95); backdrop-filter: blur(12px);
+  }
+  .nav-logo { font-family: var(--font-display); font-size: 1.7rem; letter-spacing: 3px; color: var(--black); text-decoration: none; }
+  .nav-logo span { color: var(--accent); }
+  .nav-back { font-size: 0.72rem; letter-spacing: 2px; text-transform: uppercase; color: var(--gray-mid); text-decoration: none; font-family: var(--font-mono); transition: color .2s; display: flex; align-items: center; gap: .5rem; }
+  .nav-back:hover { color: var(--black); }
+
+  /* Layout */
+  .auth-layout { min-height: 100vh; display: grid; grid-template-columns: 1fr 1fr; }
+
+  /* ── FORM SIDE ── */
+  .auth-form-side {
+    padding: 7rem 4.5rem 3rem;
+    display: flex; flex-direction: column; justify-content: center;
+    border-right: 1px solid rgba(30,29,26,0.1);
+  }
+  .auth-eyebrow { font-family: var(--font-mono); font-size: .7rem; letter-spacing: 3px; text-transform: uppercase; color: var(--gray-mid); margin-bottom: .8rem; }
+  .auth-title { font-family: var(--font-display); font-size: clamp(2.8rem,4.5vw,4.2rem); line-height: .92; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 2rem; }
+  .auth-title span { color: var(--accent); }
+
+  .mode-toggle { display: flex; margin-bottom: 2.2rem; border: 1px solid rgba(30,29,26,0.18); overflow: hidden; width: fit-content; }
+  .mode-btn { padding: .55rem 1.4rem; font-size: .75rem; letter-spacing: 1.5px; text-transform: uppercase; font-family: var(--font-body); font-weight: 500; background: transparent; border: none; cursor: pointer; color: var(--gray-mid); transition: background .2s, color .2s; }
+  .mode-btn.active { background: var(--black); color: var(--white); }
+  .mode-btn:not(.active):hover { background: var(--off-white); color: var(--black); }
+
+  .auth-tabs { display: flex; gap: 2rem; margin-bottom: 1.8rem; border-bottom: 1px solid rgba(30,29,26,0.1); }
+  .auth-tab { padding-bottom: .75rem; font-size: .85rem; font-weight: 500; cursor: pointer; position: relative; color: var(--gray-mid); transition: color .2s; border: none; background: none; font-family: var(--font-body); }
+  .auth-tab::after { content: ''; position: absolute; bottom: -1px; left: 0; width: 0; height: 2px; background: var(--accent); transition: width .25s ease; }
+  .auth-tab.active { color: var(--black); }
+  .auth-tab.active::after { width: 100%; }
+
+  .form-group { margin-bottom: 1.1rem; }
+  .form-label { font-size: .7rem; letter-spacing: 2px; text-transform: uppercase; font-family: var(--font-mono); color: var(--gray-dark); display: block; margin-bottom: .45rem; }
+  .form-input { width: 100%; padding: .85rem 1rem; border: 1px solid rgba(30,29,26,0.2); background: var(--white); font-family: var(--font-body); font-size: .9rem; color: var(--black); outline: none; transition: border-color .2s, box-shadow .2s; }
+  .form-input:focus { border-color: var(--black); box-shadow: 0 0 0 3px rgba(30,29,26,.06); }
+  .form-input::placeholder { color: var(--gray-mid); }
+
+  .register-fields { display: none; }
+  .register-fields.show { display: block; }
+
+  .skills-selector { display: flex; flex-wrap: wrap; gap: .35rem; margin-top: .5rem; }
+  .skill-chip { padding: .3rem .75rem; border: 1px solid var(--gray-light); font-size: .7rem; letter-spacing: 1px; cursor: pointer; transition: background .15s, border-color .15s, color .15s, transform .1s; color: var(--gray-dark); }
+  .skill-chip:hover { border-color: var(--gray-dark); }
+  .skill-chip.selected { background: var(--black); color: var(--white); border-color: var(--black); }
+  .skill-chip:active { transform: scale(.93); }
+
+  .btn-submit { width: 100%; padding: .95rem; margin-top: 1.4rem; background: var(--accent); color: var(--black); border: none; font-family: var(--font-body); font-size: .82rem; letter-spacing: 2px; text-transform: uppercase; font-weight: 500; cursor: pointer; transition: background .2s, transform .15s; position: relative; overflow: hidden; }
+  .btn-submit:hover { background: var(--black); color: var(--white); }
+  .btn-submit:active { transform: scale(.98); }
+
+  .auth-switch { text-align: center; font-size: .8rem; color: var(--gray-mid); margin-top: 1.4rem; }
+  .auth-switch a { color: var(--black); text-decoration: none; font-weight: 500; border-bottom: 1px solid var(--gray-light); transition: border-color .2s; }
+  .auth-switch a:hover { border-color: var(--black); }
+
+  /* ── VISUAL SIDE ── */
+  .auth-visual-side { background: var(--off-white); display: flex; align-items: center; justify-content: center; padding: 7rem 3.5rem 3rem; position: sticky; top: 0; height: 100vh; overflow: hidden; }
+  .auth-visual { width: 100%; max-width: 380px; }
+  .visual-panel { display: none; flex-direction: column; gap: .9rem; }
+  .visual-panel.active { display: flex; animation: fadeUp .4s cubic-bezier(.22,1,.36,1); }
+  @keyframes fadeUp { from { opacity:0; transform:translateY(14px); } to { opacity:1; transform:translateY(0); } }
+
+  .visual-badge { display: inline-flex; align-items: center; gap: .4rem; background: var(--accent); color: var(--black); padding: .38rem .9rem; font-size: .68rem; letter-spacing: 2px; text-transform: uppercase; font-family: var(--font-mono); font-weight: 500; margin-bottom: .5rem; width: fit-content; }
+  .visual-title { font-family: var(--font-display); font-size: 2.8rem; text-transform: uppercase; line-height: .92; margin-bottom: .8rem; }
+  .visual-title span { color: var(--accent); }
+
+  .mini-card { background: var(--white); border: 1px solid rgba(30,29,26,0.1); padding: .9rem 1.1rem; display: flex; align-items: center; gap: .9rem; transition: transform .2s, border-color .2s; cursor: pointer; }
+  .mini-card:hover { transform: translateX(4px); border-color: rgba(30,29,26,.25); }
+  .mini-avatar { width: 38px; height: 38px; display: flex; align-items: center; justify-content: center; font-family: var(--font-display); font-size: .95rem; flex-shrink: 0; }
+  .mini-info { flex: 1; }
+  .mini-name { font-size: .85rem; font-weight: 500; }
+  .mini-role { font-size: .68rem; color: var(--gray-mid); font-family: var(--font-mono); margin-top: 2px; letter-spacing: 1px; }
+  .mini-dist { font-size: .68rem; font-family: var(--font-mono); color: var(--accent3); flex-shrink: 0; }
+
+  .mini-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 1px; background: rgba(30,29,26,.1); }
+  .mini-stat { background: var(--white); padding: 1.1rem; }
+  .mini-stat-num { font-family: var(--font-display); font-size: 2rem; color: var(--black); }
+  .mini-stat-label { font-size: .65rem; font-family: var(--font-mono); letter-spacing: 1px; text-transform: uppercase; color: var(--gray-mid); margin-top: .15rem; }
+
+  .visual-note { font-size: .73rem; color: var(--gray-mid); font-family: var(--font-mono); letter-spacing: 1px; margin-top: .4rem; }
+
+  @media (max-width:900px) {
+    .auth-layout { grid-template-columns: 1fr; }
+    .auth-visual-side { display: none; }
+    .auth-form-side { padding: 6rem 1.5rem 3rem; }
+    nav { padding: 1rem 1.5rem; }
+  }
+</style>
+</head>
+<body>
+<div class="cursor" id="cursor"></div>
+<div class="cursor-ring" id="cursorRing"></div>
+
+<nav>
+  <a href="skillmap.html" class="nav-logo">Skill<span>Map</span></a>
+  <a href="skillmap.html" class="nav-back">← Retour à l'accueil</a>
+</nav>
+
+<div class="auth-layout">
+  <!-- FORM -->
+  <div class="auth-form-side">
+    <p class="auth-eyebrow">Bienvenue</p>
+    <h1 class="auth-title">Rejoignez<br><span>SkillMap</span></h1>
+
+    <div class="mode-toggle">
+      <button class="mode-btn active" id="modeClient" onclick="setMode('client')">Je cherche</button>
+      <button class="mode-btn" id="modePresta" onclick="setMode('presta')">Je propose</button>
+    </div>
+
+    <div class="auth-tabs">
+      <button class="auth-tab active" id="tabLogin" onclick="setTab('login')">Connexion</button>
+      <button class="auth-tab" id="tabRegister" onclick="setTab('register')">Inscription</button>
+    </div>
+
+    <form id="authForm" onsubmit="return false;">
+      <div class="form-group">
+        <label class="form-label">Adresse e-mail</label>
+        <input type="email" class="form-input" placeholder="votre@email.com" />
+      </div>
+      <div class="form-group">
+        <label class="form-label">Mot de passe</label>
+        <input type="password" class="form-input" placeholder="••••••••" />
+      </div>
+
+      <div class="register-fields" id="registerFields">
+        <div class="form-group">
+          <label class="form-label">Nom complet</label>
+          <input type="text" class="form-input" placeholder="Ex : Koné Oumar" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Ville / Quartier</label>
+          <input type="text" class="form-input" placeholder="Ex : Cocody, Abidjan" />
+        </div>
+        <div id="prestaFields" style="display:none;">
+          <div class="form-group">
+            <label class="form-label">Votre métier principal</label>
+            <input type="text" class="form-input" placeholder="Ex : Plombier, Graphiste, Coiffeur…" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Compétences clés</label>
+            <div class="skills-selector">
+              <span class="skill-chip" onclick="toggleChip(this)">Plomberie</span>
+              <span class="skill-chip selected" onclick="toggleChip(this)">Installation</span>
+              <span class="skill-chip" onclick="toggleChip(this)">Réparation</span>
+              <span class="skill-chip" onclick="toggleChip(this)">Urgence 24h</span>
+              <span class="skill-chip" onclick="toggleChip(this)">Design</span>
+              <span class="skill-chip" onclick="toggleChip(this)">UI/UX</span>
+              <span class="skill-chip" onclick="toggleChip(this)">Électricité</span>
+              <span class="skill-chip" onclick="toggleChip(this)">Couture</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <button type="button" class="btn-submit" onclick="handleSubmit()">
+        <span id="btnText">Se connecter</span>
+      </button>
+    </form>
+
+    <p class="auth-switch" id="switchText">
+      Pas encore de compte ? <a href="#" onclick="setTab('register'); return false;">Créer un compte</a>
+    </p>
+  </div>
+
+  <!-- VISUAL -->
+  <div class="auth-visual-side">
+    <div class="auth-visual">
+
+      <div class="visual-panel active" id="visualClient">
+        <div class="visual-badge">📍 Autour de vous</div>
+        <h2 class="visual-title">Trouvez<br>le bon <span>talent</span></h2>
+        <div class="mini-card" onclick="window.location.href='provider-profile.html?id=1'">
+          <div class="mini-avatar" style="background:rgba(46,255,158,.1);color:#2eff9e;border:1px solid rgba(46,255,158,.3);">KO</div>
+          <div class="mini-info"><div class="mini-name">Koné Oumar</div><div class="mini-role">Plombier · Cocody</div></div>
+          <span class="mini-dist">0.8 km</span>
+        </div>
+        <div class="mini-card" onclick="window.location.href='provider-profile.html?id=2'">
+          <div class="mini-avatar" style="background:rgba(232,224,58,.1);color:#e8e03a;border:1px solid rgba(232,224,58,.3);">AT</div>
+          <div class="mini-info"><div class="mini-name">Aïcha Touré</div><div class="mini-role">Graphiste · Plateau</div></div>
+          <span class="mini-dist">1.4 km</span>
+        </div>
+        <div class="mini-card" onclick="window.location.href='provider-profile.html?id=4'">
+          <div class="mini-avatar" style="background:rgba(255,77,46,.08);color:#ff4d2e;border:1px solid rgba(255,77,46,.25);">FK</div>
+          <div class="mini-info"><div class="mini-name">Fatou Kouyaté</div><div class="mini-role">Coiffeuse · Marcory</div></div>
+          <span class="mini-dist">1.1 km</span>
+        </div>
+        <p class="visual-note" style="cursor:pointer;" onclick="window.location.href='prestataires.html'">→ Voir les 2 400 prestataires</p>
+      </div>
+
+      <div class="visual-panel" id="visualPresta">
+        <div class="visual-badge">📊 Votre espace pro</div>
+        <h2 class="visual-title">Développez<br>votre <span>activité</span></h2>
+        <div class="mini-stats">
+          <div class="mini-stat"><div class="mini-stat-num">47</div><div class="mini-stat-label">Clients ce mois</div></div>
+          <div class="mini-stat"><div class="mini-stat-num" style="color:var(--accent);">4.9★</div><div class="mini-stat-label">Note moyenne</div></div>
+          <div class="mini-stat"><div class="mini-stat-num">+18</div><div class="mini-stat-label">Nouvelles vues</div></div>
+          <div class="mini-stat"><div class="mini-stat-num" style="color:var(--accent3);">98%</div><div class="mini-stat-label">Taux réponse</div></div>
+        </div>
+        <p class="visual-note">Gérez profil, disponibilités et demandes</p>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script>
+  const cursor = document.getElementById('cursor'), ring = document.getElementById('cursorRing');
+  let mx=0,my=0,rx=0,ry=0;
+  document.addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY;});
+  (function anim(){cursor.style.left=mx+'px';cursor.style.top=my+'px';rx+=(mx-rx)*.12;ry+=(my-ry)*.12;ring.style.left=rx+'px';ring.style.top=ry+'px';requestAnimationFrame(anim);})();
+  document.querySelectorAll('a,button,.mini-card,.skill-chip').forEach(el=>{
+    el.addEventListener('mouseenter',()=>{cursor.style.width='20px';cursor.style.height='20px';ring.style.width='60px';ring.style.height='60px';});
+    el.addEventListener('mouseleave',()=>{cursor.style.width='12px';cursor.style.height='12px';ring.style.width='40px';ring.style.height='40px';});
+  });
+
+  var currentMode='client', currentTab='login';
+
+  function setMode(mode) {
+    currentMode = mode;
+    document.getElementById('modeClient').classList.toggle('active', mode==='client');
+    document.getElementById('modePresta').classList.toggle('active', mode==='presta');
+    document.getElementById('visualClient').classList.toggle('active', mode==='client');
+    document.getElementById('visualPresta').classList.toggle('active', mode==='presta');
+    document.getElementById('prestaFields').style.display = (mode==='presta' && currentTab==='register') ? 'block' : 'none';
+  }
+
+  function setTab(tab) {
+    currentTab = tab;
+    document.getElementById('tabLogin').classList.toggle('active', tab==='login');
+    document.getElementById('tabRegister').classList.toggle('active', tab==='register');
+    document.getElementById('registerFields').classList.toggle('show', tab==='register');
+    document.getElementById('btnText').textContent = tab==='login' ? 'Se connecter' : 'Créer mon compte';
+    document.getElementById('switchText').innerHTML = tab==='login'
+      ? 'Pas encore de compte ? <a href="#" onclick="setTab(\'register\'); return false;">Créer un compte</a>'
+      : 'Déjà un compte ? <a href="#" onclick="setTab(\'login\'); return false;">Se connecter</a>';
+    document.getElementById('prestaFields').style.display = (currentMode==='presta' && tab==='register') ? 'block' : 'none';
+  }
+
+  function toggleChip(el) { el.classList.toggle('selected'); }
+
+  // handleSubmit est remplacé par auth.js (fallback local si l'API est indisponible)
+  function handleSubmit() {
+    const btn = document.querySelector('.btn-submit');
+    btn.style.background = 'var(--gray-dark)'; btn.style.color = 'var(--white)';
+    document.getElementById('btnText').textContent = 'Chargement…';
+    setTimeout(() => {
+      window.location.href = currentMode === 'client' ? 'home-client.html' : 'dashboard-prestataire.html';
+    }, 700);
+  }
+</script>
+
+<!-- ── Intégration API SkillMap ── -->
+<script src="frontend/js/api.js"></script>
+<script src="frontend/js/auth.js"></script>
+</body>
+</html>
