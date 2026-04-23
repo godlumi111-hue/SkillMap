@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>SkillMap — Mes demandes</title>
+<title>SkillMap — Demandes</title>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
 <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
 <style>
@@ -37,20 +37,49 @@ body { font-family: var(--font-body); background: var(--white); color: var(--bla
 
 /* Request cards */
 .request-list { display: flex; flex-direction: column; gap: .8rem; }
-.req-card { border: 1px solid rgba(30,29,26,.1); padding: 1.4rem; display: grid; grid-template-columns: 1fr auto; gap: 1rem; align-items: start; transition: border-color .2s; }
+.req-card { border: 1px solid rgba(30,29,26,.1); transition: border-color .2s; }
 .req-card:hover { border-color: rgba(30,29,26,.25); }
+.req-card-body { padding: 1.2rem 1.4rem; display: grid; grid-template-columns: 1fr auto; gap: 1rem; align-items: start; }
 .req-title { font-size: .95rem; font-weight: 500; margin-bottom: .35rem; }
-.req-provider { font-family: var(--font-mono); font-size: .65rem; letter-spacing: 1px; color: var(--gray-mid); margin-bottom: .5rem; }
+.req-meta { font-family: var(--font-mono); font-size: .65rem; letter-spacing: 1px; color: var(--gray-mid); margin-bottom: .5rem; }
 .req-desc { font-size: .8rem; color: var(--gray-dark); line-height: 1.6; font-weight: 300; }
 .req-date { font-family: var(--font-mono); font-size: .6rem; color: var(--gray-mid); margin-top: .6rem; letter-spacing: 1px; }
 .req-right { display: flex; flex-direction: column; align-items: flex-end; gap: .6rem; }
 .status-badge { font-size: .6rem; font-family: var(--font-mono); letter-spacing: 1px; padding: .3rem .7rem; white-space: nowrap; }
-.status-pending   { background: rgba(232,224,58,.1);  color: #b8a800; border: 1px solid rgba(232,224,58,.4); }
-.status-accepted  { background: rgba(30,29,26,.05);   color: var(--gray-dark); border: 1px solid rgba(30,29,26,.15); }
-.status-completed { background: rgba(46,255,158,.08); color: #00a862; border: 1px solid rgba(46,255,158,.3); }
-.status-rejected  { background: rgba(255,77,46,.08);  color: var(--accent2); border: 1px solid rgba(255,77,46,.2); }
+.status-pending    { background: rgba(232,224,58,.1);  color: #b8a800; border: 1px solid rgba(232,224,58,.4); }
+.status-accepted   { background: rgba(46,255,158,.08); color: #00a862; border: 1px solid rgba(46,255,158,.3); }
+.status-in_progress{ background: rgba(0,201,177,.1);   color: #007a6e; border: 1px solid rgba(0,201,177,.3); }
+.status-completed  { background: rgba(30,29,26,.05);   color: var(--gray-dark); border: 1px solid rgba(30,29,26,.15); }
+.status-rejected   { background: rgba(255,77,46,.08);  color: var(--accent2); border: 1px solid rgba(255,77,46,.2); }
+.status-cancelled  { background: rgba(255,77,46,.06);  color: var(--accent2); border: 1px solid rgba(255,77,46,.15); }
 .btn-msg { padding: .45rem .9rem; background: transparent; border: 1px solid rgba(30,29,26,.2); cursor: pointer; font-family: var(--font-mono); font-size: .6rem; letter-spacing: 1px; text-transform: uppercase; transition: border-color .2s; }
 .btn-msg:hover { border-color: var(--black); }
+
+/* Actions bar (provider) */
+.req-actions { padding: .65rem 1.4rem; border-top: 1px solid rgba(30,29,26,.06); background: rgba(30,29,26,.02); display: flex; gap: .5rem; align-items: center; flex-wrap: wrap; }
+.act-label { font-family: var(--font-mono); font-size: .58rem; color: var(--gray-mid); letter-spacing: 1px; margin-right: .3rem; }
+.act-btn { padding: .4rem .9rem; font-family: var(--font-mono); font-size: .6rem; letter-spacing: 1.5px; text-transform: uppercase; cursor: pointer; border: none; transition: all .2s; }
+.act-btn.accept   { background: var(--accent); color: var(--black); }
+.act-btn.accept:hover { background: #d4cc35; }
+.act-btn.progress { background: var(--black); color: var(--white); }
+.act-btn.progress:hover { background: var(--gray-dark); }
+.act-btn.done     { background: rgba(46,255,158,.15); color: #00a862; border: 1px solid rgba(46,255,158,.3); }
+.act-btn.done:hover { background: rgba(46,255,158,.25); }
+.act-btn.reject   { background: rgba(255,77,46,.1); color: var(--accent2); border: 1px solid rgba(255,77,46,.2); margin-left: auto; }
+.act-btn.reject:hover { background: rgba(255,77,46,.18); }
+.act-btn.cancel   { background: rgba(255,77,46,.08); color: var(--accent2); border: 1px solid rgba(255,77,46,.15); }
+.act-btn.cancel:hover { background: rgba(255,77,46,.15); }
+.act-btn:disabled { opacity: .4; cursor: not-allowed; }
+
+/* Confirm overlay */
+.confirm-overlay { position: fixed; inset: 0; background: rgba(30,29,26,.6); z-index: 500; display: flex; align-items: center; justify-content: center; padding: 1rem; }
+.confirm-box { background: var(--white); max-width: 380px; width: 100%; padding: 2rem; }
+.confirm-box h3 { font-family: var(--font-display); font-size: 1.4rem; letter-spacing: 2px; margin-bottom: .8rem; }
+.confirm-box p { font-size: .85rem; color: var(--gray-dark); line-height: 1.6; margin-bottom: 1.5rem; }
+.confirm-actions { display: flex; gap: .6rem; }
+.confirm-actions button { flex: 1; padding: .65rem; font-family: var(--font-mono); font-size: .62rem; letter-spacing: 1.5px; text-transform: uppercase; cursor: pointer; border: none; }
+.confirm-yes { background: var(--accent2); color: var(--white); }
+.confirm-no  { background: transparent; border: 1px solid rgba(30,29,26,.2) !important; color: var(--black); }
 
 .empty-state { text-align: center; padding: 5rem 2rem; }
 .empty-state-icon { font-size: 3rem; margin-bottom: 1rem; }
@@ -63,8 +92,8 @@ body { font-family: var(--font-body); background: var(--white); color: var(--bla
 </head>
 <body>
 <nav class="top-nav">
-  <a href="home-client.html" class="nav-logo">SKILL<span>MAP</span></a>
-  <a href="home-client.html" class="nav-back">← Accueil</a>
+  <a id="navHome" href="home-client.html" class="nav-logo">SKILL<span>MAP</span></a>
+  <a id="navBack" href="home-client.html" class="nav-back">← Accueil</a>
   <div class="nav-right">
     <div class="nav-avatar" id="navAvatar">?</div>
   </div>
@@ -73,22 +102,23 @@ body { font-family: var(--font-body); background: var(--white); color: var(--bla
 <div class="main-wrap">
   <div class="page-header">
     <div>
-      <h1 class="page-title">MES DEMANDES</h1>
+      <h1 class="page-title" id="pageTitle">DEMANDES</h1>
       <p class="page-sub" id="reqCount">Chargement…</p>
     </div>
-    <a href="prestataires.html" class="btn-new">+ Nouvelle demande</a>
+    <a href="prestataires.html" class="btn-new" id="btnNew">+ Nouvelle demande</a>
   </div>
 
-  <div class="tabs">
+  <div class="tabs" id="tabsBar">
     <div class="tab active" data-filter="all" onclick="setFilter('all', this)">Toutes</div>
     <div class="tab" data-filter="pending" onclick="setFilter('pending', this)">En attente</div>
     <div class="tab" data-filter="accepted" onclick="setFilter('accepted', this)">Acceptées</div>
+    <div class="tab" data-filter="in_progress" onclick="setFilter('in_progress', this)">En cours</div>
     <div class="tab" data-filter="completed" onclick="setFilter('completed', this)">Terminées</div>
   </div>
 
   <div class="request-list" id="requestList">
     <div style="height:100px;" class="skeleton"></div>
-    <div style="height:100px;" class="skeleton" style="margin-top:.8rem;"></div>
+    <div style="height:100px;margin-top:.8rem;" class="skeleton"></div>
   </div>
 </div>
 
@@ -97,64 +127,183 @@ body { font-family: var(--font-body); background: var(--white); color: var(--bla
 <script>
 AUTH.requireAuth();
 const _user = AUTH.getUser();
+const _isProvider = _user?.role === 'provider';
+
+// Init UI for role
 document.getElementById('navAvatar').textContent = (_user?.full_name?.split(' ').map(w=>w[0]).join('').slice(0,2)||'U').toUpperCase();
+if (_isProvider) {
+  const homeUrl = 'home-prestataire.html';
+  document.getElementById('navHome').href = homeUrl;
+  document.getElementById('navBack').href = homeUrl;
+  document.getElementById('navBack').textContent = '← Accueil';
+  document.getElementById('pageTitle').textContent = 'DEMANDES REÇUES';
+  document.getElementById('btnNew').style.display = 'none';
+} else {
+  document.getElementById('pageTitle').textContent = 'MES DEMANDES';
+}
 
 let _allRequests = [];
 let _filter = 'all';
 
 const statusMap = {
-  pending:   { label: 'En attente',  cls: 'status-pending'   },
-  accepted:  { label: 'Acceptée',    cls: 'status-accepted'  },
-  completed: { label: 'Terminée',    cls: 'status-completed' },
-  rejected:  { label: 'Refusée',     cls: 'status-rejected'  },
+  pending:     { label: 'En attente',  cls: 'status-pending'     },
+  accepted:    { label: 'Acceptée',    cls: 'status-accepted'    },
+  in_progress: { label: 'En cours',    cls: 'status-in_progress' },
+  completed:   { label: 'Terminée',    cls: 'status-completed'   },
+  rejected:    { label: 'Refusée',     cls: 'status-rejected'    },
+  cancelled:   { label: 'Annulée',     cls: 'status-cancelled'   },
 };
 
 async function loadRequests() {
   const list = document.getElementById('requestList');
   try {
     const data = await api.services.myRequests();
-    _allRequests = data.requests || data;
-    document.getElementById('reqCount').textContent = _allRequests.length + ' demande(s) au total';
+    _allRequests = data.requests || data || [];
+    const total = _allRequests.length;
+    document.getElementById('reqCount').textContent =
+      total + ' demande' + (total > 1 ? 's' : '') + ' au total';
     renderRequests();
   } catch (err) {
-    list.innerHTML = `<p style="color:var(--accent2);font-size:.85rem;">${err.message}</p>`;
+    list.innerHTML = `<p style="color:var(--accent2);font-size:.85rem;padding:1rem 0;">${err.message}</p>`;
   }
 }
 
 function renderRequests() {
   const list = document.getElementById('requestList');
-  const filtered = _filter === 'all' ? _allRequests : _allRequests.filter(r => r.status === _filter);
+  const filtered = _filter === 'all'
+    ? _allRequests
+    : _allRequests.filter(r => r.status === _filter);
 
   if (!filtered.length) {
+    const isAll = _filter === 'all';
+    const label = statusMap[_filter]?.label?.toLowerCase() || '';
     list.innerHTML = `
       <div class="empty-state">
+<<<<<<< HEAD
         <div class="empty-state-icon">${_filter === 'all' ? '<i data-lucide="clipboard-list"></i>' : '<i data-lucide="search"></i>'}</div>
         <h2>${_filter === 'all' ? 'Aucune demande' : 'Aucune demande ' + (statusMap[_filter]?.label || '').toLowerCase()}</h2>
         <p>${_filter === 'all' ? 'Vous n\'avez pas encore fait de demande de prestation.' : 'Pas de demande avec ce statut.'}</p>
         ${_filter === 'all' ? '<a href="prestataires.html" class="btn-primary">Trouver un prestataire →</a>' : ''}
       </div>
     `;
+=======
+        <div class="empty-state-icon">${isAll ? '📋' : '🔍'}</div>
+        <h2>${isAll ? 'Aucune demande' : 'Aucune demande ' + label}</h2>
+        <p>${isAll
+          ? (_isProvider ? 'Aucune demande de prestation reçue pour l\'instant.' : 'Vous n\'avez pas encore fait de demande de prestation.')
+          : 'Pas de demande avec ce statut.'}</p>
+        ${isAll && !_isProvider ? '<a href="prestataires.html" class="btn-primary">Trouver un prestataire →</a>' : ''}
+      </div>`;
+>>>>>>> 3eb4a494b0b6b3bde744e14e9f7dc98640698d4a
     return;
   }
 
-  list.innerHTML = filtered.map(r => {
-    const s = statusMap[r.status] || statusMap.pending;
-    const date = new Date(r.created_at).toLocaleDateString('fr-FR', { day:'2-digit', month:'long', year:'numeric' });
-    return `
-      <div class="req-card">
+  list.innerHTML = filtered.map(r => _isProvider ? renderProviderCard(r) : renderClientCard(r)).join('');
+}
+
+function renderClientCard(r) {
+  const s = statusMap[r.status] || statusMap.pending;
+  const date = new Date(r.created_at).toLocaleDateString('fr-FR', { day:'2-digit', month:'long', year:'numeric' });
+  const safeProvName = (r.provider_name || 'le prestataire').replace(/'/g, "\\'");
+  return `
+    <div class="req-card">
+      <div class="req-card-body">
         <div>
-          <div class="req-title">${r.title}</div>
-          <div class="req-provider">Prestataire : ${r.provider_name || '—'}</div>
-          ${r.description ? `<div class="req-desc">${r.description}</div>` : ''}
+          <div class="req-title">${escHtml(r.title)}</div>
+          <div class="req-meta">Prestataire : ${escHtml(r.provider_name || '—')}</div>
+          ${r.description ? `<div class="req-desc">${escHtml(r.description)}</div>` : ''}
           <div class="req-date">${date}</div>
         </div>
         <div class="req-right">
           <span class="status-badge ${s.cls}">${s.label}</span>
+<<<<<<< HEAD
           <button class="btn-msg" onclick="contactProvider(${r.provider_user_id}, '${r.provider_name || 'le prestataire'}')"><i data-lucide="message-circle"></i> Message</button>
+=======
+          <button class="btn-msg" onclick="contactUser(${r.provider_user_id}, '${safeProvName}')">💬 Message</button>
+>>>>>>> 3eb4a494b0b6b3bde744e14e9f7dc98640698d4a
         </div>
       </div>
-    `;
-  }).join('');
+    </div>`;
+}
+
+function renderProviderCard(r) {
+  const s = statusMap[r.status] || statusMap.pending;
+  const date = new Date(r.created_at).toLocaleDateString('fr-FR', { day:'2-digit', month:'long', year:'numeric' });
+  const safeClientName = (r.client_name || 'le client').replace(/'/g, "\\'");
+  const actionsHtml = buildProviderActions(r);
+  return `
+    <div class="req-card" id="req-${r.id}">
+      <div class="req-card-body">
+        <div>
+          <div class="req-title">${escHtml(r.title)}</div>
+          <div class="req-meta">Client : ${escHtml(r.client_name || '—')}</div>
+          ${r.description ? `<div class="req-desc">${escHtml(r.description)}</div>` : ''}
+          <div class="req-date">${date}</div>
+        </div>
+        <div class="req-right">
+          <span class="status-badge ${s.cls}">${s.label}</span>
+          <button class="btn-msg" onclick="contactUser(${r.client_id}, '${safeClientName}')">💬 Message</button>
+        </div>
+      </div>
+      ${actionsHtml}
+    </div>`;
+}
+
+function buildProviderActions(r) {
+  if (r.status === 'completed' || r.status === 'rejected' || r.status === 'cancelled') return '';
+
+  let buttons = '';
+  if (r.status === 'pending') {
+    buttons = `
+      <span class="act-label">Actions :</span>
+      <button class="act-btn accept" onclick="changeStatus(${r.id}, 'accepted')">✓ Accepter</button>
+      <button class="act-btn reject" onclick="confirmReject(${r.id})">✕ Refuser</button>`;
+  } else if (r.status === 'accepted') {
+    buttons = `
+      <span class="act-label">Actions :</span>
+      <button class="act-btn progress" onclick="changeStatus(${r.id}, 'in_progress')">▶ Démarrer</button>
+      <button class="act-btn cancel" onclick="confirmReject(${r.id})">✕ Annuler</button>`;
+  } else if (r.status === 'in_progress') {
+    buttons = `
+      <span class="act-label">Actions :</span>
+      <button class="act-btn done" onclick="changeStatus(${r.id}, 'completed')">✓ Terminer</button>`;
+  }
+
+  return `<div class="req-actions">${buttons}</div>`;
+}
+
+async function changeStatus(id, newStatus) {
+  const btn = document.querySelector(`#req-${id} .act-btn`);
+  if (btn) { btn.disabled = true; btn.textContent = '…'; }
+  try {
+    await api.services.updateStatus(id, newStatus);
+    await loadRequests();
+  } catch (e) {
+    alert('Erreur : ' + e.message);
+    if (btn) { btn.disabled = false; }
+    await loadRequests();
+  }
+}
+
+function confirmReject(id) {
+  const overlay = document.createElement('div');
+  overlay.className = 'confirm-overlay';
+  overlay.innerHTML = `
+    <div class="confirm-box">
+      <h3>CONFIRMER LE REFUS</h3>
+      <p>Voulez-vous vraiment refuser cette demande ? Cette action est irréversible.</p>
+      <div class="confirm-actions">
+        <button class="act-btn reject confirm-yes" onclick="doReject(${id}, this.closest('.confirm-overlay'))">Refuser</button>
+        <button class="act-btn confirm-no" onclick="this.closest('.confirm-overlay').remove()">Annuler</button>
+      </div>
+    </div>`;
+  document.body.appendChild(overlay);
+  overlay.addEventListener('click', e => { if (e.target === overlay) overlay.remove(); });
+}
+
+async function doReject(id, overlay) {
+  overlay.remove();
+  await changeStatus(id, 'rejected');
 }
 
 function setFilter(filter, el) {
@@ -164,9 +313,14 @@ function setFilter(filter, el) {
   renderRequests();
 }
 
-function contactProvider(userId, name) {
+function contactUser(userId, name) {
   if (!userId) return;
   window.location.href = `messages.html?user=${userId}&name=${encodeURIComponent(name)}`;
+}
+
+function escHtml(str) {
+  if (!str) return '';
+  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
 
 loadRequests();

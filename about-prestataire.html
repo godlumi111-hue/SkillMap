@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>SkillMap — Mon profil</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,300&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --black:#1e1d1a;--white:#f5f4f0;--off:#eeece6;
+  --gray-l:#d8d6cf;--gray-m:#8a8880;--gray-d:#3a3936;
+  --accent:#e8e03a;--red:#ff4d2e;--green:#2eff9e;
+  --fd:'Bebas Neue',sans-serif;--fb:'DM Sans',sans-serif;--fm:'DM Mono',monospace;
+}
+html{scroll-behavior:smooth;}
+body{font-family:var(--fb);background:var(--white);color:var(--black);min-height:100vh;}
+
+.nav{position:fixed;top:0;left:0;right:0;z-index:200;height:56px;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 1.8rem;background:rgba(30,29,26,.97);backdrop-filter:blur(16px);
+  border-bottom:1px solid rgba(245,244,240,.07);}
+.nav-logo{font-family:var(--fd);font-size:1.5rem;letter-spacing:3px;color:var(--white);text-decoration:none;}
+.nav-logo span{color:var(--accent);}
+.nav-actions{display:flex;align-items:center;gap:.7rem;}
+.nav-btn{padding:.4rem 1rem;font-family:var(--fm);font-size:.62rem;letter-spacing:1.5px;
+  text-transform:uppercase;cursor:pointer;border:none;transition:all .2s;text-decoration:none;}
+.nav-btn.outline{background:transparent;color:rgba(245,244,240,.5);border:1px solid rgba(245,244,240,.15);}
+.nav-btn.outline:hover{color:var(--white);border-color:rgba(245,244,240,.4);}
+.nav-btn.accent{background:var(--accent);color:var(--black);}
+.nav-btn.accent:hover{background:#d4cc35;}
+
+.page-head{padding:80px 1.8rem 2rem;background:var(--black);color:var(--white);}
+.ph-label{font-family:var(--fm);font-size:.6rem;letter-spacing:3px;text-transform:uppercase;color:rgba(245,244,240,.3);margin-bottom:.4rem;}
+.ph-title{font-family:var(--fd);font-size:clamp(2rem,6vw,3.2rem);letter-spacing:1px;text-transform:uppercase;line-height:.95;}
+.ph-title span{color:var(--accent);}
+.ph-sub{font-size:.82rem;color:rgba(245,244,240,.4);margin-top:.4rem;}
+
+.layout{display:grid;grid-template-columns:1fr;gap:1.5rem;padding:1.8rem;max-width:900px;}
+@media(min-width:700px){.layout{grid-template-columns:280px 1fr;}}
+
+/* ── PROFILE CARD ────────────────────────────────────────── */
+.profile-card{border:1px solid rgba(30,29,26,.1);background:var(--white);padding:1.5rem;
+  display:flex;flex-direction:column;align-items:center;text-align:center;gap:.6rem;position:relative;}
+.profile-av{width:72px;height:72px;background:var(--accent);color:var(--black);
+  display:flex;align-items:center;justify-content:center;font-family:var(--fd);font-size:1.6rem;
+  margin-bottom:.3rem;position:relative;cursor:pointer;}
+.profile-av:hover .av-overlay{opacity:1;}
+.av-overlay{position:absolute;inset:0;background:rgba(30,29,26,.6);opacity:0;transition:opacity .2s;
+  display:flex;align-items:center;justify-content:center;font-size:.8rem;color:var(--white);}
+.avatar-input{display:none;}
+.profile-name{font-size:1rem;font-weight:600;}
+.profile-title{font-family:var(--fm);font-size:.65rem;color:var(--gray-m);letter-spacing:1px;}
+.profile-badges{display:flex;gap:.4rem;flex-wrap:wrap;justify-content:center;margin-top:.2rem;}
+.badge{font-family:var(--fm);font-size:.58rem;letter-spacing:1px;padding:.2rem .55rem;text-transform:uppercase;}
+.badge-avail{background:rgba(46,255,158,.12);color:#00a651;border:1px solid rgba(46,255,158,.3);}
+.badge-verified{background:var(--black);color:var(--accent);}
+.profile-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:.5rem;width:100%;margin-top:.4rem;}
+.ps-item{padding:.5rem;background:var(--off);}
+.ps-num{font-family:var(--fd);font-size:1.1rem;}
+.ps-lbl{font-family:var(--fm);font-size:.55rem;letter-spacing:1px;text-transform:uppercase;color:var(--gray-m);}
+.profile-public-btn{display:block;width:100%;padding:.6rem;font-family:var(--fm);font-size:.62rem;
+  letter-spacing:1.5px;text-transform:uppercase;background:var(--black);color:var(--white);
+  text-decoration:none;text-align:center;transition:background .2s;margin-top:.5rem;}
+.profile-public-btn:hover{background:var(--gray-d);}
+
+/* ── FORM SECTIONS ───────────────────────────────────────── */
+.form-sections{display:flex;flex-direction:column;gap:1.2rem;}
+.form-section{border:1px solid rgba(30,29,26,.1);background:var(--white);}
+.fs-head{padding:.9rem 1.2rem;border-bottom:1px solid rgba(30,29,26,.06);
+  display:flex;align-items:center;justify-content:space-between;}
+.fs-title{font-family:var(--fd);font-size:1rem;letter-spacing:1px;text-transform:uppercase;}
+.fs-body{padding:1.2rem;}
+.form-row{display:grid;gap:.8rem;margin-bottom:.9rem;}
+.form-row:last-child{margin-bottom:0;}
+@media(min-width:480px){.form-row.two{grid-template-columns:1fr 1fr;}}
+.form-group{display:flex;flex-direction:column;gap:.3rem;}
+.form-label{font-family:var(--fm);font-size:.6rem;letter-spacing:2px;text-transform:uppercase;color:var(--gray-d);}
+.form-input{width:100%;padding:.8rem 1rem;border:1px solid rgba(30,29,26,.2);
+  font-family:var(--fb);font-size:.88rem;color:var(--black);background:var(--white);
+  outline:none;transition:border-color .2s;}
+.form-input:focus{border-color:var(--black);}
+textarea.form-input{resize:vertical;min-height:90px;}
+select.form-input{cursor:pointer;appearance:auto;}
+
+/* ── SKILLS SELECTOR ─────────────────────────────────────── */
+.skills-grid{display:flex;flex-wrap:wrap;gap:.4rem;margin-top:.3rem;}
+.skill-chip{padding:.3rem .75rem;border:1px solid var(--gray-l);font-size:.72rem;letter-spacing:.5px;
+  cursor:pointer;transition:all .15s;color:var(--gray-d);}
+.skill-chip:hover{border-color:var(--gray-d);}
+.skill-chip.on{background:var(--black);color:var(--white);border-color:var(--black);}
+
+/* ── SAVE BUTTON ─────────────────────────────────────────── */
+.save-bar{position:sticky;bottom:0;background:rgba(245,244,240,.97);backdrop-filter:blur(12px);
+  border-top:1px solid rgba(30,29,26,.08);padding:.9rem 1.8rem;
+  display:flex;align-items:center;justify-content:space-between;gap:1rem;}
+.save-msg{font-family:var(--fm);font-size:.65rem;letter-spacing:1px;color:var(--green);opacity:0;transition:opacity .3s;}
+.save-msg.show{opacity:1;}
+.save-btn{padding:.75rem 2rem;background:var(--black);color:var(--white);border:none;
+  font-family:var(--fm);font-size:.68rem;letter-spacing:2px;text-transform:uppercase;
+  cursor:pointer;transition:background .2s;}
+.save-btn:hover{background:var(--gray-d);}
+.save-btn:disabled{opacity:.5;cursor:not-allowed;}
+
+.skel{background:linear-gradient(90deg,var(--off) 25%,var(--gray-l) 50%,var(--off) 75%);
+  background-size:200% 100%;animation:shimmer 1.4s infinite;}
+@keyframes shimmer{0%{background-position:200% 0;}100%{background-position:-200% 0;}}
+
+@media(max-width:600px){.layout{padding:1.2rem;}.nav{padding:0 1rem;}.page-head{padding:76px 1.2rem 1.5rem;}.save-bar{padding:.8rem 1.2rem;}}
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <a href="home-prestataire.html" class="nav-logo">Skill<span>Map</span></a>
+  <div class="nav-actions">
+    <a href="portfolio-prestataire.html" class="nav-btn outline">Réalisations</a>
+    <a href="#" id="btnViewPublic" class="nav-btn accent">Voir profil →</a>
+  </div>
+</nav>
+
+<div class="page-head">
+  <div class="ph-label">Espace prestataire</div>
+  <div class="ph-title">Mon <span>profil</span></div>
+  <div class="ph-sub">Complétez votre profil pour attirer plus de clients</div>
+</div>
+
+<div class="layout">
+
+  <!-- PROFILE SIDEBAR -->
+  <div>
+    <div class="profile-card">
+      <div class="profile-av" id="profileAv" onclick="document.getElementById('avatarInput').click()">
+        ?
+        <div class="av-overlay">📷 Photo</div>
+      </div>
+      <input type="file" accept="image/*" id="avatarInput" class="avatar-input" onchange="handleAvatarUpload(event)"/>
+      <div class="profile-name" id="pcName">—</div>
+      <div class="profile-title" id="pcTitle">—</div>
+      <div class="profile-badges" id="pcBadges"></div>
+      <div class="profile-stats">
+        <div class="ps-item"><div class="ps-num" id="pcRating">—</div><div class="ps-lbl">Note</div></div>
+        <div class="ps-item"><div class="ps-num" id="pcViews">—</div><div class="ps-lbl">Vues</div></div>
+        <div class="ps-item"><div class="ps-num" id="pcDone">—</div><div class="ps-lbl">Faits</div></div>
+      </div>
+      <a href="#" class="profile-public-btn" id="pcPublicBtn">Voir profil public →</a>
+    </div>
+  </div>
+
+  <!-- FORM -->
+  <div class="form-sections" id="formSections">
+    <div class="skel" style="height:200px;"></div>
+    <div class="skel" style="height:180px;"></div>
+  </div>
+
+</div>
+
+<!-- SAVE BAR -->
+<div class="save-bar">
+  <span class="save-msg" id="saveMsg">✓ Modifications enregistrées</span>
+  <button class="save-btn" id="saveBtn" onclick="saveProfile()">Enregistrer les modifications</button>
+</div>
+
+<script src="frontend/js/auth.js"></script>
+<script src="frontend/js/api.js"></script>
+<script>
+AUTH.requireAuth();
+const user = AUTH.getUser();
+if (!user || user.role !== 'provider') window.location.href = 'home-client.html';
+
+let providerData = null;
+let pendingAvatarB64 = null;
+
+const ALL_SKILLS = [
+  'Plomberie','Installation','Réparation','Urgence 24h','Électricité','Câblage','Dépannage',
+  'Maçonnerie','Carrelage','Peinture','Menuiserie','Soudure','Design','UI/UX','Couture',
+  'Coiffure','Cuisine','Mécanique','Informatique','Photographie','Traduction','Jardinage',
+];
+
+async function load() {
+  try {
+    const { user: u, provider: p } = await api.auth.me();
+    providerData = p;
+
+    // Sidebar
+    const initials = u.full_name.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
+    if (p?.photo_url) {
+      document.getElementById('profileAv').style.backgroundImage = `url(${p.photo_url})`;
+      document.getElementById('profileAv').style.backgroundSize = 'cover';
+      document.getElementById('profileAv').textContent = '';
+    } else {
+      document.getElementById('profileAv').textContent = initials;
+    }
+    document.getElementById('pcName').textContent = u.full_name;
+    document.getElementById('pcTitle').textContent = p?.title || 'Prestataire';
+
+    const badges = [];
+    if (p?.is_available) badges.push(`<span class="badge badge-avail">Disponible</span>`);
+    if (p?.is_verified)  badges.push(`<span class="badge badge-verified">Vérifié</span>`);
+    document.getElementById('pcBadges').innerHTML = badges.join('');
+
+    if (p?.id) {
+      try {
+        const { stats } = await api.reviews.list(p.id);
+        document.getElementById('pcRating').textContent = stats?.avg ? parseFloat(stats.avg).toFixed(1)+'★' : '—';
+      } catch {}
+    }
+    document.getElementById('pcViews').textContent = p?.views_count || 0;
+    document.getElementById('pcDone').textContent  = p?.completed_count || 0;
+    if (p?.id) {
+      document.getElementById('pcPublicBtn').href = `provider-profile.html?id=${p.id}`;
+      document.getElementById('btnViewPublic').href = `provider-profile.html?id=${p.id}`;
+    }
+
+    // Build form
+    const selectedSkills = (p?.skills || '').split(',').map(s=>s.trim()).filter(Boolean);
+
+    document.getElementById('formSections').innerHTML = `
+      <!-- IDENTITÉ -->
+      <div class="form-section">
+        <div class="fs-head"><div class="fs-title">Identité</div></div>
+        <div class="fs-body">
+          <div class="form-row two">
+            <div class="form-group">
+              <label class="form-label">Nom complet</label>
+              <input type="text" class="form-input" id="fName" value="${u.full_name || ''}"/>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Téléphone</label>
+              <input type="tel" class="form-input" id="fPhone" value="${u.phone || ''}" placeholder="07 XX XX XX XX"/>
+            </div>
+          </div>
+          <div class="form-row two">
+            <div class="form-group">
+              <label class="form-label">Ville</label>
+              <input type="text" class="form-input" id="fCity" value="${u.city || ''}" placeholder="Abidjan"/>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Quartier / Zone</label>
+              <input type="text" class="form-input" id="fNeighborhood" value="${p?.neighborhood || ''}" placeholder="Cocody, Plateau…"/>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- EXPERTISE -->
+      <div class="form-section">
+        <div class="fs-head"><div class="fs-title">Expertise</div></div>
+        <div class="fs-body">
+          <div class="form-row two">
+            <div class="form-group">
+              <label class="form-label">Métier principal</label>
+              <input type="text" class="form-input" id="fTitle" value="${p?.title || ''}" placeholder="Plombier, Coiffeur…"/>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Années d'expérience</label>
+              <select class="form-input" id="fExp">
+                <option value="1" ${(p?.experience_years||0)<2?'selected':''}>Moins de 2 ans</option>
+                <option value="3" ${(p?.experience_years||0)>=2&&(p?.experience_years||0)<6?'selected':''}>2 – 5 ans</option>
+                <option value="7" ${(p?.experience_years||0)>=6&&(p?.experience_years||0)<11?'selected':''}>6 – 10 ans</option>
+                <option value="12" ${(p?.experience_years||0)>=11?'selected':''}>10+ ans</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-row two">
+            <div class="form-group">
+              <label class="form-label">Tarif horaire (FCFA)</label>
+              <input type="number" class="form-input" id="fRate" value="${p?.hourly_rate || ''}" placeholder="Ex : 5000" min="500" step="500"/>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Zone de service (km)</label>
+              <input type="number" class="form-input" id="fRadius" value="${p?.service_radius_km || 10}" min="1" max="100"/>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Bio / Présentation</label>
+            <textarea class="form-input" id="fBio" rows="4" placeholder="Décrivez votre expérience, vos spécialités, ce qui vous différencie…">${p?.bio || ''}</textarea>
+          </div>
+        </div>
+      </div>
+
+      <!-- COMPÉTENCES -->
+      <div class="form-section">
+        <div class="fs-head"><div class="fs-title">Compétences</div></div>
+        <div class="fs-body">
+          <p style="font-size:.8rem;color:var(--gray-m);margin-bottom:.8rem;">Sélectionnez vos compétences clés (visibles sur votre profil)</p>
+          <div class="skills-grid" id="skillsGrid">
+            ${ALL_SKILLS.map(s => `<span class="skill-chip${selectedSkills.includes(s)?' on':''}" onclick="this.classList.toggle('on')">${s}</span>`).join('')}
+          </div>
+        </div>
+      </div>`;
+
+  } catch (e) {
+    document.getElementById('formSections').innerHTML =
+      `<div style="padding:2rem;color:var(--red);">Erreur de chargement: ${e.message}</div>`;
+  }
+}
+
+// ── Avatar upload ─────────────────────────────────────────
+function handleAvatarUpload(e) {
+  const file = e.target.files[0];
+  if (!file || file.size > 3 * 1024 * 1024) { alert('Image trop grande (max 3 Mo)'); return; }
+  const reader = new FileReader();
+  reader.onload = ev => {
+    pendingAvatarB64 = ev.target.result;
+    const av = document.getElementById('profileAv');
+    av.style.backgroundImage = `url(${pendingAvatarB64})`;
+    av.style.backgroundSize = 'cover';
+    av.textContent = '';
+    showSaved('Photo mise à jour (non sauvegardée)');
+  };
+  reader.readAsDataURL(file);
+}
+
+// ── Save ──────────────────────────────────────────────────
+async function saveProfile() {
+  const btn = document.getElementById('saveBtn');
+  btn.disabled = true; btn.textContent = 'Enregistrement…';
+
+  const skills = [...document.querySelectorAll('.skill-chip.on')].map(c => c.textContent).join(', ');
+
+  const body = {
+    title:              document.getElementById('fTitle')?.value?.trim(),
+    bio:                document.getElementById('fBio')?.value?.trim(),
+    neighborhood:       document.getElementById('fNeighborhood')?.value?.trim(),
+    hourly_rate:        parseFloat(document.getElementById('fRate')?.value) || null,
+    service_radius_km:  parseInt(document.getElementById('fRadius')?.value) || 10,
+    experience_years:   parseInt(document.getElementById('fExp')?.value) || null,
+    skills,
+  };
+  if (pendingAvatarB64) body.photo_url = pendingAvatarB64;
+
+  try {
+    await api.providers.updateProfile(body);
+    pendingAvatarB64 = null;
+    showSaved('Modifications enregistrées');
+    // Update local cache
+    const { user: u, provider: p } = await api.auth.me();
+    localStorage.setItem('skillmap_user', JSON.stringify(u));
+    localStorage.setItem('skillmap_provider', JSON.stringify(p));
+    document.getElementById('pcTitle').textContent = p?.title || body.title || 'Prestataire';
+  } catch (e) {
+    alert('Erreur : ' + e.message);
+  }
+
+  btn.disabled = false; btn.textContent = 'Enregistrer les modifications';
+}
+
+function showSaved(msg) {
+  const el = document.getElementById('saveMsg');
+  el.textContent = '✓ ' + msg;
+  el.classList.add('show');
+  setTimeout(() => el.classList.remove('show'), 3000);
+}
+
+load();
+</script>
+</body>
+</html>

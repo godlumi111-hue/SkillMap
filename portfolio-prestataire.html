@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>SkillMap — Mes Réalisations</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,300&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --black:#1e1d1a;--white:#f5f4f0;--off:#eeece6;
+  --gray-l:#d8d6cf;--gray-m:#8a8880;--gray-d:#3a3936;
+  --accent:#e8e03a;--red:#ff4d2e;--green:#2eff9e;
+  --fd:'Bebas Neue',sans-serif;--fb:'DM Sans',sans-serif;--fm:'DM Mono',monospace;
+}
+html{scroll-behavior:smooth;}
+body{font-family:var(--fb);background:var(--white);color:var(--black);min-height:100vh;}
+
+/* ── NAV ─────────────────────────────────────────────────── */
+.nav{position:fixed;top:0;left:0;right:0;z-index:200;height:56px;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 1.8rem;background:rgba(30,29,26,.97);backdrop-filter:blur(16px);
+  border-bottom:1px solid rgba(245,244,240,.07);}
+.nav-logo{font-family:var(--fd);font-size:1.5rem;letter-spacing:3px;color:var(--white);text-decoration:none;}
+.nav-logo span{color:var(--accent);}
+.nav-actions{display:flex;align-items:center;gap:.7rem;}
+.nav-btn{padding:.4rem 1rem;font-family:var(--fm);font-size:.62rem;letter-spacing:1.5px;
+  text-transform:uppercase;cursor:pointer;border:none;transition:all .2s;text-decoration:none;}
+.nav-btn.outline{background:transparent;color:rgba(245,244,240,.5);border:1px solid rgba(245,244,240,.15);}
+.nav-btn.outline:hover{color:var(--white);border-color:rgba(245,244,240,.4);}
+.nav-btn.accent{background:var(--accent);color:var(--black);}
+.nav-btn.accent:hover{background:#d4cc35;}
+
+/* ── PAGE HEADER ─────────────────────────────────────────── */
+.page-head{padding:80px 1.8rem 2rem;background:var(--black);color:var(--white);position:relative;overflow:hidden;}
+.page-head::after{content:'';position:absolute;right:-60px;top:-40px;width:280px;height:280px;
+  background:radial-gradient(circle,rgba(232,224,58,.08) 0%,transparent 70%);pointer-events:none;}
+.ph-label{font-family:var(--fm);font-size:.6rem;letter-spacing:3px;text-transform:uppercase;color:rgba(245,244,240,.3);margin-bottom:.4rem;}
+.ph-title{font-family:var(--fd);font-size:clamp(2rem,6vw,3.2rem);letter-spacing:1px;text-transform:uppercase;line-height:.95;}
+.ph-title span{color:var(--accent);}
+.ph-sub{font-size:.82rem;color:rgba(245,244,240,.4);margin-top:.4rem;}
+
+/* ── CONTENT ─────────────────────────────────────────────── */
+.content{padding:1.8rem;max-width:900px;}
+.sec-head{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:1.2rem;}
+.sec-title{font-family:var(--fd);font-size:1.4rem;letter-spacing:1px;text-transform:uppercase;}
+
+/* ── ADD CARD ────────────────────────────────────────────── */
+.add-card{border:2px dashed rgba(30,29,26,.2);padding:2rem;text-align:center;margin-bottom:1.5rem;
+  cursor:pointer;transition:all .2s;}
+.add-card:hover{border-color:var(--black);background:var(--off);}
+.add-card-icon{font-size:1.8rem;margin-bottom:.6rem;opacity:.4;}
+.add-card-title{font-family:var(--fd);font-size:1rem;letter-spacing:1px;color:var(--gray-m);}
+.add-card-sub{font-size:.75rem;color:var(--gray-m);margin-top:.2rem;}
+
+/* ── PORTFOLIO GRID ──────────────────────────────────────── */
+.portfolio-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:1rem;margin-bottom:2rem;}
+@media(min-width:700px){.portfolio-grid{grid-template-columns:repeat(3,1fr);}}
+.pf-item{border:1px solid rgba(30,29,26,.1);background:var(--white);overflow:hidden;position:relative;
+  transition:border-color .2s,transform .15s;}
+.pf-item:hover{border-color:var(--black);transform:translateY(-2px);}
+.pf-item:hover .pf-overlay{opacity:1;}
+.pf-img{width:100%;aspect-ratio:4/3;object-fit:cover;display:block;background:var(--off);}
+.pf-img-placeholder{width:100%;aspect-ratio:4/3;background:var(--off);display:flex;align-items:center;
+  justify-content:center;font-size:2rem;opacity:.3;}
+.pf-body{padding:.8rem;}
+.pf-title{font-size:.85rem;font-weight:500;margin-bottom:.2rem;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.pf-desc{font-size:.75rem;color:var(--gray-m);margin-bottom:.4rem;
+  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
+.pf-date{font-family:var(--fm);font-size:.6rem;color:var(--gray-l);}
+.pf-overlay{position:absolute;inset:0;background:rgba(30,29,26,.8);opacity:0;transition:opacity .2s;
+  display:flex;align-items:center;justify-content:center;gap:.6rem;}
+.pf-overlay-btn{padding:.45rem .9rem;font-family:var(--fm);font-size:.6rem;letter-spacing:1.5px;
+  text-transform:uppercase;cursor:pointer;border:none;transition:all .2s;}
+.pf-overlay-btn.edit{background:var(--accent);color:var(--black);}
+.pf-overlay-btn.del{background:rgba(255,77,46,.2);color:var(--red);border:1px solid rgba(255,77,46,.3);}
+.pf-overlay-btn.del:hover{background:rgba(255,77,46,.35);}
+
+/* ── EMPTY STATE ─────────────────────────────────────────── */
+.empty{padding:3rem;text-align:center;border:1px dashed rgba(30,29,26,.15);}
+.empty-title{font-family:var(--fd);font-size:1.4rem;letter-spacing:1px;margin-bottom:.4rem;}
+.empty-sub{font-size:.82rem;color:var(--gray-m);margin-bottom:1.4rem;}
+
+/* ── MODAL ───────────────────────────────────────────────── */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(30,29,26,.75);
+  z-index:500;align-items:flex-start;justify-content:center;padding:1rem;overflow-y:auto;}
+.modal-overlay.open{display:flex;}
+.modal-box{background:var(--white);width:100%;max-width:480px;margin:auto;overflow:hidden;}
+.modal-head{background:var(--black);color:var(--white);padding:1.2rem 1.5rem;
+  display:flex;align-items:center;justify-content:space-between;}
+.modal-htitle{font-family:var(--fd);font-size:1.2rem;letter-spacing:1px;text-transform:uppercase;}
+.modal-close{background:none;border:none;color:rgba(245,244,240,.4);font-size:1.1rem;cursor:pointer;transition:color .2s;}
+.modal-close:hover{color:var(--white);}
+.modal-body{padding:1.4rem 1.5rem;}
+.form-group{margin-bottom:1rem;}
+.form-label{font-family:var(--fm);font-size:.6rem;letter-spacing:2px;text-transform:uppercase;
+  color:var(--gray-d);display:block;margin-bottom:.35rem;}
+.form-input{width:100%;padding:.8rem 1rem;border:1px solid rgba(30,29,26,.2);
+  font-family:var(--fb);font-size:.88rem;color:var(--black);background:var(--white);
+  outline:none;transition:border-color .2s;}
+.form-input:focus{border-color:var(--black);}
+textarea.form-input{resize:vertical;min-height:80px;}
+
+/* ── UPLOAD AREA ─────────────────────────────────────────── */
+.upload-area{border:2px dashed rgba(30,29,26,.2);padding:1.5rem;text-align:center;cursor:pointer;
+  transition:all .2s;position:relative;}
+.upload-area:hover{border-color:var(--black);background:var(--off);}
+.upload-area input{position:absolute;inset:0;opacity:0;cursor:pointer;}
+.upload-icon{font-size:1.6rem;opacity:.4;margin-bottom:.4rem;}
+.upload-text{font-family:var(--fm);font-size:.65rem;letter-spacing:1px;color:var(--gray-m);}
+.upload-preview{width:100%;max-height:160px;object-fit:cover;margin-top:.8rem;display:none;border:1px solid rgba(30,29,26,.1);}
+
+.modal-foot{padding:.8rem 1.5rem 1.4rem;display:flex;gap:.6rem;}
+.modal-btn{flex:1;padding:.75rem;font-family:var(--fm);font-size:.65rem;letter-spacing:2px;
+  text-transform:uppercase;cursor:pointer;border:none;transition:all .2s;}
+.modal-btn.accent{background:var(--accent);color:var(--black);}
+.modal-btn.accent:hover{background:#d4cc35;}
+.modal-btn.muted{background:var(--off);color:var(--gray-d);}
+
+.skel{background:linear-gradient(90deg,var(--off) 25%,var(--gray-l) 50%,var(--off) 75%);
+  background-size:200% 100%;animation:shimmer 1.4s infinite;}
+@keyframes shimmer{0%{background-position:200% 0;}100%{background-position:-200% 0;}}
+
+@media(max-width:600px){.content{padding:1.2rem;}.nav{padding:0 1rem;}.page-head{padding:76px 1.2rem 1.5rem;}}
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <a href="home-prestataire.html" class="nav-logo">Skill<span>Map</span></a>
+  <div class="nav-actions">
+    <a href="parametres-prestataire.html" class="nav-btn outline">Paramètres</a>
+    <a href="#" id="btnViewPublic" class="nav-btn accent">Voir profil public →</a>
+  </div>
+</nav>
+
+<div class="page-head">
+  <div class="ph-label">Espace prestataire</div>
+  <div class="ph-title">Mes <span>réalisations</span></div>
+  <div class="ph-sub">Montrez votre savoir-faire avec des photos de vos projets</div>
+</div>
+
+<div class="content">
+  <!-- ADD BUTTON -->
+  <div class="add-card" onclick="openAddModal()">
+    <div class="add-card-icon">+</div>
+    <div class="add-card-title">Ajouter une réalisation</div>
+    <div class="add-card-sub">Photo + titre + description</div>
+  </div>
+
+  <!-- GRID -->
+  <div class="portfolio-grid" id="portfolioGrid">
+    <div class="skel" style="height:200px;"></div>
+    <div class="skel" style="height:200px;"></div>
+    <div class="skel" style="height:200px;"></div>
+  </div>
+</div>
+
+<!-- MODAL -->
+<div class="modal-overlay" id="modalOverlay" onclick="if(event.target===this)closeModal()">
+  <div class="modal-box">
+    <div class="modal-head">
+      <span class="modal-htitle" id="modalTitle">Nouvelle réalisation</span>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <div class="upload-area" id="uploadArea">
+          <input type="file" accept="image/*" onchange="previewImage(event)"/>
+          <div class="upload-icon">📷</div>
+          <div class="upload-text">Cliquez ou glissez une photo</div>
+          <div class="upload-text" style="margin-top:.2rem;font-size:.55rem;">JPG, PNG · max 5 Mo</div>
+          <img class="upload-preview" id="uploadPreview" alt=""/>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Titre du projet</label>
+        <input type="text" class="form-input" id="pfTitle" placeholder="Ex : Rénovation salle de bain complète"/>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Description</label>
+        <textarea class="form-input" id="pfDesc" placeholder="Décrivez le projet, les techniques utilisées, les matériaux…"></textarea>
+      </div>
+      <div class="form-group" style="display:grid;grid-template-columns:1fr 1fr;gap:.8rem;">
+        <div>
+          <label class="form-label">Catégorie</label>
+          <select class="form-input" id="pfCategory" style="cursor:pointer;appearance:auto;">
+            <option value="">— Choisir —</option>
+            <option>Plomberie</option><option>Électricité</option><option>Peinture</option>
+            <option>Menuiserie</option><option>Maçonnerie</option><option>Coiffure</option>
+            <option>Couture</option><option>Cuisine</option><option>Design graphique</option>
+            <option>Développement web</option><option>Réparation</option><option>Autre</option>
+          </select>
+        </div>
+        <div>
+          <label class="form-label">Date (optionnel)</label>
+          <input type="month" class="form-input" id="pfDate"/>
+        </div>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="modal-btn muted" onclick="closeModal()">Annuler</button>
+      <button class="modal-btn accent" id="btnSavePf" onclick="savePortfolioItem()">Enregistrer</button>
+    </div>
+  </div>
+</div>
+
+<script src="frontend/js/auth.js"></script>
+<script src="frontend/js/api.js"></script>
+<script>
+AUTH.requireAuth();
+const user = AUTH.getUser();
+if (!user || user.role !== 'provider') window.location.href = 'home-client.html';
+
+// Portfolio stored in localStorage (backend endpoint can be added later)
+const STORAGE_KEY = `skillmap_portfolio_${user.id}`;
+let items = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+let editingId = null;
+let pendingImageB64 = null;
+
+// ── Set public profile link ───────────────────────────────
+(async () => {
+  try {
+    const { provider: p } = await api.auth.me();
+    if (p?.id) document.getElementById('btnViewPublic').href = `provider-profile.html?id=${p.id}`;
+  } catch {}
+})();
+
+// ── Render ────────────────────────────────────────────────
+function render() {
+  const grid = document.getElementById('portfolioGrid');
+  if (items.length === 0) {
+    grid.innerHTML = `<div style="grid-column:1/-1;" class="empty">
+      <div class="empty-title">Aucune réalisation</div>
+      <div class="empty-sub">Ajoutez vos premiers projets pour attirer plus de clients.</div>
+    </div>`;
+    return;
+  }
+  grid.innerHTML = items.map(item => `
+    <div class="pf-item">
+      ${item.image
+        ? `<img class="pf-img" src="${item.image}" alt="${item.title}" loading="lazy"/>`
+        : `<div class="pf-img-placeholder">🖼</div>`}
+      <div class="pf-body">
+        <div class="pf-title">${item.title}</div>
+        ${item.desc ? `<div class="pf-desc">${item.desc}</div>` : ''}
+        <div class="pf-date">${item.category || ''}${item.date ? ' · ' + item.date : ''}</div>
+      </div>
+      <div class="pf-overlay">
+        <button class="pf-overlay-btn edit" onclick="openEditModal('${item.id}')">Modifier</button>
+        <button class="pf-overlay-btn del" onclick="deleteItem('${item.id}')">Supprimer</button>
+      </div>
+    </div>`).join('');
+}
+
+// ── Modal ─────────────────────────────────────────────────
+function openModal()  { document.getElementById('modalOverlay').classList.add('open'); }
+function closeModal() {
+  document.getElementById('modalOverlay').classList.remove('open');
+  clearForm();
+  editingId = null; pendingImageB64 = null;
+}
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+
+function clearForm() {
+  document.getElementById('pfTitle').value = '';
+  document.getElementById('pfDesc').value = '';
+  document.getElementById('pfCategory').value = '';
+  document.getElementById('pfDate').value = '';
+  document.getElementById('uploadPreview').style.display = 'none';
+  document.getElementById('uploadPreview').src = '';
+}
+
+function openAddModal() {
+  editingId = null;
+  document.getElementById('modalTitle').textContent = 'Nouvelle réalisation';
+  clearForm();
+  openModal();
+}
+
+function openEditModal(id) {
+  editingId = id;
+  const item = items.find(i => i.id === id);
+  if (!item) return;
+  document.getElementById('modalTitle').textContent = 'Modifier la réalisation';
+  document.getElementById('pfTitle').value    = item.title || '';
+  document.getElementById('pfDesc').value     = item.desc  || '';
+  document.getElementById('pfCategory').value = item.category || '';
+  document.getElementById('pfDate').value     = item.date  || '';
+  if (item.image) {
+    document.getElementById('uploadPreview').src = item.image;
+    document.getElementById('uploadPreview').style.display = 'block';
+    pendingImageB64 = item.image;
+  }
+  openModal();
+}
+
+// ── Image preview ─────────────────────────────────────────
+function previewImage(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  if (file.size > 5 * 1024 * 1024) { alert('Image trop grande (max 5 Mo)'); return; }
+  const reader = new FileReader();
+  reader.onload = ev => {
+    pendingImageB64 = ev.target.result;
+    const prev = document.getElementById('uploadPreview');
+    prev.src = pendingImageB64;
+    prev.style.display = 'block';
+  };
+  reader.readAsDataURL(file);
+}
+
+// ── Save ──────────────────────────────────────────────────
+function savePortfolioItem() {
+  const title = document.getElementById('pfTitle').value.trim();
+  if (!title) { document.getElementById('pfTitle').focus(); return; }
+
+  const btn = document.getElementById('btnSavePf');
+  btn.disabled = true; btn.textContent = 'Enregistrement…';
+
+  const item = {
+    id: editingId || Date.now().toString(),
+    title,
+    desc:     document.getElementById('pfDesc').value.trim(),
+    category: document.getElementById('pfCategory').value,
+    date:     document.getElementById('pfDate').value,
+    image:    pendingImageB64 || null,
+    created:  editingId ? (items.find(i=>i.id===editingId)?.created || new Date().toISOString()) : new Date().toISOString(),
+  };
+
+  if (editingId) {
+    const idx = items.findIndex(i => i.id === editingId);
+    if (idx !== -1) items[idx] = item; else items.unshift(item);
+  } else {
+    items.unshift(item);
+  }
+
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
+  btn.disabled = false; btn.textContent = 'Enregistrer';
+  closeModal();
+  render();
+}
+
+// ── Delete ────────────────────────────────────────────────
+function deleteItem(id) {
+  if (!confirm('Supprimer cette réalisation ?')) return;
+  items = items.filter(i => i.id !== id);
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
+  render();
+}
+
+// Init
+render();
+</script>
+</body>
+</html>

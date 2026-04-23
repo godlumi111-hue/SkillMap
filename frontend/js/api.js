@@ -89,6 +89,23 @@ const api = {
     moderateReview: (id, body) => request('PATCH', `/admin/reviews/${id}`, body),
   },
 
+  // ─── Appointments ──────────────────────────────────────────
+  appointments: {
+    list:            (params = {}) => request('GET',  '/appointments?' + new URLSearchParams(params)),
+    get:             (id)          => request('GET',  `/appointments/${id}`),
+    create:          (body)        => request('POST', '/appointments', body),
+    updateStatus:    (id, status)  => request('PATCH', `/appointments/${id}/status`, { status }),
+    pay:             (id)          => request('POST', `/appointments/${id}/pay`),
+    confirmComplete: (id)          => request('POST', `/appointments/${id}/confirm-complete`),
+  },
+
+  // ─── Wallet ────────────────────────────────────────────────
+  wallet: {
+    get:     ()     => request('GET',  '/wallet'),
+    stats:   ()     => request('GET',  '/wallet/stats'),
+    deposit: (body) => request('POST', '/wallet/deposit', body),
+  },
+
   // ─── Report ────────────────────────────────────────────────
   report: (providerId, body) => request('POST', `/providers/${providerId}/report`, body),
 };

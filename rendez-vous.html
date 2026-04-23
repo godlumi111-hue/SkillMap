@@ -1,0 +1,566 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>SkillMap — Rendez-vous</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,300&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --black:#1e1d1a;--white:#f5f4f0;--off:#eeece6;
+  --gray-l:#d8d6cf;--gray-m:#8a8880;--gray-d:#3a3936;
+  --accent:#e8e03a;--red:#ff4d2e;--green:#2eff9e;--teal:#00c9b1;
+  --fd:'Bebas Neue',sans-serif;--fb:'DM Sans',sans-serif;--fm:'DM Mono',monospace;
+}
+html{scroll-behavior:smooth;}
+body{font-family:var(--fb);background:var(--white);color:var(--black);min-height:100vh;}
+
+/* ── NAV ─────────────────────────────────────────────────── */
+.nav{position:fixed;top:0;left:0;right:0;z-index:200;height:56px;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 1.8rem;background:rgba(245,244,240,.97);backdrop-filter:blur(16px);
+  border-bottom:1px solid rgba(30,29,26,.08);}
+.nav-logo{font-family:var(--fd);font-size:1.5rem;letter-spacing:3px;color:var(--black);text-decoration:none;}
+.nav-logo span{color:var(--accent);}
+.nav-back{display:flex;align-items:center;gap:.4rem;font-family:var(--fm);font-size:.65rem;
+  letter-spacing:1px;color:var(--gray-m);text-decoration:none;transition:color .2s;}
+.nav-back:hover{color:var(--black);}
+
+/* ── PAGE HEADER ─────────────────────────────────────────── */
+.page-head{padding:80px 1.8rem 1.5rem;background:var(--black);color:var(--white);}
+.page-label{font-family:var(--fm);font-size:.6rem;letter-spacing:3px;text-transform:uppercase;
+  color:rgba(245,244,240,.3);margin-bottom:.4rem;}
+.page-title{font-family:var(--fd);font-size:clamp(2rem,6vw,3.2rem);letter-spacing:1px;text-transform:uppercase;line-height:.95;}
+.page-title span{color:var(--accent);}
+
+/* ── FILTER BAR ──────────────────────────────────────────── */
+.filter-bar{position:sticky;top:56px;z-index:100;background:var(--white);
+  border-bottom:1px solid rgba(30,29,26,.08);display:flex;gap:0;overflow-x:auto;
+  -ms-overflow-style:none;scrollbar-width:none;}
+.filter-bar::-webkit-scrollbar{display:none;}
+.filter-tab{flex-shrink:0;padding:.8rem 1.3rem;font-family:var(--fm);font-size:.65rem;
+  letter-spacing:1.5px;text-transform:uppercase;cursor:pointer;border:none;background:none;
+  color:var(--gray-m);border-bottom:2px solid transparent;transition:color .2s,border-color .2s;}
+.filter-tab:hover{color:var(--black);}
+.filter-tab.active{color:var(--black);border-bottom-color:var(--black);}
+.filter-tab .tab-count{display:inline-block;background:var(--off);color:var(--gray-m);
+  font-size:.55rem;padding:.1rem .4rem;margin-left:.4rem;min-width:18px;text-align:center;}
+.filter-tab.active .tab-count{background:var(--black);color:var(--white);}
+
+/* ── CONTENT ─────────────────────────────────────────────── */
+.content{padding:1.5rem 1.8rem;max-width:900px;}
+
+/* ── APPOINTMENT CARD ────────────────────────────────────── */
+.appt-card{border:1px solid rgba(30,29,26,.1);background:var(--white);margin-bottom:.8rem;
+  transition:border-color .2s;}
+.appt-card:hover{border-color:rgba(30,29,26,.25);}
+.appt-top{display:flex;align-items:stretch;gap:0;}
+.appt-accent{width:4px;flex-shrink:0;}
+.appt-accent.pending{background:var(--accent);}
+.appt-accent.confirmed{background:var(--green);}
+.appt-accent.in_progress{background:var(--teal);}
+.appt-accent.en_route{background:var(--teal);}
+.appt-accent.completed{background:var(--gray-l);}
+.appt-accent.cancelled{background:var(--red);}
+.appt-main{flex:1;padding:1.1rem 1.2rem;display:flex;align-items:flex-start;gap:1rem;min-width:0;}
+.appt-date-box{width:52px;height:56px;flex-shrink:0;background:var(--off);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.05rem;}
+.appt-date-box.future{background:var(--black);}
+.appt-day{font-family:var(--fd);font-size:1.5rem;line-height:1;color:var(--black);}
+.appt-date-box.future .appt-day{color:var(--accent);}
+.appt-month{font-family:var(--fm);font-size:.5rem;letter-spacing:2px;text-transform:uppercase;color:var(--gray-m);}
+.appt-date-box.future .appt-month{color:rgba(245,244,240,.45);}
+.appt-info{flex:1;min-width:0;}
+.appt-title{font-size:.9rem;font-weight:600;margin-bottom:.25rem;}
+.appt-who{font-size:.8rem;color:var(--gray-m);margin-bottom:.35rem;}
+.appt-who strong{color:var(--black);font-weight:500;}
+.appt-tags{display:flex;gap:.4rem;flex-wrap:wrap;align-items:center;}
+.tag{font-family:var(--fm);font-size:.58rem;letter-spacing:1px;padding:.2rem .55rem;text-transform:uppercase;white-space:nowrap;}
+.tag-status.pending{background:rgba(232,224,58,.15);color:#8a7a00;}
+.tag-status.confirmed{background:rgba(46,255,158,.12);color:#00a651;}
+.tag-status.in_progress,.tag-status.en_route{background:rgba(0,201,177,.12);color:#007a6e;}
+.tag-status.completed{background:rgba(30,29,26,.06);color:var(--gray-m);}
+.tag-status.cancelled{background:rgba(255,77,46,.1);color:var(--red);}
+.tag-pay.unpaid{background:rgba(255,77,46,.08);color:var(--red);}
+.tag-pay.held{background:rgba(232,224,58,.12);color:#8a7a00;}
+.tag-pay.released{background:rgba(46,255,158,.12);color:#00a651;}
+.tag-pay.refunded{background:rgba(30,29,26,.06);color:var(--gray-m);}
+.appt-right{display:flex;flex-direction:column;align-items:flex-end;gap:.4rem;flex-shrink:0;}
+.appt-amount{font-family:var(--fd);font-size:1.3rem;letter-spacing:.5px;}
+.appt-time{font-family:var(--fm);font-size:.62rem;color:var(--gray-m);}
+.appt-dur{font-family:var(--fm);font-size:.62rem;color:var(--gray-m);}
+
+/* ── ACTIONS BAR ─────────────────────────────────────────── */
+.appt-actions{padding:.75rem 1.2rem .75rem 1.6rem;border-top:1px solid rgba(30,29,26,.06);
+  display:flex;gap:.6rem;flex-wrap:wrap;align-items:center;background:rgba(30,29,26,.02);}
+.action-btn{padding:.5rem 1.1rem;font-family:var(--fm);font-size:.62rem;letter-spacing:1.5px;
+  text-transform:uppercase;cursor:pointer;border:none;transition:all .2s;}
+.action-btn.primary{background:var(--black);color:var(--white);}
+.action-btn.primary:hover{background:var(--gray-d);}
+.action-btn.accent{background:var(--accent);color:var(--black);}
+.action-btn.accent:hover{background:#d4cc35;}
+.action-btn.success{background:rgba(46,255,158,.15);color:#00a651;border:1px solid rgba(46,255,158,.3);}
+.action-btn.success:hover{background:rgba(46,255,158,.25);}
+.action-btn.danger{background:rgba(255,77,46,.1);color:var(--red);border:1px solid rgba(255,77,46,.2);}
+.action-btn.danger:hover{background:rgba(255,77,46,.18);}
+.action-btn.outline{background:transparent;color:var(--gray-d);border:1px solid rgba(30,29,26,.2);}
+.action-btn.outline:hover{border-color:var(--black);color:var(--black);}
+.action-btn:disabled{opacity:.4;cursor:not-allowed;}
+.action-spacer{margin-left:auto;}
+.action-track{font-family:var(--fm);font-size:.6rem;color:var(--teal);text-decoration:none;
+  letter-spacing:1px;text-transform:uppercase;transition:color .2s;}
+.action-track:hover{color:#00b5a0;}
+
+/* ── EMPTY STATE ─────────────────────────────────────────── */
+.empty{padding:3rem;text-align:center;border:1px dashed rgba(30,29,26,.15);margin-top:1rem;}
+.empty-title{font-family:var(--fd);font-size:1.4rem;letter-spacing:1px;margin-bottom:.4rem;}
+.empty-sub{font-size:.82rem;color:var(--gray-m);margin-bottom:1.4rem;}
+.btn-primary{display:inline-block;padding:.75rem 1.6rem;background:var(--black);color:var(--white);
+  text-decoration:none;font-family:var(--fm);font-size:.68rem;letter-spacing:2px;text-transform:uppercase;
+  transition:background .2s;border:none;cursor:pointer;}
+.btn-primary:hover{background:var(--gray-d);}
+
+/* ── SKELETON ─────────────────────────────────────────────── */
+.skel{background:linear-gradient(90deg,var(--off) 25%,var(--gray-l) 50%,var(--off) 75%);
+  background-size:200% 100%;animation:shimmer 1.4s infinite;}
+@keyframes shimmer{0%{background-position:200% 0;}100%{background-position:-200% 0;}}
+
+/* ── MODAL ───────────────────────────────────────────────── */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(30,29,26,.7);
+  z-index:500;align-items:center;justify-content:center;padding:1rem;}
+.modal-overlay.open{display:flex;}
+.modal-box{background:var(--white);width:100%;max-width:420px;padding:0;position:relative;overflow:hidden;}
+.modal-head{background:var(--black);color:var(--white);padding:1.3rem 1.5rem;display:flex;align-items:center;justify-content:space-between;}
+.modal-htitle{font-family:var(--fd);font-size:1.3rem;letter-spacing:1px;text-transform:uppercase;}
+.modal-close{background:none;border:none;color:rgba(245,244,240,.5);font-size:1.2rem;cursor:pointer;
+  transition:color .2s;line-height:1;padding:0;}
+.modal-close:hover{color:var(--white);}
+.modal-body{padding:1.4rem 1.5rem;}
+.modal-row{display:flex;justify-content:space-between;align-items:center;padding:.6rem 0;
+  border-bottom:1px solid rgba(30,29,26,.06);}
+.modal-row:last-of-type{border-bottom:none;}
+.modal-lbl{font-family:var(--fm);font-size:.62rem;letter-spacing:1px;text-transform:uppercase;color:var(--gray-m);}
+.modal-val{font-size:.88rem;font-weight:500;}
+.modal-val.big{font-family:var(--fd);font-size:1.4rem;letter-spacing:.5px;}
+.modal-val.green{color:#00a651;}
+.modal-val.red{color:var(--red);}
+.modal-notice{background:rgba(232,224,58,.1);border:1px solid rgba(232,224,58,.3);
+  padding:.8rem 1rem;margin:.9rem 0;font-size:.78rem;color:#8a7a00;}
+.modal-notice.warn{background:rgba(255,77,46,.07);border-color:rgba(255,77,46,.2);color:var(--red);}
+.modal-foot{padding:.8rem 1.5rem 1.4rem;display:flex;gap:.6rem;}
+.modal-btn{flex:1;padding:.75rem;font-family:var(--fm);font-size:.65rem;letter-spacing:2px;
+  text-transform:uppercase;cursor:pointer;border:none;transition:all .2s;}
+.modal-btn.confirm{background:var(--accent);color:var(--black);}
+.modal-btn.confirm:hover{background:#d4cc35;}
+.modal-btn.confirm.success-bg{background:var(--green);color:var(--black);}
+.modal-btn.cancel{background:var(--off);color:var(--gray-d);}
+.modal-btn.cancel:hover{background:var(--gray-l);}
+.modal-btn:disabled{opacity:.5;cursor:not-allowed;}
+.modal-success-wrap{padding:2rem 1.5rem;text-align:center;}
+.modal-success-icon{font-size:2rem;margin-bottom:.7rem;}
+.modal-success-title{font-family:var(--fd);font-size:1.4rem;letter-spacing:1px;margin-bottom:.3rem;}
+.modal-success-sub{font-size:.8rem;color:var(--gray-m);}
+.modal-select{width:100%;padding:.65rem .9rem;border:1px solid rgba(30,29,26,.2);
+  font-family:var(--fm);font-size:.72rem;color:var(--black);background:var(--white);
+  appearance:none;cursor:pointer;outline:none;margin-top:.4rem;}
+.modal-select:focus{border-color:var(--black);}
+
+@media(max-width:600px){.content{padding:1.2rem;}.nav{padding:0 1rem;}.page-head{padding:76px 1.2rem 1.2rem;}}
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <a href="#" id="navBack" class="nav-back">← Accueil</a>
+  <a href="#" id="navHome" class="nav-logo">Skill<span>Map</span></a>
+</nav>
+
+<!-- PAGE HEADER -->
+<div class="page-head">
+  <div class="page-label">Espace personnel</div>
+  <div class="page-title">Rendez-<span>vous</span></div>
+</div>
+
+<!-- FILTER BAR -->
+<div class="filter-bar" id="filterBar">
+  <button class="filter-tab active" onclick="setFilter('all')" id="tab-all">
+    Tous <span class="tab-count" id="cnt-all">0</span>
+  </button>
+  <button class="filter-tab" onclick="setFilter('pending')" id="tab-pending">
+    En attente <span class="tab-count" id="cnt-pending">0</span>
+  </button>
+  <button class="filter-tab" onclick="setFilter('confirmed')" id="tab-confirmed">
+    Confirmés <span class="tab-count" id="cnt-confirmed">0</span>
+  </button>
+  <button class="filter-tab" onclick="setFilter('active')" id="tab-active">
+    En cours <span class="tab-count" id="cnt-active">0</span>
+  </button>
+  <button class="filter-tab" onclick="setFilter('completed')" id="tab-completed">
+    Terminés <span class="tab-count" id="cnt-completed">0</span>
+  </button>
+  <button class="filter-tab" onclick="setFilter('cancelled')" id="tab-cancelled">
+    Annulés <span class="tab-count" id="cnt-cancelled">0</span>
+  </button>
+</div>
+
+<!-- CONTENT -->
+<div class="content" id="apptContent">
+  <div class="skel" style="height:120px;margin-bottom:.8rem;"></div>
+  <div class="skel" style="height:120px;margin-bottom:.8rem;"></div>
+  <div class="skel" style="height:120px;"></div>
+</div>
+
+<!-- MODAL -->
+<div class="modal-overlay" id="modalOverlay" onclick="if(event.target===this)closeModal()">
+  <div class="modal-box" id="modalBox">
+    <div class="modal-head">
+      <span class="modal-htitle" id="modalTitle">Action</span>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div id="modalContent"></div>
+  </div>
+</div>
+
+<script src="frontend/js/auth.js"></script>
+<script src="frontend/js/api.js"></script>
+<script>
+AUTH.requireAuth();
+const user = AUTH.getUser();
+const role = user?.role;
+
+// Nav links
+document.getElementById('navBack').href  = role === 'provider' ? 'home-prestataire.html' : 'home-client.html';
+document.getElementById('navHome').href  = role === 'provider' ? 'home-prestataire.html' : 'home-client.html';
+
+const MONTHS = ['Jan','Fév','Mar','Avr','Mai','Jun','Jul','Aoû','Sep','Oct','Nov','Déc'];
+const STATUS_LABEL = {
+  pending:'En attente', confirmed:'Confirmé', in_progress:'En cours',
+  en_route:'En route', completed:'Terminé', cancelled:'Annulé'
+};
+const PAY_LABEL = { unpaid:'Non payé', held:'Paiement retenu', released:'Versé', refunded:'Remboursé' };
+
+let allAppts = [];
+let curFilter = 'all';
+
+function fmt(n) {
+  if (n === null || n === undefined) return '—';
+  return Number(n).toLocaleString('fr-FR') + ' F';
+}
+
+function isFuture(dateStr) {
+  return new Date(dateStr) >= new Date(new Date().toDateString());
+}
+
+// ── Filter logic ───────────────────────────────────────────
+function filterAppts(appts, f) {
+  if (f === 'all')       return appts;
+  if (f === 'pending')   return appts.filter(a => a.status === 'pending');
+  if (f === 'confirmed') return appts.filter(a => a.status === 'confirmed');
+  if (f === 'active')    return appts.filter(a => ['in_progress','en_route'].includes(a.status));
+  if (f === 'completed') return appts.filter(a => a.status === 'completed');
+  if (f === 'cancelled') return appts.filter(a => a.status === 'cancelled');
+  return appts;
+}
+
+function setFilter(f) {
+  curFilter = f;
+  document.querySelectorAll('.filter-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('tab-' + f)?.classList.add('active');
+  renderList(filterAppts(allAppts, f));
+}
+
+function updateCounts(appts) {
+  document.getElementById('cnt-all').textContent       = appts.length;
+  document.getElementById('cnt-pending').textContent   = appts.filter(a => a.status === 'pending').length;
+  document.getElementById('cnt-confirmed').textContent = appts.filter(a => a.status === 'confirmed').length;
+  document.getElementById('cnt-active').textContent    = appts.filter(a => ['in_progress','en_route'].includes(a.status)).length;
+  document.getElementById('cnt-completed').textContent = appts.filter(a => a.status === 'completed').length;
+  document.getElementById('cnt-cancelled').textContent = appts.filter(a => a.status === 'cancelled').length;
+}
+
+// ── Render ─────────────────────────────────────────────────
+function renderList(appts) {
+  const el = document.getElementById('apptContent');
+  if (appts.length === 0) {
+    const cta = role === 'client'
+      ? `<a href="prestataires.html" class="btn-primary">Trouver un prestataire</a>`
+      : `<a href="parametres-prestataire.html" class="btn-primary">Compléter mon profil</a>`;
+    el.innerHTML = `<div class="empty">
+      <div class="empty-title">Aucun rendez-vous</div>
+      <div class="empty-sub">${curFilter === 'all' ? 'Vous n\'avez pas encore de rendez-vous.' : 'Aucun rendez-vous dans cette catégorie.'}</div>
+      ${curFilter === 'all' ? cta : ''}
+    </div>`;
+    return;
+  }
+
+  el.innerHTML = appts.map(a => renderCard(a)).join('');
+}
+
+function renderCard(a) {
+  const d     = new Date(a.scheduled_date);
+  const day   = d.getDate();
+  const month = MONTHS[d.getMonth()];
+  const fut   = isFuture(a.scheduled_date);
+  const who   = role === 'client'
+    ? (a.provider_name || 'Prestataire')
+    : (a.client_name   || 'Client');
+  const whoLabel = role === 'client' ? 'Prestataire' : 'Client';
+
+  const actions = buildActions(a);
+
+  return `<div class="appt-card" id="card-${a.id}">
+    <div class="appt-top">
+      <div class="appt-accent ${a.status}"></div>
+      <div class="appt-main">
+        <div class="appt-date-box${fut ? ' future' : ''}">
+          <div class="appt-day">${day}</div>
+          <div class="appt-month">${month}</div>
+        </div>
+        <div class="appt-info">
+          <div class="appt-title">${a.title}</div>
+          <div class="appt-who">${whoLabel} : <strong>${who}</strong>${a.provider_title ? ' · ' + a.provider_title : ''}</div>
+          <div class="appt-tags">
+            <span class="tag tag-status ${a.status}">${STATUS_LABEL[a.status] || a.status}</span>
+            <span class="tag tag-pay ${a.payment_status}">${PAY_LABEL[a.payment_status] || ''}</span>
+            ${a.duration_hours ? `<span class="tag" style="background:var(--off);color:var(--gray-m);">${a.duration_hours}h</span>` : ''}
+          </div>
+        </div>
+        <div class="appt-right">
+          <div class="appt-amount">${fmt(a.amount)}</div>
+          <div class="appt-time">${a.scheduled_time || '09:00'}</div>
+        </div>
+      </div>
+    </div>
+    ${actions ? `<div class="appt-actions">${actions}</div>` : ''}
+  </div>`;
+}
+
+function buildActions(a) {
+  let btns = [];
+
+  if (role === 'client') {
+    if (a.status === 'confirmed' && a.payment_status === 'unpaid') {
+      btns.push(`<button class="action-btn accent" onclick="openPayModal(${a.id})">Payer maintenant</button>`);
+    }
+    if (a.payment_status === 'held' && a.status !== 'completed' && a.status !== 'cancelled') {
+      btns.push(`<button class="action-btn success" onclick="openConfirmModal(${a.id})">Confirmer la fin</button>`);
+    }
+    if (['pending','confirmed'].includes(a.status)) {
+      btns.push(`<button class="action-btn danger" onclick="openCancelModal(${a.id})">Annuler</button>`);
+    }
+    if (['in_progress','en_route','confirmed'].includes(a.status)) {
+      btns.push(`<a href="tracking.html?id=${a.id}" class="action-track" style="margin-left:auto;">Suivre en direct →</a>`);
+    }
+  }
+
+  if (role === 'provider') {
+    if (a.status === 'pending') {
+      btns.push(`<button class="action-btn primary" onclick="changeStatus(${a.id},'confirmed')">Accepter</button>`);
+      btns.push(`<button class="action-btn danger" onclick="changeStatus(${a.id},'cancelled')">Refuser</button>`);
+    }
+    if (a.status === 'confirmed' && a.payment_status === 'held') {
+      btns.push(`<button class="action-btn outline" onclick="changeStatus(${a.id},'en_route')">En route</button>`);
+    }
+    if (a.status === 'en_route') {
+      btns.push(`<button class="action-btn outline" onclick="changeStatus(${a.id},'in_progress')">Commencer</button>`);
+    }
+    if (a.status === 'in_progress') {
+      btns.push(`<button class="action-btn success" onclick="openProviderDoneModal(${a.id})">Terminer</button>`);
+    }
+    if (['pending','confirmed'].includes(a.status)) {
+      btns.push(`<button class="action-btn danger" style="margin-left:auto;" onclick="changeStatus(${a.id},'cancelled')">Annuler</button>`);
+    }
+  }
+
+  if (btns.length === 0 && a.status === 'completed') {
+    if (role === 'client') {
+      const pId = a.provider_id;
+      btns.push(`<a href="provider-profile.html?id=${pId}&action=review" class="action-btn outline">Laisser un avis</a>`);
+    }
+  }
+
+  return btns.join('');
+}
+
+// ── Load appointments ──────────────────────────────────────
+async function load() {
+  try {
+    const data = await api.appointments.list();
+    allAppts = data.appointments || [];
+    updateCounts(allAppts);
+    renderList(filterAppts(allAppts, curFilter));
+  } catch (e) {
+    document.getElementById('apptContent').innerHTML =
+      `<div class="empty"><div class="empty-title">Erreur de chargement</div><div class="empty-sub">${e.message}</div></div>`;
+  }
+}
+
+// ── Change status (provider) ───────────────────────────────
+async function changeStatus(id, status) {
+  try {
+    await api.appointments.updateStatus(id, status);
+    await load();
+  } catch (e) {
+    alert(e.message);
+  }
+}
+
+// ── Modal system ───────────────────────────────────────────
+function openModal() { document.getElementById('modalOverlay').classList.add('open'); }
+function closeModal() {
+  document.getElementById('modalOverlay').classList.remove('open');
+  document.getElementById('modalContent').innerHTML = '';
+}
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+
+// ── Pay modal (client) ─────────────────────────────────────
+async function openPayModal(id) {
+  const a = allAppts.find(x => x.id === id);
+  document.getElementById('modalTitle').textContent = 'Confirmer le paiement';
+  document.getElementById('modalContent').innerHTML = `
+    <div class="modal-body">
+      <div class="modal-row"><span class="modal-lbl">Prestation</span><span class="modal-val">${a.title}</span></div>
+      <div class="modal-row"><span class="modal-lbl">Prestataire</span><span class="modal-val">${a.provider_name || '—'}</span></div>
+      <div class="modal-row"><span class="modal-lbl">Date</span><span class="modal-val">${a.scheduled_date} à ${a.scheduled_time||'09:00'}</span></div>
+      <div class="modal-row"><span class="modal-lbl">Durée</span><span class="modal-val">${a.duration_hours||1}h</span></div>
+      <div class="modal-row"><span class="modal-lbl">Montant</span><span class="modal-val big">${fmt(a.amount)}</span></div>
+    </div>
+    <div class="modal-body" style="padding-top:0;">
+      <div class="modal-notice">
+        Le montant sera retenu en <strong>séquestre</strong> et versé au prestataire uniquement après confirmation de la prestation.
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="modal-btn cancel" onclick="closeModal()">Annuler</button>
+      <button class="modal-btn confirm" id="btnConfirmPay" onclick="doPay(${id})">Payer ${fmt(a.amount)}</button>
+    </div>`;
+  openModal();
+}
+
+async function doPay(id) {
+  const btn = document.getElementById('btnConfirmPay');
+  btn.disabled = true; btn.textContent = 'Traitement…';
+  try {
+    await api.appointments.pay(id);
+    document.getElementById('modalContent').innerHTML = `
+      <div class="modal-success-wrap">
+        <div class="modal-success-icon">✅</div>
+        <div class="modal-success-title">Paiement effectué</div>
+        <div class="modal-success-sub">Le montant est en séquestre. Il sera versé au prestataire après votre confirmation.</div>
+      </div>
+      <div class="modal-foot"><button class="modal-btn confirm" onclick="closeModal();load()">Fermer</button></div>`;
+  } catch (e) {
+    document.getElementById('modalContent').innerHTML = `
+      <div class="modal-body"><div class="modal-notice warn">${e.message}</div></div>
+      <div class="modal-foot">
+        <button class="modal-btn cancel" onclick="closeModal()">Fermer</button>
+        <a href="portefeuille.html" class="modal-btn confirm" style="text-align:center;text-decoration:none;">Recharger mon compte</a>
+      </div>`;
+  }
+}
+
+// ── Confirm completion modal (client) ─────────────────────
+function openConfirmModal(id) {
+  const a = allAppts.find(x => x.id === id);
+  document.getElementById('modalTitle').textContent = 'Confirmer la fin de prestation';
+  const commission = Math.round(a.amount * 0.03);
+  const net = a.amount - commission;
+  document.getElementById('modalContent').innerHTML = `
+    <div class="modal-body">
+      <div class="modal-row"><span class="modal-lbl">Prestation</span><span class="modal-val">${a.title}</span></div>
+      <div class="modal-row"><span class="modal-lbl">Montant retenu</span><span class="modal-val big">${fmt(a.amount)}</span></div>
+      <div class="modal-row"><span class="modal-lbl">Commission (3%)</span><span class="modal-val">${fmt(commission)}</span></div>
+      <div class="modal-row"><span class="modal-lbl">Versé au prestataire</span><span class="modal-val green">${fmt(net)}</span></div>
+      <div class="modal-notice">
+        En confirmant, vous attestez que la prestation a été réalisée. Le paiement sera <strong>immédiatement</strong> versé au prestataire.
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="modal-btn cancel" onclick="closeModal()">Annuler</button>
+      <button class="modal-btn confirm success-bg" id="btnConfirmDone" onclick="doConfirmComplete(${id})">Confirmer la fin</button>
+    </div>`;
+  openModal();
+}
+
+async function doConfirmComplete(id) {
+  const btn = document.getElementById('btnConfirmDone');
+  btn.disabled = true; btn.textContent = 'En cours…';
+  try {
+    const res = await api.appointments.confirmComplete(id);
+    document.getElementById('modalContent').innerHTML = `
+      <div class="modal-success-wrap">
+        <div class="modal-success-icon">🎉</div>
+        <div class="modal-success-title">Prestation confirmée</div>
+        <div class="modal-success-sub">${fmt(res.provider_received)} ont été versés au prestataire. Merci pour votre confiance !</div>
+      </div>
+      <div class="modal-foot"><button class="modal-btn confirm" onclick="closeModal();load()">Fermer</button></div>`;
+  } catch (e) {
+    alert(e.message); btn.disabled = false; btn.textContent = 'Confirmer la fin';
+  }
+}
+
+// ── Cancel modal ───────────────────────────────────────────
+function openCancelModal(id) {
+  const a = allAppts.find(x => x.id === id);
+  document.getElementById('modalTitle').textContent = 'Annuler le rendez-vous';
+  document.getElementById('modalContent').innerHTML = `
+    <div class="modal-body">
+      <div class="modal-notice warn">
+        Annuler ce rendez-vous est irréversible. ${a.payment_status === 'held' ? 'Le montant retenu vous sera remboursé.' : ''}
+      </div>
+      <p style="font-size:.82rem;color:var(--gray-m);margin-top:.5rem;">Vous souhaitez annuler : <strong>${a.title}</strong></p>
+    </div>
+    <div class="modal-foot">
+      <button class="modal-btn cancel" onclick="closeModal()">Retour</button>
+      <button class="modal-btn confirm" style="background:var(--red);color:var(--white);" id="btnDoCancel" onclick="doCancel(${id})">Annuler le RDV</button>
+    </div>`;
+  openModal();
+}
+
+async function doCancel(id) {
+  const btn = document.getElementById('btnDoCancel');
+  btn.disabled = true; btn.textContent = 'Annulation…';
+  try {
+    await api.appointments.updateStatus(id, 'cancelled');
+    closeModal(); await load();
+  } catch (e) {
+    alert(e.message); btn.disabled = false; btn.textContent = 'Annuler le RDV';
+  }
+}
+
+// ── Provider "done" modal ──────────────────────────────────
+function openProviderDoneModal(id) {
+  const a = allAppts.find(x => x.id === id);
+  document.getElementById('modalTitle').textContent = 'Marquer comme terminé';
+  document.getElementById('modalContent').innerHTML = `
+    <div class="modal-body">
+      <p style="font-size:.82rem;color:var(--gray-m);margin-bottom:.8rem;">
+        Marquer <strong>${a.title}</strong> comme terminé. Le client devra confirmer pour débloquer le paiement.
+      </p>
+      ${a.payment_status === 'held'
+        ? `<div class="modal-notice">Montant en attente : <strong>${fmt(a.amount)}</strong>. Il vous sera versé après confirmation client.</div>`
+        : `<div class="modal-notice warn">Aucun paiement en séquestre pour ce rendez-vous.</div>`}
+    </div>
+    <div class="modal-foot">
+      <button class="modal-btn cancel" onclick="closeModal()">Retour</button>
+      <button class="modal-btn confirm success-bg" id="btnMarkDone" onclick="doMarkDone(${id})">Marquer terminé</button>
+    </div>`;
+  openModal();
+}
+
+async function doMarkDone(id) {
+  const btn = document.getElementById('btnMarkDone');
+  btn.disabled = true; btn.textContent = 'Enregistrement…';
+  try {
+    await api.appointments.updateStatus(id, 'completed');
+    closeModal(); await load();
+  } catch(e) {
+    alert(e.message); btn.disabled = false; btn.textContent = 'Marquer terminé';
+  }
+}
+
+load();
+</script>
+</body>
+</html>

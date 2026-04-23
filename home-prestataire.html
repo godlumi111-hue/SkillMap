@@ -1,0 +1,684 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>SkillMap — Espace Prestataire</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,300&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --black:#1e1d1a;--white:#f5f4f0;--off:#eeece6;
+  --gray-l:#d8d6cf;--gray-m:#8a8880;--gray-d:#3a3936;
+  --accent:#e8e03a;--red:#ff4d2e;--green:#2eff9e;
+  --teal:#00c9b1;
+  --fd:'Bebas Neue',sans-serif;--fb:'DM Sans',sans-serif;--fm:'DM Mono',monospace;
+}
+html{scroll-behavior:smooth;}
+body{font-family:var(--fb);background:var(--white);color:var(--black);min-height:100vh;overflow-x:hidden;}
+
+/* ── TOP NAV ─────────────────────────────────────────────── */
+.nav{position:fixed;top:0;left:0;right:0;z-index:200;height:56px;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 1.8rem;background:rgba(30,29,26,.97);backdrop-filter:blur(16px);
+  border-bottom:1px solid rgba(245,244,240,.08);}
+.nav-logo{font-family:var(--fd);font-size:1.5rem;letter-spacing:3px;color:var(--white);text-decoration:none;}
+.nav-logo span{color:var(--accent);}
+.nav-mode{font-family:var(--fm);font-size:.58rem;letter-spacing:2px;text-transform:uppercase;
+  color:rgba(245,244,240,.3);margin-left:.4rem;vertical-align:middle;}
+.nav-right{display:flex;align-items:center;gap:.8rem;}
+.nav-avail{display:flex;align-items:center;gap:.5rem;cursor:pointer;padding:.3rem .7rem;
+  border:1px solid rgba(245,244,240,.12);transition:border-color .2s;}
+.nav-avail:hover{border-color:rgba(245,244,240,.3);}
+.avail-dot{width:7px;height:7px;border-radius:50%;background:var(--gray-m);flex-shrink:0;transition:background .3s;}
+.avail-dot.on{background:var(--green);box-shadow:0 0 6px rgba(46,255,158,.5);}
+.avail-label{font-family:var(--fm);font-size:.58rem;letter-spacing:1.5px;text-transform:uppercase;color:rgba(245,244,240,.5);}
+.nav-notif{position:relative;width:38px;height:38px;display:flex;align-items:center;justify-content:center;
+  border:1px solid rgba(245,244,240,.12);cursor:pointer;text-decoration:none;font-size:1rem;color:var(--white);transition:background .2s;}
+.nav-notif:hover{background:rgba(245,244,240,.06);}
+.notif-dot{position:absolute;top:6px;right:6px;width:7px;height:7px;background:var(--red);border-radius:50%;border:1.5px solid rgba(30,29,26,.97);display:none;}
+.nav-av{width:38px;height:38px;background:var(--accent);color:var(--black);
+  display:flex;align-items:center;justify-content:center;
+  font-family:var(--fd);font-size:.95rem;cursor:pointer;position:relative;letter-spacing:1px;}
+.av-menu{position:absolute;top:calc(100% + 8px);right:0;background:var(--black);
+  border:1px solid rgba(245,244,240,.1);min-width:200px;display:none;z-index:300;
+  box-shadow:0 8px 32px rgba(0,0,0,.4);}
+.av-menu.open{display:block;}
+.av-menu a{display:block;padding:.75rem 1.1rem;font-size:.78rem;color:rgba(245,244,240,.7);text-decoration:none;
+  font-family:var(--fm);letter-spacing:.5px;transition:background .15s,color .15s;}
+.av-menu a:hover{background:rgba(245,244,240,.06);color:var(--white);}
+.av-menu-sep{height:1px;background:rgba(245,244,240,.08);margin:.25rem 0;}
+.av-menu .danger{color:rgba(255,77,46,.7);}
+.av-menu .danger:hover{color:var(--red);background:rgba(255,77,46,.06);}
+.av-menu .switch-mode{color:var(--teal);}
+.av-menu .switch-mode:hover{color:var(--teal);background:rgba(0,201,177,.06);}
+
+/* ── HERO ────────────────────────────────────────────────── */
+.hero{padding:100px 1.8rem 2.5rem;background:var(--black);color:var(--white);position:relative;overflow:hidden;}
+.hero::before{content:'';position:absolute;left:-80px;bottom:-80px;width:400px;height:400px;
+  background:radial-gradient(circle,rgba(0,201,177,.07) 0%,transparent 70%);pointer-events:none;}
+.hero::after{content:'';position:absolute;right:-60px;top:-60px;width:300px;height:300px;
+  background:radial-gradient(circle,rgba(232,224,58,.08) 0%,transparent 70%);pointer-events:none;}
+.hero-badge{display:inline-flex;align-items:center;gap:.45rem;font-family:var(--fm);font-size:.6rem;
+  letter-spacing:2px;text-transform:uppercase;color:rgba(245,244,240,.3);margin-bottom:.6rem;}
+.hero-badge-dot{width:6px;height:6px;border-radius:50%;background:var(--gray-m);transition:background .3s;}
+.hero-badge-dot.on{background:var(--green);animation:pulse 2s infinite;}
+@keyframes pulse{0%,100%{opacity:1;}50%{opacity:.5;}}
+.hero-greeting{font-family:var(--fd);font-size:clamp(2.4rem,7vw,4rem);line-height:.92;
+  text-transform:uppercase;letter-spacing:1px;margin-bottom:.4rem;}
+.hero-greeting span{color:var(--accent);}
+.hero-sub{font-size:.85rem;color:rgba(245,244,240,.4);font-weight:300;margin-bottom:2rem;}
+.hero-actions{display:flex;gap:.7rem;flex-wrap:wrap;}
+.hero-btn{padding:.75rem 1.5rem;font-family:var(--fm);font-size:.65rem;letter-spacing:2px;
+  text-transform:uppercase;text-decoration:none;transition:all .2s;cursor:pointer;border:none;}
+.hero-btn.primary{background:var(--accent);color:var(--black);}
+.hero-btn.primary:hover{background:#d4cc35;}
+.hero-btn.outline{background:transparent;color:rgba(245,244,240,.6);border:1px solid rgba(245,244,240,.15);}
+.hero-btn.outline:hover{border-color:rgba(245,244,240,.4);color:var(--white);}
+
+/* ── STATS BAR ───────────────────────────────────────────── */
+.stats-bar{display:grid;grid-template-columns:repeat(4,1fr);background:var(--off);
+  border-bottom:1px solid rgba(30,29,26,.06);}
+.stat-item{padding:1rem 1.2rem;border-right:1px solid rgba(30,29,26,.06);}
+.stat-item:last-child{border-right:none;}
+.stat-num{font-family:var(--fd);font-size:1.6rem;letter-spacing:1px;color:var(--black);}
+.stat-num.money{color:#1a7a55;}
+.stat-label{font-family:var(--fm);font-size:.58rem;letter-spacing:2px;text-transform:uppercase;
+  color:var(--gray-m);margin-top:.15rem;}
+
+/* ── MAIN CONTENT ────────────────────────────────────────── */
+.content{padding:1.8rem;}
+.sec-head{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:1rem;}
+.sec-title{font-family:var(--fd);font-size:1.4rem;letter-spacing:1px;text-transform:uppercase;}
+.sec-link{font-family:var(--fm);font-size:.65rem;letter-spacing:1.5px;text-transform:uppercase;
+  color:var(--gray-m);text-decoration:none;transition:color .2s;}
+.sec-link:hover{color:var(--black);}
+
+/* ── QUICK ACTIONS ───────────────────────────────────────── */
+.quick-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:.8rem;margin-bottom:2rem;}
+@media(min-width:600px){.quick-grid{grid-template-columns:repeat(4,1fr);}}
+.qa-tile{display:flex;flex-direction:column;padding:1.4rem 1.2rem;border:1px solid rgba(30,29,26,.1);
+  text-decoration:none;color:var(--black);background:var(--white);
+  transition:border-color .2s,transform .15s,background .2s;cursor:pointer;position:relative;overflow:hidden;}
+.qa-tile:hover{border-color:var(--black);transform:translateY(-2px);}
+.qa-tile.accent{background:var(--accent);border-color:var(--accent);}
+.qa-tile.accent:hover{background:#d4cc35;border-color:#d4cc35;}
+.qa-tile.dark{background:var(--black);color:var(--white);border-color:var(--black);}
+.qa-tile.dark:hover{background:var(--gray-d);}
+.qa-tile.teal{background:var(--teal);border-color:var(--teal);color:var(--black);}
+.qa-tile.teal:hover{background:#00b5a0;}
+.qa-num{font-family:var(--fm);font-size:.58rem;letter-spacing:2px;color:var(--gray-m);margin-bottom:auto;padding-bottom:.8rem;}
+.qa-tile.accent .qa-num{color:rgba(30,29,26,.4);}
+.qa-tile.dark .qa-num{color:rgba(245,244,240,.3);}
+.qa-tile.teal .qa-num{color:rgba(30,29,26,.35);}
+.qa-label{font-family:var(--fd);font-size:1.1rem;letter-spacing:1px;text-transform:uppercase;line-height:1;}
+.qa-sub{font-size:.7rem;color:var(--gray-m);margin-top:.2rem;font-weight:300;}
+.qa-tile.accent .qa-sub{color:rgba(30,29,26,.5);}
+.qa-tile.dark .qa-sub{color:rgba(245,244,240,.4);}
+.qa-tile.teal .qa-sub{color:rgba(30,29,26,.5);}
+.qa-badge{position:absolute;top:.8rem;right:.8rem;background:var(--red);color:var(--white);
+  font-family:var(--fm);font-size:.55rem;padding:.15rem .45rem;min-width:18px;text-align:center;display:none;}
+.qa-earned{position:absolute;bottom:.8rem;right:.8rem;font-family:var(--fd);font-size:1rem;
+  color:rgba(30,29,26,.25);letter-spacing:1px;}
+
+/* ── REQUEST CARDS ───────────────────────────────────────── */
+.req-list{display:flex;flex-direction:column;gap:.5rem;margin-bottom:2rem;}
+.req-card{display:flex;align-items:stretch;gap:0;border:1px solid rgba(30,29,26,.1);
+  background:var(--white);transition:border-color .2s,transform .15s;text-decoration:none;color:var(--black);}
+.req-card:hover{border-color:var(--black);transform:translateY(-1px);}
+.req-accent{width:3px;flex-shrink:0;}
+.req-accent.pending{background:var(--accent);}
+.req-accent.accepted{background:var(--green);}
+.req-accent.in_progress{background:var(--teal);}
+.req-accent.completed{background:var(--gray-l);}
+.req-accent.rejected,.req-accent.cancelled{background:var(--red);}
+.req-body{flex:1;padding:.9rem 1rem;display:flex;align-items:center;gap:.9rem;min-width:0;}
+.req-av{width:36px;height:36px;flex-shrink:0;background:rgba(30,29,26,.07);
+  display:flex;align-items:center;justify-content:center;font-family:var(--fd);font-size:.85rem;}
+.req-info{flex:1;min-width:0;}
+.req-title{font-size:.85rem;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.req-client{font-family:var(--fm);font-size:.62rem;color:var(--gray-m);margin-top:.1rem;}
+.req-right{display:flex;flex-direction:column;align-items:flex-end;gap:.3rem;flex-shrink:0;}
+.req-status{font-family:var(--fm);font-size:.58rem;letter-spacing:1px;padding:.2rem .5rem;text-transform:uppercase;}
+.req-status.pending{background:rgba(232,224,58,.15);color:#8a7a00;}
+.req-status.accepted{background:rgba(46,255,158,.12);color:#00a651;}
+.req-status.in_progress{background:rgba(0,201,177,.12);color:#007a6e;}
+.req-status.completed{background:rgba(30,29,26,.06);color:var(--gray-m);}
+.req-status.rejected{background:rgba(255,77,46,.1);color:var(--red);}
+.req-date{font-family:var(--fm);font-size:.6rem;color:var(--gray-m);}
+.req-amount{font-family:var(--fd);font-size:.95rem;color:var(--black);letter-spacing:.5px;}
+
+/* ── APPOINTMENT CARDS ───────────────────────────────────── */
+.appt-list{display:flex;flex-direction:column;gap:.5rem;margin-bottom:2rem;}
+.appt-card{border:1px solid rgba(30,29,26,.1);background:var(--white);padding:1rem 1.1rem;
+  display:flex;align-items:center;gap:1rem;text-decoration:none;color:var(--black);
+  transition:border-color .2s,transform .15s;}
+.appt-card:hover{border-color:var(--black);transform:translateY(-1px);}
+.appt-date-box{width:48px;height:52px;flex-shrink:0;background:var(--black);color:var(--white);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0;}
+.appt-day{font-family:var(--fd);font-size:1.4rem;line-height:1;color:var(--accent);}
+.appt-month{font-family:var(--fm);font-size:.5rem;letter-spacing:2px;text-transform:uppercase;
+  color:rgba(245,244,240,.5);}
+.appt-info{flex:1;min-width:0;}
+.appt-title{font-size:.85rem;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.appt-meta{font-family:var(--fm);font-size:.62rem;color:var(--gray-m);margin-top:.2rem;}
+.appt-right{display:flex;flex-direction:column;align-items:flex-end;gap:.4rem;flex-shrink:0;}
+.appt-status{font-family:var(--fm);font-size:.58rem;letter-spacing:1px;padding:.2rem .5rem;text-transform:uppercase;}
+.appt-status.pending{background:rgba(232,224,58,.15);color:#8a7a00;}
+.appt-status.confirmed{background:rgba(46,255,158,.12);color:#00a651;}
+.appt-status.in_progress{background:rgba(0,201,177,.12);color:#007a6e;}
+.appt-status.completed{background:rgba(30,29,26,.06);color:var(--gray-m);}
+.appt-status.en_route{background:rgba(0,201,177,.15);color:#007a6e;}
+.appt-amount{font-family:var(--fd);font-size:.95rem;}
+.appt-pstatus{font-family:var(--fm);font-size:.58rem;color:var(--gray-m);}
+.appt-pstatus.held{color:#8a7a00;}
+.appt-pstatus.released{color:#00a651;}
+
+/* ── EARNINGS STRIP ──────────────────────────────────────── */
+.earnings-strip{background:var(--black);color:var(--white);padding:1.4rem 1.6rem;
+  display:flex;align-items:center;gap:1.8rem;margin-bottom:2rem;flex-wrap:wrap;}
+.earn-item{display:flex;flex-direction:column;gap:.2rem;}
+.earn-num{font-family:var(--fd);font-size:1.6rem;letter-spacing:1px;color:var(--accent);}
+.earn-label{font-family:var(--fm);font-size:.58rem;letter-spacing:2px;text-transform:uppercase;color:rgba(245,244,240,.4);}
+.earn-sep{width:1px;height:36px;background:rgba(245,244,240,.1);flex-shrink:0;}
+.earn-cta{margin-left:auto;flex-shrink:0;}
+
+/* ── AVAIL TOGGLE ────────────────────────────────────────── */
+.avail-toggle-wrap{display:flex;align-items:center;justify-content:space-between;
+  padding:1.1rem 1.3rem;border:1px solid rgba(30,29,26,.1);margin-bottom:2rem;background:var(--white);}
+.avail-toggle-left{display:flex;flex-direction:column;gap:.2rem;}
+.avail-toggle-title{font-size:.85rem;font-weight:500;}
+.avail-toggle-sub{font-family:var(--fm);font-size:.62rem;color:var(--gray-m);}
+.toggle-sw{position:relative;width:44px;height:24px;cursor:pointer;}
+.toggle-sw input{opacity:0;width:0;height:0;position:absolute;}
+.toggle-track{position:absolute;inset:0;background:var(--gray-l);transition:background .25s;}
+.toggle-track::after{content:'';position:absolute;left:3px;top:3px;width:18px;height:18px;
+  background:var(--white);transition:transform .25s;}
+.toggle-sw input:checked + .toggle-track{background:var(--green);}
+.toggle-sw input:checked + .toggle-track::after{transform:translateX(20px);}
+
+/* ── EMPTY STATE ─────────────────────────────────────────── */
+.empty{padding:2.5rem;text-align:center;border:1px dashed rgba(30,29,26,.15);}
+.empty-title{font-family:var(--fd);font-size:1.2rem;letter-spacing:1px;margin-bottom:.4rem;}
+.empty-sub{font-size:.8rem;color:var(--gray-m);margin-bottom:1.2rem;}
+.btn-primary{display:inline-block;padding:.75rem 1.6rem;background:var(--black);color:var(--white);
+  text-decoration:none;font-family:var(--fm);font-size:.68rem;letter-spacing:2px;text-transform:uppercase;
+  transition:background .2s;}
+.btn-primary:hover{background:var(--gray-d);}
+
+/* ── SKELETON ────────────────────────────────────────────── */
+.skel{background:linear-gradient(90deg,var(--off) 25%,var(--gray-l) 50%,var(--off) 75%);
+  background-size:200% 100%;animation:shimmer 1.4s infinite;}
+@keyframes shimmer{0%{background-position:200% 0;}100%{background-position:-200% 0;}}
+
+/* ── PROFILE COMPLETION ──────────────────────────────────── */
+.profile-bar{padding:1rem 1.3rem;border:1px solid rgba(30,29,26,.1);margin-bottom:2rem;background:var(--white);}
+.pb-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:.6rem;}
+.pb-title{font-size:.82rem;font-weight:500;}
+.pb-pct{font-family:var(--fd);font-size:1.1rem;color:var(--accent);}
+.pb-track{height:3px;background:var(--off);}
+.pb-fill{height:100%;background:var(--accent);transition:width .6s ease;}
+.pb-items{display:flex;gap:1rem;flex-wrap:wrap;margin-top:.7rem;}
+.pb-item{display:flex;align-items:center;gap:.35rem;font-family:var(--fm);font-size:.6rem;
+  color:var(--gray-m);text-decoration:none;letter-spacing:.5px;}
+.pb-item.done{color:var(--gray-d);}
+.pb-item.done::before{content:'✓';color:var(--green);}
+.pb-item:not(.done)::before{content:'○';color:var(--gray-l);}
+.pb-item:not(.done):hover{color:var(--black);}
+
+@media(max-width:600px){
+  .stats-bar{grid-template-columns:repeat(2,1fr);}
+  .stat-item:nth-child(2){border-right:none;}
+  .hero{padding:80px 1.2rem 2rem;}
+  .earnings-strip{gap:1rem;}
+  .earn-sep{display:none;}
+}
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <div style="display:flex;align-items:center;gap:.6rem;">
+    <a href="home-prestataire.html" class="nav-logo">Skill<span>Map</span></a>
+    <span class="nav-mode">Prestataire</span>
+  </div>
+  <div class="nav-right">
+    <div class="nav-avail" id="navAvail" onclick="toggleAvailability()" title="Disponibilité">
+      <div class="avail-dot" id="availDot"></div>
+      <span class="avail-label" id="availLabel">Inactif</span>
+    </div>
+    <a href="notifications.html" class="nav-notif" title="Notifications">
+      🔔<span class="notif-dot" id="notifDot"></span>
+    </a>
+    <div class="nav-av" id="navAv" onclick="toggleMenu()">?
+      <div class="av-menu" id="avMenu">
+        <a href="#" id="navMonProfil">Mon profil public</a>
+        <a href="parametres-prestataire.html">Paramètres</a>
+        <a href="mes-demandes.html">Mes demandes</a>
+        <a href="rendez-vous.html">Rendez-vous</a>
+        <a href="portefeuille.html">Portefeuille</a>
+        <a href="messages.html">Messages</a>
+        <div class="av-menu-sep"></div>
+        <a href="home-client.html" class="switch-mode">Passer en mode client</a>
+        <div class="av-menu-sep"></div>
+        <a href="#" class="danger" onclick="AUTH.logout();return false;">Déconnexion</a>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-badge">
+    <div class="hero-badge-dot" id="heroDot"></div>
+    <span id="heroStatus">Hors ligne</span>
+  </div>
+  <div class="hero-greeting" id="heroGreeting">Bonjour,<br><span id="heroName">…</span></div>
+  <div class="hero-sub" id="heroSub">Chargement de votre espace…</div>
+  <div class="hero-actions">
+    <a href="mes-demandes.html" class="hero-btn primary">Mes demandes</a>
+    <a href="parametres-prestataire.html" class="hero-btn outline">Modifier mon profil</a>
+  </div>
+</div>
+
+<!-- STATS BAR -->
+<div class="stats-bar">
+  <div class="stat-item"><div class="stat-num" id="statDemandes">—</div><div class="stat-label">Demandes reçues</div></div>
+  <div class="stat-item"><div class="stat-num" id="statNote">—</div><div class="stat-label">Note moyenne</div></div>
+  <div class="stat-item"><div class="stat-num money" id="statGains">—</div><div class="stat-label">Gains ce mois</div></div>
+  <div class="stat-item"><div class="stat-num" id="statRdv">—</div><div class="stat-label">Rendez-vous</div></div>
+</div>
+
+<div class="content">
+
+  <!-- DISPONIBILITÉ TOGGLE -->
+  <div class="avail-toggle-wrap">
+    <div class="avail-toggle-left">
+      <div class="avail-toggle-title">Disponibilité</div>
+      <div class="avail-toggle-sub" id="availSubText">Activez pour recevoir de nouvelles demandes</div>
+    </div>
+    <label class="toggle-sw">
+      <input type="checkbox" id="availToggleCheck" onchange="toggleAvailability()"/>
+      <div class="toggle-track"></div>
+    </label>
+  </div>
+
+  <!-- QUICK ACTIONS -->
+  <div class="sec-head"><div class="sec-title">Accès rapide</div></div>
+  <div class="quick-grid" style="margin-bottom:2rem;">
+    <a href="mes-demandes.html" class="qa-tile accent">
+      <div class="qa-num">01</div>
+      <div class="qa-badge" id="reqBadge">0</div>
+      <div class="qa-label">Demandes</div>
+      <div class="qa-sub">Nouvelles missions</div>
+    </a>
+    <a href="rendez-vous.html" class="qa-tile dark">
+      <div class="qa-num">02</div>
+      <div class="qa-badge" id="rdvBadge">0</div>
+      <div class="qa-label">Rendez-vous</div>
+      <div class="qa-sub">Planning client</div>
+    </a>
+    <a href="portefeuille.html" class="qa-tile teal">
+      <div class="qa-num">03</div>
+      <div class="qa-label">Portefeuille</div>
+      <div class="qa-sub" id="walletSub">Solde : —</div>
+    </a>
+    <a href="messages.html" class="qa-tile">
+      <div class="qa-num">04</div>
+      <div class="qa-badge" id="msgBadge">0</div>
+      <div class="qa-label">Messages</div>
+      <div class="qa-sub">Vos conversations</div>
+    </a>
+  </div>
+
+  <!-- EARNINGS STRIP -->
+  <div class="earnings-strip" id="earningsStrip" style="display:none;">
+    <div class="earn-item">
+      <div class="earn-num" id="earnBalance">0 F</div>
+      <div class="earn-label">Solde disponible</div>
+    </div>
+    <div class="earn-sep"></div>
+    <div class="earn-item">
+      <div class="earn-num" id="earnHeld">0 F</div>
+      <div class="earn-label">En séquestre</div>
+    </div>
+    <div class="earn-sep"></div>
+    <div class="earn-item">
+      <div class="earn-num" id="earnMonth">0 F</div>
+      <div class="earn-label">Gains ce mois</div>
+    </div>
+    <div class="earn-cta">
+      <a href="portefeuille.html" class="hero-btn primary" style="padding:.55rem 1.1rem;font-size:.6rem;">Voir portefeuille →</a>
+    </div>
+  </div>
+
+  <!-- PROFIL COMPLETION -->
+  <div class="profile-bar" id="profileBar">
+    <div class="pb-head">
+      <div class="pb-title">Complétez votre profil</div>
+      <div class="pb-pct" id="pbPct">0%</div>
+    </div>
+    <div class="pb-track"><div class="pb-fill" id="pbFill" style="width:0%"></div></div>
+    <div class="pb-items" id="pbItems"></div>
+  </div>
+
+  <!-- RECENT REQUESTS -->
+  <div class="sec-head">
+    <div class="sec-title">Demandes récentes</div>
+    <a href="mes-demandes.html" class="sec-link">Toutes les demandes →</a>
+  </div>
+  <div class="req-list" id="reqList">
+    <div class="skel" style="height:68px;"></div>
+    <div class="skel" style="height:68px;"></div>
+    <div class="skel" style="height:68px;"></div>
+  </div>
+
+  <!-- UPCOMING APPOINTMENTS -->
+  <div class="sec-head">
+    <div class="sec-title">Prochains rendez-vous</div>
+    <a href="rendez-vous.html" class="sec-link">Tous les rendez-vous →</a>
+  </div>
+  <div class="appt-list" id="apptList">
+    <div class="skel" style="height:76px;"></div>
+    <div class="skel" style="height:76px;"></div>
+  </div>
+
+</div><!-- /content -->
+
+<script src="frontend/js/auth.js"></script>
+<script src="frontend/js/api.js"></script>
+<script>
+// ── Guards ─────────────────────────────────────────────────
+AUTH.requireAuth();
+const user = AUTH.getUser();
+if (!user || user.role === 'admin') window.location.href = 'admin.html';
+if (user && user.role !== 'provider') window.location.href = 'home-client.html';
+
+// ── Nav avatar dropdown ────────────────────────────────────
+function toggleMenu() {
+  document.getElementById('avMenu').classList.toggle('open');
+}
+document.addEventListener('click', e => {
+  if (!document.getElementById('navAv').contains(e.target))
+    document.getElementById('avMenu').classList.remove('open');
+});
+
+// ── Hero greeting ──────────────────────────────────────────
+(function setGreeting() {
+  const h = new Date().getHours();
+  const sal = h < 12 ? 'Bonjour' : h < 18 ? 'Bonsoir' : 'Bonsoir';
+  const first = (user?.full_name || '').split(' ')[0] || 'Prestataire';
+  document.getElementById('heroGreeting').innerHTML =
+    `${sal},<br><span id="heroName">${first}</span>`;
+  const initials = (user?.full_name || 'P').split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
+  document.getElementById('navAv').childNodes[0].textContent = initials;
+})();
+
+// ── Availability state ─────────────────────────────────────
+let isAvailable = false;
+let providerId  = null;
+let isToggling  = false;
+
+function setAvailabilityUI(on) {
+  isAvailable = on;
+  document.getElementById('availDot').className  = 'avail-dot' + (on ? ' on' : '');
+  document.getElementById('availLabel').textContent = on ? 'Disponible' : 'Inactif';
+  document.getElementById('heroDot').className   = 'hero-badge-dot' + (on ? ' on' : '');
+  document.getElementById('heroStatus').textContent = on ? 'En ligne · Disponible pour de nouvelles missions' : 'Hors ligne';
+  document.getElementById('heroSub').textContent = on
+    ? 'Vous êtes visible par les clients. Bonne journée !'
+    : 'Activez votre disponibilité pour recevoir des demandes.';
+  document.getElementById('availSubText').textContent = on
+    ? 'Vous êtes visible par les clients'
+    : 'Activez pour recevoir de nouvelles demandes';
+  document.getElementById('availToggleCheck').checked = on;
+}
+
+async function toggleAvailability() {
+  if (isToggling) return;
+  isToggling = true;
+  const newState = !isAvailable;
+  setAvailabilityUI(newState);
+  try {
+    await api.providers.toggleAvailability({ is_available: newState });
+  } catch {
+    setAvailabilityUI(!newState); // revert on error
+  }
+  isToggling = false;
+}
+
+// ── Format money ───────────────────────────────────────────
+function fmt(n) {
+  if (n === null || n === undefined) return '—';
+  return Number(n).toLocaleString('fr-FR') + ' F';
+}
+
+// ── Load everything ────────────────────────────────────────
+async function init() {
+  try {
+    const { user: u, provider: p } = await api.auth.me();
+    providerId = p?.id;
+
+    // Availability
+    setAvailabilityUI(!!p?.is_available);
+
+    // Profile link
+    if (p?.id) {
+      document.getElementById('navMonProfil').href = `provider-profile.html?id=${p.id}`;
+    }
+
+    // Profile completion
+    buildProfileCompletion(u, p);
+
+    // Stats
+    loadStats(p);
+
+    // Wallet
+    loadWallet();
+
+    // Requests
+    loadRequests();
+
+    // Appointments
+    loadAppointments();
+
+    // Messages badge
+    loadMessages();
+
+  } catch (e) {
+    console.error(e);
+  }
+}
+
+// ── Profile completion bar ─────────────────────────────────
+function buildProfileCompletion(u, p) {
+  const steps = [
+    { label: 'Photo de profil',    done: !!p?.photo_url },
+    { label: 'Description',        done: !!p?.bio && p.bio.length > 20 },
+    { label: 'Tarif horaire',      done: !!p?.hourly_rate },
+    { label: 'Zone de service',    done: !!p?.neighborhood },
+    { label: 'Compétences',        done: !!p?.title },
+  ];
+  const doneCount = steps.filter(s => s.done).length;
+  const pct = Math.round((doneCount / steps.length) * 100);
+
+  document.getElementById('pbPct').textContent  = pct + '%';
+  document.getElementById('pbFill').style.width  = pct + '%';
+
+  const items = steps.map(s =>
+    `<a href="parametres-prestataire.html" class="pb-item${s.done ? ' done' : ''}">${s.label}</a>`
+  ).join('');
+  document.getElementById('pbItems').innerHTML = items;
+
+  if (pct >= 100) document.getElementById('profileBar').style.display = 'none';
+}
+
+// ── Stats ──────────────────────────────────────────────────
+async function loadStats(p) {
+  try {
+    const [reqData, rdvData] = await Promise.all([
+      api.services.myRequests({ limit: 100 }),
+      api.appointments.list({ limit: 100 }),
+    ]);
+
+    const requests = reqData.requests || [];
+    const appts    = rdvData.appointments || [];
+
+    document.getElementById('statDemandes').textContent = requests.length;
+    document.getElementById('statRdv').textContent = appts.filter(a => ['pending','confirmed','in_progress'].includes(a.status)).length;
+
+    // Rating
+    if (p?.id) {
+      try {
+        const { stats } = await api.reviews.list(p.id);
+        document.getElementById('statNote').textContent = stats?.avg ? `${parseFloat(stats.avg).toFixed(1)}★` : '—';
+      } catch {}
+    }
+  } catch {}
+}
+
+// ── Wallet ─────────────────────────────────────────────────
+async function loadWallet() {
+  try {
+    const [wallet, stats] = await Promise.all([
+      api.wallet.get(),
+      api.wallet.stats(),
+    ]);
+    const bal = wallet?.wallet?.balance || 0;
+    const held = wallet?.wallet?.held_balance || 0;
+    const month = stats?.this_month_earned || 0;
+
+    document.getElementById('walletSub').textContent = 'Solde : ' + fmt(bal);
+    document.getElementById('statGains').textContent = fmt(month);
+
+    document.getElementById('earnBalance').textContent = fmt(bal);
+    document.getElementById('earnHeld').textContent    = fmt(held);
+    document.getElementById('earnMonth').textContent   = fmt(month);
+    document.getElementById('earningsStrip').style.display = 'flex';
+  } catch {}
+}
+
+// ── Requests ───────────────────────────────────────────────
+async function loadRequests() {
+  const list = document.getElementById('reqList');
+  try {
+    const data = await api.services.myRequests({ limit: 5 });
+    const requests = data.requests || [];
+
+    if (requests.length === 0) {
+      list.innerHTML = `<div class="empty">
+        <div class="empty-title">Aucune demande</div>
+        <div class="empty-sub">Les demandes de clients apparaîtront ici.</div>
+        <a href="parametres-prestataire.html" class="btn-primary">Compléter mon profil</a>
+      </div>`;
+      document.getElementById('reqBadge').style.display = 'none';
+      return;
+    }
+
+    const pending = requests.filter(r => r.status === 'pending').length;
+    if (pending > 0) {
+      document.getElementById('reqBadge').textContent = pending;
+      document.getElementById('reqBadge').style.display = 'block';
+    } else {
+      document.getElementById('reqBadge').style.display = 'none';
+    }
+
+    const STATUS_LABEL = { pending:'En attente', accepted:'Acceptée', in_progress:'En cours', completed:'Terminée', rejected:'Refusée', cancelled:'Annulée' };
+    const MONTHS = ['Jan','Fév','Mar','Avr','Mai','Jun','Jul','Aoû','Sep','Oct','Nov','Déc'];
+
+    list.innerHTML = requests.map(r => {
+      const d = new Date(r.created_at);
+      const dateStr = `${d.getDate()} ${MONTHS[d.getMonth()]}`;
+      const initials = (r.client_name||'?').split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
+      return `<a href="mes-demandes.html" class="req-card">
+        <div class="req-accent ${r.status}"></div>
+        <div class="req-body">
+          <div class="req-av">${initials}</div>
+          <div class="req-info">
+            <div class="req-title">${r.title}</div>
+            <div class="req-client">${r.client_name || 'Client'} · ${dateStr}</div>
+          </div>
+          <div class="req-right">
+            <span class="req-status ${r.status}">${STATUS_LABEL[r.status] || r.status}</span>
+            ${r.budget ? `<span class="req-date">${fmt(r.budget)}</span>` : '<span class="req-date">Budget libre</span>'}
+          </div>
+        </div>
+      </a>`;
+    }).join('');
+  } catch {
+    list.innerHTML = '<div class="skel" style="height:68px;"></div>';
+  }
+}
+
+// ── Appointments ───────────────────────────────────────────
+async function loadAppointments() {
+  const list = document.getElementById('apptList');
+  try {
+    const data = await api.appointments.list({ limit: 4 });
+    const appts = (data.appointments || [])
+      .filter(a => ['pending','confirmed','in_progress','en_route'].includes(a.status))
+      .slice(0, 4);
+
+    const pending = appts.filter(a => a.status === 'pending').length;
+    if (pending > 0) {
+      document.getElementById('rdvBadge').textContent = pending;
+      document.getElementById('rdvBadge').style.display = 'block';
+    } else {
+      document.getElementById('rdvBadge').style.display = 'none';
+    }
+
+    if (appts.length === 0) {
+      list.innerHTML = `<div class="empty">
+        <div class="empty-title">Aucun rendez-vous</div>
+        <div class="empty-sub">Vos rendez-vous confirmés apparaîtront ici.</div>
+      </div>`;
+      return;
+    }
+
+    const STATUS_LABEL = { pending:'En attente', confirmed:'Confirmé', in_progress:'En cours', en_route:'En route', completed:'Terminé', cancelled:'Annulé' };
+    const PAY_LABEL    = { unpaid:'Non payé', held:'Paiement retenu', released:'Versé', refunded:'Remboursé' };
+    const MONTHS = ['Jan','Fév','Mar','Avr','Mai','Jun','Jul','Aoû','Sep','Oct','Nov','Déc'];
+
+    list.innerHTML = appts.map(a => {
+      const d = new Date(a.scheduled_date);
+      const day   = d.getDate();
+      const month = MONTHS[d.getMonth()];
+      const initials = (a.client_name||'?').split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
+      return `<a href="rendez-vous.html" class="appt-card">
+        <div class="appt-date-box">
+          <div class="appt-day">${day}</div>
+          <div class="appt-month">${month}</div>
+        </div>
+        <div class="appt-info">
+          <div class="appt-title">${a.title}</div>
+          <div class="appt-meta">${a.client_name || 'Client'} · ${a.scheduled_time || '09:00'}</div>
+        </div>
+        <div class="appt-right">
+          <span class="appt-status ${a.status}">${STATUS_LABEL[a.status] || a.status}</span>
+          <span class="appt-amount">${fmt(a.amount)}</span>
+          <span class="appt-pstatus ${a.payment_status}">${PAY_LABEL[a.payment_status] || ''}</span>
+        </div>
+      </a>`;
+    }).join('');
+  } catch {
+    list.innerHTML = '<div class="skel" style="height:76px;"></div>';
+  }
+}
+
+// ── Messages badge ─────────────────────────────────────────
+async function loadMessages() {
+  try {
+    const data = await api.messages.conversations();
+    const unread = (data.conversations || []).filter(c => c.unread_count > 0).length;
+    if (unread > 0) {
+      document.getElementById('msgBadge').textContent = unread;
+      document.getElementById('msgBadge').style.display = 'block';
+      document.getElementById('notifDot').style.display = 'block';
+    }
+  } catch {}
+}
+
+init();
+</script>
+</body>
+</html>
