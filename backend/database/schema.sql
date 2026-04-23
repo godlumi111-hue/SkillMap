@@ -126,6 +126,57 @@ CREATE TABLE IF NOT EXISTS reports (
   created_at  TEXT    DEFAULT (datetime('now'))
 );
 
+-- ─── RENDEZ-VOUS ─────────────────────────────────────────────
+CREATE TABLE IF NOT EXISTS appointments (
+  id                 INTEGER PRIMARY KEY AUTOINCREMENT,
+  client_id          INTEGER NOT NULL REFERENCES users(id),
+  provider_id        INTEGER NOT NULL REFERENCES providers(id),
+  service_request_id INTEGER REFERENCES service_requests(id),
+  title              TEXT NOT NULL,
+  description        TEXT,
+  scheduled_date     TEXT NOT NULL,
+  scheduled_time     TEXT DEFAULT '09:00',
+  duration_hours     REAL DEFAULT 1,
+  amount             REAL DEFAULT 0,
+  status             TEXT DEFAULT 'pending'
+                     CHECK(status IN ('pending','confirmed','in_progress','en_route','completed','cancelled')),
+  payment_status     TEXT DEFAULT 'unpaid'
+                     CHECK(payment_status IN ('unpaid','held','released','refunded')),
+  client_confirmed   INTEGER DEFAULT 0,
+  provider_confirmed INTEGER DEFAULT 0,
+  notes              TEXT,
+  created_at         TEXT DEFAULT (datetime('now')),
+  updated_at         TEXT DEFAULT (datetime('now'))
+);
+
+-- ─── PORTEFEUILLES ───────────────────────────────────────────
+CREATE TABLE IF NOT EXISTS wallets (
+  id           INTEGER PRIMARY KEY AUTOINCREMENT,
+  user_id      INTEGER NOT NULL UNIQUE REFERENCES users(id) ON DELETE CASCADE,
+  balance      REAL DEFAULT 0,
+  held_balance REAL DEFAULT 0,
+  total_earned REAL DEFAULT 0,
+  total_spent  REAL DEFAULT 0,
+  created_at   TEXT DEFAULT (datetime('now')),
+  updated_at   TEXT DEFAULT (datetime('now'))
+);
+
+-- ─── TRANSACTIONS PORTEFEUILLE ───────────────────────────────
+CREATE TABLE IF NOT EXISTS wallet_transactions (
+  id             INTEGER PRIMARY KEY AUTOINCREMENT,
+  wallet_id      INTEGER NOT NULL REFERENCES wallets(id),
+  type           TEXT NOT NULL CHECK(type IN ('deposit','payment','receipt','commission','refund','held','released')),
+  amount         REAL NOT NULL,
+  fee            REAL DEFAULT 0,
+  net_amount     REAL,
+  description    TEXT,
+  status         TEXT DEFAULT 'completed' CHECK(status IN ('pending','completed','failed')),
+  payment_method TEXT,
+  reference      TEXT,
+  appointment_id INTEGER REFERENCES appointments(id),
+  created_at     TEXT DEFAULT (datetime('now'))
+);
+
 -- ─── INDEX pour les performances ─────────────────────────────
 CREATE INDEX IF NOT EXISTS idx_providers_available ON providers(is_available);
 CREATE INDEX IF NOT EXISTS idx_providers_lat_lng   ON providers(lat, lng);

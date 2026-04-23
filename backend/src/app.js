@@ -25,8 +25,10 @@ app.use('/api/providers',  require('./routes/providers'));
 app.use('/api/services',   require('./routes/services'));
 app.use('/api/favorites',  require('./routes/favorites'));
 app.use('/api/categories', require('./routes/categories'));
-app.use('/api/messages',   require('./routes/messages'));
-app.use('/api/admin',      require('./routes/admin'));
+app.use('/api/messages',      require('./routes/messages'));
+app.use('/api/appointments',  require('./routes/appointments'));
+app.use('/api/wallet',        require('./routes/wallet'));
+app.use('/api/admin',         require('./routes/admin'));
 
 // Health check
 app.get('/api/health', (req, res) => res.json({ status: 'ok', timestamp: new Date().toISOString() }));
