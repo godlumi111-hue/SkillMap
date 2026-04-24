@@ -5,6 +5,8 @@
 <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
 <title>SkillMap — Espace Prestataire</title>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,300&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+<link rel="stylesheet" href="frontend/css/responsive.css"/>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
 :root{
@@ -222,7 +224,7 @@ body{font-family:var(--fb);background:var(--white);color:var(--black);min-height
 .pb-item{display:flex;align-items:center;gap:.35rem;font-family:var(--fm);font-size:.6rem;
   color:var(--gray-m);text-decoration:none;letter-spacing:.5px;}
 .pb-item.done{color:var(--gray-d);}
-.pb-item.done::before{content:'✓';color:var(--green);}
+.pb-item.done::before{content:'';width:12px;height:12px;display:inline-block;background:var(--green);-webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M20 6 9 17l-5-5'/%3E%3C/svg%3E") center/contain no-repeat;mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M20 6 9 17l-5-5'/%3E%3C/svg%3E") center/contain no-repeat;}
 .pb-item:not(.done)::before{content:'○';color:var(--gray-l);}
 .pb-item:not(.done):hover{color:var(--black);}
 
@@ -248,7 +250,7 @@ body{font-family:var(--fb);background:var(--white);color:var(--black);min-height
       <span class="avail-label" id="availLabel">Inactif</span>
     </div>
     <a href="notifications.html" class="nav-notif" title="Notifications">
-      🔔<span class="notif-dot" id="notifDot"></span>
+      <i data-lucide="bell"></i><span class="notif-dot" id="notifDot"></span>
     </a>
     <div class="nav-av" id="navAv" onclick="toggleMenu()">?
       <div class="av-menu" id="avMenu">
@@ -680,5 +682,22 @@ async function loadMessages() {
 
 init();
 </script>
+
+<!-- Bottom Navigation (mobile uniquement) -->
+<nav class="bottom-nav">
+  <a href="home-prestataire.html" class="bottom-nav-item active">
+    <i data-lucide="home"></i><span>Accueil</span>
+  </a>
+  <a href="rendez-vous.html" class="bottom-nav-item">
+    <i data-lucide="calendar-days"></i><span>Agenda</span>
+  </a>
+  <a href="mes-demandes.html" class="bottom-nav-item">
+    <i data-lucide="briefcase"></i><span>Missions</span>
+  </a>
+  <a href="parametres-prestataire.html" class="bottom-nav-item">
+    <i data-lucide="settings"></i><span>Profil</span>
+  </a>
+</nav>
+<script>if(window.lucide)lucide.createIcons({el:document.querySelector('.bottom-nav')});</script>
 </body>
 </html>

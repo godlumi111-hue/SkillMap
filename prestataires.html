@@ -6,6 +6,7 @@
 <title>SkillMap — Tous les prestataires</title>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
 <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+<link rel="stylesheet" href="frontend/css/responsive.css"/>
 <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 :root {
@@ -151,6 +152,10 @@ body { font-family: var(--font-body); background: var(--white); color: var(--bla
 
   <!-- CONTENT -->
   <div class="content-area">
+    <!-- Bouton filtres mobile -->
+    <button class="mobile-filter-btn" id="mobileFilterBtn" onclick="toggleMobileFilters()">
+      <i data-lucide="sliders-horizontal"></i> Filtres
+    </button>
     <div class="content-header">
       <div class="content-count"><span id="countNum">—</span> prestataires trouvés</div>
       <select class="sort-select" id="sortSelect" onchange="loadProviders()">
@@ -187,18 +192,26 @@ const _urlCat = _urlParams.get('category') || '';
 if (_urlQ) document.getElementById('mainSearch').value = _urlQ;
 if (_urlCat) { _activeCat = _urlCat; }
 
+const CAT_ICONS = {
+  artisanat: 'wrench', electricite: 'zap', plomberie: 'droplets',
+  beaute: 'scissors', design: 'palette', education: 'book-open',
+  telephonie: 'smartphone', mecanique: 'car', couture: 'shirt',
+  cuisine: 'utensils',
+};
+
 async function loadCategories() {
   try {
     const { categories } = await api.categories.list();
     const filtersEl = document.getElementById('catFilters');
     filtersEl.innerHTML = categories.map(c => `
       <button class="filter-btn${c.slug === _activeCat ? ' active' : ''}" data-cat="${c.slug}" onclick="setCat('${c.slug}',this)">
-        ${c.icon || ''} ${c.name}
+        ${CAT_ICONS[c.slug] ? `<i data-lucide="${CAT_ICONS[c.slug]}"></i>` : ''} ${c.name}
       </button>
     `).join('');
     if (_activeCat) {
       document.querySelector('.filter-btn[data-cat=""]')?.classList.remove('active');
     }
+    lucide.createIcons({ el: filtersEl });
   } catch {}
 }
 
@@ -331,6 +344,31 @@ function initGeo() {
 loadCategories();
 initGeo();
 lucide.createIcons();
+
+function toggleMobileFilters() {
+  const sidebar = document.querySelector('.filters-sidebar');
+  const btn = document.getElementById('mobileFilterBtn');
+  sidebar.classList.toggle('open');
+  btn.textContent = sidebar.classList.contains('open') ? '✕ Fermer les filtres' : '⊞ Filtres';
+  lucide.createIcons({ el: btn });
+}
 </script>
+
+<!-- Bottom Navigation (mobile) -->
+<nav class="bottom-nav">
+  <a href="home-client.html" class="bottom-nav-item">
+    <i data-lucide="home"></i><span>Accueil</span>
+  </a>
+  <a href="prestataires.html" class="bottom-nav-item active">
+    <i data-lucide="search"></i><span>Chercher</span>
+  </a>
+  <a href="rendez-vous.html" class="bottom-nav-item">
+    <i data-lucide="calendar-days"></i><span>Rendez-vous</span>
+  </a>
+  <a href="profil-utilisateur.html" class="bottom-nav-item">
+    <i data-lucide="user"></i><span>Profil</span>
+  </a>
+</nav>
+<script>if(window.lucide)lucide.createIcons({el:document.querySelector('.bottom-nav')});</script>
 </body>
 </html>

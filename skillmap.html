@@ -781,6 +781,25 @@
     .providers-header { flex-direction: column; align-items: flex-start; gap: 1rem; }
     .footer-top { grid-template-columns: 1fr 1fr; gap: 2rem; }
   }
+
+  @media (max-width: 520px) {
+    .footer-top { grid-template-columns: 1fr; gap: 1.5rem; }
+    .footer-bottom {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 1rem;
+      padding-top: 1.5rem;
+    }
+    .footer-bottom p {
+      font-size: 0.68rem;
+      line-height: 1.5;
+    }
+    .footer-bottom-links {
+      gap: 1.2rem;
+      flex-wrap: wrap;
+    }
+    footer { padding: 2.5rem 1.2rem 1.5rem; }
+  }
 </style>
 </head>
 <body>

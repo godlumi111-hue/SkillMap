@@ -6,6 +6,7 @@
 <title>SkillMap — Connexion</title>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
 <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+<link rel="stylesheet" href="frontend/css/responsive.css"/>
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
   :root {
@@ -236,6 +237,14 @@
               <span class="skill-chip" onclick="toggleChip(this)">Devis gratuit</span>
               <span class="skill-chip" onclick="toggleChip(this)">Déplacement inclus</span>
             </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Zone d'intervention</label>
+            <input type="text" class="form-input" id="neighborhoodInput" placeholder="Ex : Cocody, Plateau, Yopougon…"/>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Présentation (optionnel)</label>
+            <textarea class="form-input" id="descInput" rows="3" placeholder="Décrivez brièvement votre expérience et vos services…" style="resize:vertical;min-height:70px;"></textarea>
           </div>
         </div>
       </div>

@@ -3,16 +3,16 @@
 
 -- ─── CATÉGORIES ──────────────────────────────────────────────
 INSERT OR IGNORE INTO categories (name, slug, icon) VALUES
-  ('Artisanat',           'artisanat',   '🔧'),
-  ('Électricité',         'electricite', '⚡'),
-  ('Plomberie',           'plomberie',   '🚿'),
-  ('Beauté & Coiffure',   'beaute',      '✂️'),
-  ('Design & Créatif',    'design',      '🎨'),
-  ('Éducation & Cours',   'education',   '📚'),
-  ('Téléphonie & Tech',   'telephonie',  '🔌'),
-  ('Mécanique Auto',      'mecanique',   '🚗'),
-  ('Couture & Mode',      'couture',     '🪡'),
-  ('Cuisine & Traiteur',  'cuisine',     '🍽️');
+  ('Artisanat',           'artisanat',   '<i data-lucide="wrench"></i>'),
+  ('Électricité',         'electricite', '<i data-lucide="zap"></i>'),
+  ('Plomberie',           'plomberie',   '<i data-lucide="pipe"></i>'),
+  ('Beauté & Coiffure',   'beaute',      '<i data-lucide="scissors"></i>'),
+  ('Design & Créatif',    'design',      '<i data-lucide="palette"></i>'),
+  ('Éducation & Cours',   'education',   '<i data-lucide="book-open"></i>'),
+  ('Téléphonie & Tech',   'telephonie',  '<i data-lucide="smartphone-charging"></i>'),
+  ('Mécanique Auto',      'mecanique',   '<i data-lucide="car"></i>'),
+  ('Couture & Mode',      'couture',     '<i data-lucide="shirt"></i>'),
+  ('Cuisine & Traiteur',  'cuisine',     '<i data-lucide="utensils"></i>');
 
 -- ─── UTILISATEURS (mdp = "password123") ─────────────────────
 -- Admin

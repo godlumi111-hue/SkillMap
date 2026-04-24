@@ -4,8 +4,7 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>SkillMap — Profil prestataire</title>
-<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
-<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,300&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
 <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 :root {
@@ -62,11 +61,6 @@ body { font-family: var(--font-body); background: var(--white); color: var(--bla
 .skills-wrap { display: flex; flex-wrap: wrap; gap: .5rem; }
 .skill-tag { padding: .3rem .9rem; border: 1px solid rgba(30,29,26,.15); font-size: .72rem; font-family: var(--font-mono); letter-spacing: 1px; color: var(--gray-dark); }
 
-/* Portfolio */
-.portfolio-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: .6rem; }
-.portfolio-item { aspect-ratio: 1; background: var(--off-white); border: 1px solid rgba(30,29,26,.1); display: flex; align-items: center; justify-content: center; font-size: 2rem; cursor: pointer; transition: border-color .2s, transform .15s; }
-.portfolio-item:hover { border-color: var(--black); transform: scale(1.02); }
-
 /* Reviews */
 .review-summary { display: grid; grid-template-columns: auto 1fr; gap: 1.5rem; margin-bottom: 1.5rem; padding: 1.4rem; background: var(--off-white); border: 1px solid rgba(30,29,26,.08); }
 .review-big-num { font-family: var(--font-display); font-size: 4rem; line-height: 1; color: var(--accent); }
@@ -74,7 +68,6 @@ body { font-family: var(--font-body); background: var(--white); color: var(--bla
 .review-bar-row { display: flex; align-items: center; gap: .6rem; font-family: var(--font-mono); font-size: .62rem; color: var(--gray-mid); }
 .review-bar-track { flex: 1; height: 4px; background: var(--gray-light); }
 .review-bar-fill { height: 100%; background: var(--accent); }
-
 .review-list { display: flex; flex-direction: column; gap: .8rem; }
 .review-card { padding: 1.2rem; border: 1px solid rgba(30,29,26,.08); }
 .review-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: .6rem; }
@@ -136,6 +129,24 @@ body { font-family: var(--font-body); background: var(--white); color: var(--bla
 .pub-pf-title { font-size: .78rem; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .pub-pf-cat { font-family: var(--font-mono); font-size: .58rem; color: var(--gray-mid); }
 
+/* Portfolio — owner add button */
+.pub-pf-add-btn { display: inline-flex; align-items: center; gap: .5rem; padding: .6rem 1.3rem; border: 1.5px dashed rgba(30,29,26,.3); background: transparent; font-family: var(--font-mono); font-size: .62rem; letter-spacing: 1.5px; text-transform: uppercase; cursor: pointer; color: var(--gray-dark); transition: all .2s; }
+.pub-pf-add-btn:hover { border-color: var(--accent); border-style: solid; color: var(--black); background: rgba(232,224,58,.07); }
+.pub-pf-item { position: relative; }
+.pf-del-btn { position: absolute; top: .35rem; right: .35rem; background: rgba(30,29,26,.78); color: var(--white); border: none; width: 26px; height: 26px; display: flex; align-items: center; justify-content: center; cursor: pointer; opacity: 0; transition: opacity .2s; }
+.pf-del-btn svg { width: 12px; height: 12px; }
+.pub-pf-item:hover .pf-del-btn { opacity: 1; }
+.pf-demo-badge { position: absolute; top: .4rem; left: .4rem; font-family: var(--font-mono); font-size: .48rem; letter-spacing: 1px; background: rgba(30,29,26,.6); color: rgba(245,244,240,.85); padding: .12rem .45rem; pointer-events: none; text-transform: uppercase; }
+/* Portfolio modal upload zone */
+.pf-drop-zone { border: 2px dashed rgba(30,29,26,.25); padding: 1.2rem; text-align: center; cursor: pointer; transition: border-color .2s, background .2s; margin-bottom: .8rem; min-height: 110px; display: flex; align-items: center; justify-content: center; }
+.pf-drop-zone:hover { border-color: var(--accent); background: rgba(232,224,58,.04); }
+.pf-drop-hint { pointer-events: none; }
+.pf-drop-hint svg { width: 2rem; height: 2rem; opacity: .3; display: block; margin: 0 auto .5rem; }
+.pf-drop-hint p { font-size: .8rem; color: var(--gray-mid); line-height: 1.5; }
+.pf-drop-prev { display: none; }
+.pf-drop-prev img { max-width: 100%; max-height: 150px; object-fit: cover; border: 1px solid rgba(30,29,26,.1); }
+.pf-drop-prev p { font-size: .65rem; margin-top: .3rem; color: var(--gray-mid); font-family: var(--font-mono); }
+
 /* Booking modal extras */
 .booking-grid { display: grid; grid-template-columns: 1fr 1fr; gap: .8rem; }
 .bk-label { font-family: var(--font-mono); font-size: .6rem; letter-spacing: 2px; text-transform: uppercase; color: var(--gray-dark); display: block; margin-bottom: .35rem; }
@@ -165,17 +176,17 @@ body { font-family: var(--font-body); background: var(--white); color: var(--bla
 <div class="cursor" id="cursor"></div>
 <div class="cursor-ring" id="cursorRing"></div>
 
-<!-- ── MODAL CONTACT / DEMANDE ── -->
+<!-- ── MODAL ── -->
 <div class="modal-overlay" id="modalOverlay" onclick="if(event.target===this)closeModal()">
   <div class="modal-box">
-    <button class="modal-close" onclick="closeModal()">✕</button>
+    <button class="modal-close" onclick="closeModal()"><i data-lucide="x"></i></button>
     <div id="modalContent"></div>
   </div>
 </div>
 
 <nav class="top-nav">
   <a href="home-client.html" class="nav-logo">SKILL<span>MAP</span></a>
-  <a id="navBack" href="dashboard-client.html" class="nav-back">← Retour</a>
+  <a id="navBack" href="prestataires.html" class="nav-back">← Retour</a>
   <div class="nav-right">
     <a href="home-client.html" style="font-family:var(--font-mono);font-size:.68rem;letter-spacing:1px;color:var(--gray-mid);text-decoration:none;">Accueil</a>
     <div class="nav-avatar" id="navAvatar" onclick="window.location.href='profil-utilisateur.html'">?</div>
@@ -186,6 +197,8 @@ body { font-family: var(--font-body); background: var(--white); color: var(--bla
   <div class="page-loading">Chargement du profil…</div>
 </div>
 
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+<link rel="stylesheet" href="frontend/css/responsive.css"/>
 <script src="frontend/js/api.js"></script>
 <script src="frontend/js/auth.js"></script>
 <script>
@@ -246,7 +259,6 @@ function renderPage(p) {
   const dist = p.distance_km != null ? `<i data-lucide="map-pin"></i> ${p.distance_km} km` : '';
   document.title = `${p.full_name} — SkillMap`;
 
-  // Rating bars (simulated distribution)
   const total = p.review_count || 0;
   const avg = p.avg_rating || 0;
   const barPcts = total > 0 ? [
@@ -258,14 +270,6 @@ function renderPage(p) {
   ] : [0,0,0,0,0];
 
   const skillsHtml = (p.skills||[]).map(s=>`<span class="skill-tag">${s}</span>`).join('');
-  const portfolioHtml = p.portfolio_items?.length
-    ? p.portfolio_items.map(item=>`<div class="portfolio-item" title="${item.title||''}"><span>${item.image_url?'<i data-lucide="image"></i>':'<i data-lucide="file-text"></i>'}</span></div>`).join('')
-    : [1,2,3,4].map((_, i) => {
-        const icons = ['<i data-lucide="palette"></i>','<i data-lucide="ruler"></i>','<i data-lucide="scissors"></i>','<i data-lucide="wrench"></i>','<i data-lucide="camera"></i>','<i data-lucide="building-2"></i>','<i data-lucide="lightbulb"></i>','<i data-lucide="monitor"></i>'];
-        const cats = p.categories||[];
-        const icon = cats[0]?.icon || icons[i % icons.length];
-        return `<div class="portfolio-item" title="Réalisation ${i+1}">${icon}</div>`;
-      }).join('');
 
   const reviewsHtml = (p.reviews||[]).map(r => `
     <div class="review-card">
@@ -278,27 +282,14 @@ function renderPage(p) {
     </div>
   `).join('') || '<p style="color:var(--gray-mid);font-size:.85rem;">Aucun avis pour le moment. Soyez le premier à évaluer !</p>';
 
-  const pfItems = loadPublicPortfolio(p.user_id);
-  const pfHtml = pfItems.length
-    ? pfItems.map(item => `<div class="pub-pf-item">
-        ${item.image
-          ? `<img class="pub-pf-img" src="${item.image}" alt="${item.title}" loading="lazy"/>`
-          : `<div class="pub-pf-placeholder">🖼</div>`}
-        <div class="pub-pf-cap">
-          <div class="pub-pf-title">${item.title}</div>
-          <div class="pub-pf-cat">${item.category||''}${item.date?' · '+item.date:''}</div>
-        </div>
-      </div>`).join('')
-    : portfolioHtml.includes('portfolio-item')
-      ? `<div class="portfolio-grid">${portfolioHtml}</div><p style="font-family:var(--font-mono);font-size:.62rem;color:var(--gray-mid);margin-top:.8rem;">Contactez le prestataire pour voir ses réalisations en détail</p>`
-      : '<p style="color:var(--gray-mid);font-size:.85rem;">Ce prestataire n\'a pas encore publié de réalisations.</p>';
+  const avatarSrc = p.avatar_url || p.photo_url;
 
   document.getElementById('pageContent').innerHTML = `
     <!-- HERO -->
     <div class="hero">
       <div class="hero-inner">
-        <div class="hero-av" ${p.photo_url?`style="background:url(${p.photo_url}) center/cover;font-size:0;"`:''}>
-          ${p.photo_url?'':`${initials}`}
+        <div class="hero-av" ${avatarSrc?`style="background:url(${avatarSrc}) center/cover;font-size:0;"`:''}>
+          ${avatarSrc?'':`${initials}`}
         </div>
         <div>
           <h1 class="hero-name">${p.full_name}</h1>
@@ -324,7 +315,7 @@ function renderPage(p) {
     <!-- TABS -->
     <div class="profile-tabs">
       <button class="ptab active" onclick="switchTab('about',this)">À propos</button>
-      <button class="ptab" onclick="switchTab('portfolio',this)">Réalisations ${pfItems.length?`(${pfItems.length})`:''}></button>
+      <button class="ptab" id="pfTab" onclick="switchTab('portfolio',this)">Réalisations</button>
       <button class="ptab" onclick="switchTab('reviews',this)">Avis (${total})</button>
     </div>
 
@@ -333,59 +324,16 @@ function renderPage(p) {
       <!-- LEFT -->
       <div>
 
-<<<<<<< HEAD
-        <!-- Compétences -->
-        ${skillsHtml ? `
-        <div class="section">
-          <div class="section-title">Compétences</div>
-          <div class="skills-wrap">${skillsHtml}</div>
-        </div>` : ''}
-
-        <!-- Catégories -->
-        ${p.categories?.length ? `
-        <div class="section">
-          <div class="section-title">Domaines</div>
-          <div class="skills-wrap">${p.categories.map(c=>`<span class="skill-tag">${c.icon||''} ${c.name}</span>`).join('')}</div>
-        </div>` : ''}
-
-        <!-- Portfolio -->
-        <div class="section">
-          <div class="section-title">Réalisations</div>
-          <div class="portfolio-grid">${portfolioHtml}</div>
-          <p style="font-family:var(--font-mono);font-size:.62rem;letter-spacing:1px;color:var(--gray-mid);margin-top:.8rem;"><i data-lucide="camera"></i> Contactez le prestataire pour voir ses réalisations en détail</p>
-        </div>
-
-        <!-- Avis clients -->
-        <div class="section">
-          <div class="section-title">Avis clients (${total})</div>
-          ${total > 0 ? `
-          <div class="review-summary">
-            <div>
-              <div class="review-big-num">${avg || '—'}</div>
-              <div style="color:var(--accent);font-size:.9rem;">${stars}</div>
-              <div style="font-family:var(--font-mono);font-size:.62rem;color:var(--gray-mid);margin-top:.3rem;">${total} avis</div>
-            </div>
-            <div class="review-bars">
-              ${[5,4,3,2,1].map((star,i)=>`
-                <div class="review-bar-row">
-                  <span>${star}★</span>
-                  <div class="review-bar-track"><div class="review-bar-fill" style="width:${total>0?Math.round((barPcts[i]/total)*100):0}%;"></div></div>
-                  <span>${barPcts[i]}</span>
-                </div>
-              `).join('')}
-            </div>
-=======
         <!-- TAB: ABOUT -->
         <div class="tab-panel active" id="tab-about">
           <div class="section">
             <div class="section-title">À propos</div>
-            <p class="about-text">${p.bio || p.description || 'Ce prestataire n\'a pas encore renseigné de présentation.'}</p>
+            <p class="about-text">${p.description || 'Ce prestataire n\'a pas encore renseigné de présentation.'}</p>
           </div>
           ${skillsHtml ? `
           <div class="section">
             <div class="section-title">Compétences</div>
             <div class="skills-wrap">${skillsHtml}</div>
->>>>>>> 3eb4a494b0b6b3bde744e14e9f7dc98640698d4a
           </div>` : ''}
           ${p.categories?.length ? `
           <div class="section">
@@ -398,7 +346,10 @@ function renderPage(p) {
         <div class="tab-panel" id="tab-portfolio">
           <div class="section">
             <div class="section-title">Réalisations</div>
-            <div class="pub-pf-grid">${pfHtml}</div>
+            <div id="pfOwnerControls" style="display:none;margin-bottom:1.1rem;"></div>
+            <div class="pub-pf-grid" id="pfGrid">
+              <p style="color:var(--gray-mid);font-size:.8rem;font-family:var(--font-mono);padding:.5rem 0;">Chargement…</p>
+            </div>
           </div>
         </div>
 
@@ -449,16 +400,10 @@ function renderPage(p) {
             <div class="action-price-label">/ heure</div>
           ` : '<div class="action-price-label" style="margin-bottom:1.4rem;">Tarif sur devis</div>'}
 
-<<<<<<< HEAD
           <button class="action-btn primary" onclick="contactProvider()"><i data-lucide="message-circle"></i> Envoyer un message</button>
-          ${_user?.role === 'client' ? `<button class="action-btn secondary" onclick="requestService()"><i data-lucide="clipboard-list"></i> Faire une demande</button>` : ''}
-          <button class="action-btn fav" id="favBtn" onclick="toggleFav()"><i data-lucide="heart"></i> Ajouter aux favoris</button>
-=======
-          <button class="action-btn primary" onclick="contactProvider()">💬 Envoyer un message</button>
           ${_user?.role === 'client' ? `
-          <button class="action-btn secondary" onclick="bookAppointment()">📅 Prendre rendez-vous</button>` : ''}
-          <button class="action-btn fav" id="favBtn" onclick="toggleFav()">🤍 Ajouter aux favoris</button>
->>>>>>> 3eb4a494b0b6b3bde744e14e9f7dc98640698d4a
+          <button class="action-btn secondary" onclick="bookAppointment()"><i data-lucide="calendar-days"></i> Prendre rendez-vous</button>` : ''}
+          <button class="action-btn fav" id="favBtn" onclick="toggleFav()"><i data-lucide="heart"></i> Ajouter aux favoris</button>
 
           <div class="action-sep"></div>
 
@@ -468,11 +413,11 @@ function renderPage(p) {
           </div>
           ${p.experience_years ? `
           <div class="action-info-row">
-            <span class="action-info-icon"><i data-lucide="trophy"></i></span>
+            <span class="action-info-icon"><i data-lucide="award"></i></span>
             <div><div class="action-info-label">Expérience</div><div class="action-info-val">${p.experience_years} ans</div></div>
           </div>` : ''}
           <div class="action-info-row">
-            <span class="action-info-icon">${p.is_available ? '<i data-lucide="check-circle"></i>' : '<i data-lucide="pause-circle"></i>'}</span>
+            <span class="action-info-icon">${p.is_available ? '<i data-lucide="badge-check"></i>' : '<i data-lucide="pause-circle"></i>'}</span>
             <div><div class="action-info-label">Statut</div><div class="action-info-val" style="color:${p.is_available?'var(--accent3)':'var(--gray-mid)'};">${p.is_available ? 'Disponible' : 'Occupé'}</div></div>
           </div>
           ${p.phone ? `
@@ -485,9 +430,9 @@ function renderPage(p) {
     </div>
   `;
 
-  // Check favorite status
   checkFav();
-  lucide.createIcons();
+  lucide.createIcons({ el: document.getElementById('pageContent') });
+  loadPortfolioSection(p.id, p.user_id);
 }
 
 function setRating(val) {
@@ -503,11 +448,11 @@ async function submitReview() {
   const msgEl = document.getElementById('reviewMsg');
   try {
     await api.reviews.create(providerId, { rating: _selectedRating, comment });
-    if (msgEl) msgEl.textContent = '✓ Avis publié avec succès !';
+    if (msgEl) msgEl.textContent = 'Avis publié avec succès.';
     if (msgEl) msgEl.style.color = 'var(--accent3)';
     setTimeout(() => loadProfile(), 1200);
   } catch (err) {
-    if (msgEl) { msgEl.textContent = '⚠ ' + err.message; msgEl.style.color = 'var(--accent2)'; }
+    if (msgEl) { msgEl.textContent = 'Erreur: ' + err.message; msgEl.style.color = 'var(--accent2)'; }
   }
 }
 
@@ -526,6 +471,7 @@ function modalSuccess(icon, text) {
       <div class="modal-success-icon">${icon}</div>
       <div class="modal-success-text">${text}</div>
     </div>`;
+  lucide.createIcons({ el: document.getElementById('modalContent') });
   setTimeout(closeModal, 2000);
 }
 
@@ -554,48 +500,21 @@ async function sendMessage() {
   }
 }
 
-function requestService() {
-  if (!_provider) return;
-  openModal(`
-    <div class="modal-title">Faire une demande</div>
-    <p style="font-size:.82rem;color:var(--gray-mid);margin-bottom:1.2rem;">Prestation avec <strong>${_provider.full_name}</strong></p>
-    <input class="modal-input" id="reqTitle" placeholder="Ex : Réparation fuite cuisine" style="height:auto;resize:none;" />
-    <textarea class="modal-input" id="reqDesc" rows="3" placeholder="Décrivez votre besoin (optionnel)…"></textarea>
-    <button class="modal-submit" id="reqSubmit" onclick="sendRequest()">Envoyer la demande →</button>
-  `);
-  setTimeout(() => document.getElementById('reqTitle')?.focus(), 50);
-}
-
-async function sendRequest() {
-  const titleEl = document.getElementById('reqTitle');
-  const descEl  = document.getElementById('reqDesc');
-  const btn     = document.getElementById('reqSubmit');
-  if (!titleEl?.value?.trim()) { titleEl.style.borderColor = 'var(--accent2)'; return; }
-  btn.disabled = true; btn.textContent = 'Envoi…';
-  try {
-    await api.services.create({ provider_id: _provider.id, title: titleEl.value.trim(), description: descEl?.value?.trim() || '' });
-    modalSuccess('<i data-lucide="check-circle"></i>', 'Demande envoyée ! Vous serez notifié dès acceptation.');
-  } catch (err) {
-    btn.disabled = false; btn.textContent = 'Envoyer la demande →';
-    btn.insertAdjacentHTML('beforebegin', `<p style="color:var(--accent2);font-size:.75rem;margin-bottom:.5rem;">${err.message}</p>`);
-  }
-}
-
 async function checkFav() {
   try {
     const { is_favorite } = await api.favorites.check(providerId);
     const btn = document.getElementById('favBtn');
-    if (btn) btn.innerHTML = '<i data-lucide="heart"></i> ' + (is_favorite ? 'Retirer des favoris' : 'Ajouter aux favoris');
-    if (btn) lucide.createIcons({ el: btn });
-    if (btn) btn.classList.toggle('fav', !is_favorite);
-    if (btn) btn.style.color = is_favorite ? 'var(--accent2)' : '';
-    if (btn) btn.style.borderColor = is_favorite ? 'rgba(255,77,46,.3)' : '';
+    if (!btn) return;
+    btn.innerHTML = is_favorite ? '<i data-lucide="heart-off"></i> Retirer des favoris' : '<i data-lucide="heart"></i> Ajouter aux favoris';
+    btn.style.color = is_favorite ? 'var(--accent2)' : '';
+    btn.style.borderColor = is_favorite ? 'rgba(255,77,46,.3)' : '';
+    lucide.createIcons({ el: btn });
   } catch {}
 }
 
 async function toggleFav() {
   const btn = document.getElementById('favBtn');
-  const isFav = btn?.textContent?.includes('Retirer des favoris');
+  const isFav = btn?.textContent?.includes('Retirer');
   try {
     if (isFav) { await api.favorites.remove(providerId); }
     else { await api.favorites.add(providerId); }
@@ -603,14 +522,135 @@ async function toggleFav() {
   } catch (err) { alert(err.message); }
 }
 
-// ── Portfolio from localStorage ────────────────────────────
-function loadPublicPortfolio(providerUserId) {
-  if (!providerUserId) return [];
-  const key = `skillmap_portfolio_${providerUserId}`;
-  try { return JSON.parse(localStorage.getItem(key) || '[]'); } catch { return []; }
+const DEMO_ITEMS = [
+  { id:'_d1', title:'Installation électrique complète', description:'Appartement 4 pièces — câblage, prises, tableau général', image_url:'https://picsum.photos/seed/craft01/400/300' },
+  { id:'_d2', title:'Rénovation salle de bain',         description:'Carrelage, sanitaires neufs, plomberie refaite',         image_url:'https://picsum.photos/seed/craft02/400/300' },
+  { id:'_d3', title:'Peinture intérieure salon',        description:'3 pièces, préparation + 2 couches finition mate',        image_url:'https://picsum.photos/seed/craft03/400/300' },
+];
+
+async function loadPortfolioSection(provId, provUserId) {
+  const grid     = document.getElementById('pfGrid');
+  const controls = document.getElementById('pfOwnerControls');
+  if (!grid) return;
+
+  let items = [];
+  try {
+    const data = await api.portfolio.listPublic(provId);
+    items = data.items || [];
+  } catch {}
+
+  const isOwner = _user?.role === 'provider' && _user?.id === provUserId;
+
+  // Update tab counter
+  if (items.length > 0) {
+    const tab = document.getElementById('pfTab');
+    if (tab) tab.textContent = `Réalisations (${items.length})`;
+  }
+
+  // Owner add-button
+  if (controls && isOwner) {
+    controls.style.display = 'block';
+    controls.innerHTML = `<button class="pub-pf-add-btn" onclick="openAddPortfolioModal()"><i data-lucide="plus"></i> Ajouter une réalisation</button>`;
+    lucide.createIcons({ el: controls });
+  }
+
+  let html = '';
+  if (items.length > 0) {
+    html = items.map(item => `
+      <div class="pub-pf-item">
+        ${item.image_url
+          ? `<img class="pub-pf-img" src="http://localhost:3001${item.image_url}" alt="${item.title}" loading="lazy" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';"/><div class="pub-pf-placeholder" style="display:none;"><i data-lucide="image"></i></div>`
+          : `<div class="pub-pf-placeholder"><i data-lucide="image"></i></div>`}
+        <div class="pub-pf-cap">
+          <div class="pub-pf-title">${item.title}</div>
+          ${item.description ? `<div class="pub-pf-cat">${item.description}</div>` : ''}
+        </div>
+        ${isOwner ? `<button class="pf-del-btn" onclick="event.stopPropagation();deletePfItem(${item.id})" title="Supprimer"><i data-lucide="trash-2"></i></button>` : ''}
+      </div>`).join('');
+  } else {
+    html = DEMO_ITEMS.map(item => `
+      <div class="pub-pf-item">
+        <img class="pub-pf-img" src="${item.image_url}" alt="${item.title}" loading="lazy"/>
+        <div class="pub-pf-cap">
+          <div class="pub-pf-title">${item.title}</div>
+          <div class="pub-pf-cat">${item.description}</div>
+        </div>
+        <span class="pf-demo-badge">Exemple</span>
+      </div>`).join('');
+  }
+
+  grid.innerHTML = html;
+  lucide.createIcons({ el: grid });
 }
 
-// ── Tab switching ──────────────────────────────────────────
+async function deletePfItem(id) {
+  if (!confirm('Supprimer cette réalisation ?')) return;
+  try {
+    await api.portfolio.remove(id);
+    loadPortfolioSection(_provider.id, _provider.user_id);
+  } catch (err) { alert(err.message); }
+}
+
+let _pfBase64 = null;
+
+function openAddPortfolioModal() {
+  _pfBase64 = null;
+  openModal(`
+    <div class="modal-title">Nouvelle réalisation</div>
+    <button class="modal-close" onclick="closeModal()"><i data-lucide="x"></i></button>
+    <div class="pf-drop-zone" id="pfDropZone" onclick="document.getElementById('pfFileInput').click()">
+      <div class="pf-drop-hint" id="pfDropHint">
+        <i data-lucide="image-plus"></i>
+        <p>Cliquez pour choisir une photo depuis vos fichiers</p>
+        <p style="font-size:.65rem;">JPG, PNG, WEBP — max 8 Mo</p>
+      </div>
+      <div class="pf-drop-prev" id="pfDropPrev">
+        <img id="pfPrevImg" alt="aperçu"/>
+        <p id="pfPrevName"></p>
+      </div>
+      <input type="file" id="pfFileInput" accept="image/*" style="display:none;" onchange="handlePfFile(event)"/>
+    </div>
+    <input class="modal-input" id="pfTitleIn" placeholder="Titre (ex : Cuisine rénovée, Pose carrelage…)"/>
+    <textarea class="modal-input" id="pfDescIn" rows="2" placeholder="Description courte (optionnel)…"></textarea>
+    <button class="modal-submit" id="pfSubmit" onclick="submitPfItem()">Publier la réalisation →</button>
+    <div id="pfErr" style="color:var(--accent2);font-size:.72rem;margin-top:.4rem;font-family:var(--font-mono);"></div>
+  `);
+  lucide.createIcons({ el: document.getElementById('modalContent') });
+}
+
+function handlePfFile(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = ev => {
+    _pfBase64 = ev.target.result;
+    document.getElementById('pfDropHint').style.display = 'none';
+    const prev = document.getElementById('pfDropPrev');
+    prev.style.display = 'block';
+    document.getElementById('pfPrevImg').src = _pfBase64;
+    document.getElementById('pfPrevName').textContent = file.name;
+  };
+  reader.readAsDataURL(file);
+}
+
+async function submitPfItem() {
+  const title       = document.getElementById('pfTitleIn')?.value?.trim();
+  const description = document.getElementById('pfDescIn')?.value?.trim();
+  const errEl = document.getElementById('pfErr');
+  const btn   = document.getElementById('pfSubmit');
+  if (!title) { if (errEl) errEl.textContent = 'Le titre est requis'; return; }
+  btn.disabled = true; btn.textContent = 'Publication…';
+  try {
+    await api.portfolio.create({ title, description: description || undefined, image_base64: _pfBase64 || undefined });
+    _pfBase64 = null;
+    closeModal();
+    loadPortfolioSection(_provider.id, _provider.user_id);
+  } catch (err) {
+    btn.disabled = false; btn.textContent = 'Publier la réalisation →';
+    if (errEl) errEl.textContent = err.message;
+  }
+}
+
 function switchTab(id, btn) {
   document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
   document.querySelectorAll('.ptab').forEach(b => b.classList.remove('active'));
@@ -619,7 +659,6 @@ function switchTab(id, btn) {
   if (btn) btn.classList.add('active');
 }
 
-// ── Appointment booking modal ──────────────────────────────
 function bookAppointment() {
   if (!_provider) return;
   const tomorrow = new Date(); tomorrow.setDate(tomorrow.getDate() + 1);
@@ -689,7 +728,7 @@ async function submitBooking() {
       title, scheduled_date: date, scheduled_time: time,
       duration_hours: dur, notes,
     });
-    modalSuccess('📅', 'Demande de rendez-vous envoyée ! Vous serez notifié dès confirmation.');
+    modalSuccess('<i data-lucide="calendar-days"></i>', 'Demande de rendez-vous envoyée ! Vous serez notifié dès confirmation.');
   } catch (err) {
     btn.disabled = false; btn.textContent = 'Envoyer la demande →';
     btn.insertAdjacentHTML('beforebegin', `<p style="color:var(--accent2);font-size:.75rem;margin-bottom:.5rem;">${err.message}</p>`);
@@ -700,9 +739,8 @@ document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal()
 
 if (providerId) loadProfile().then(() => {
   const action = new URLSearchParams(location.search).get('action');
-  if (action === 'request') requestService();
-  if (action === 'book')    bookAppointment();
-  if (action === 'review')  switchTab('reviews', document.querySelectorAll('.ptab')[2]);
+  if (action === 'book')   bookAppointment();
+  if (action === 'review') switchTab('reviews', document.querySelectorAll('.ptab')[2]);
 });
 </script>
 </body>

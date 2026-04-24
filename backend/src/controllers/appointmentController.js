@@ -1,13 +1,18 @@
 const { getDb } = require('../config/database');
-const COMMISSION_RATE = 0.03; // 3% plateforme
+const COMMISSION_RATE = 0.03;
+
+const LEVEL_THRESHOLDS = [[300,'master'],[150,'expert'],[50,'confirmé'],[0,'débutant']];
+function getLevel(pts) {
+  for (const [t, l] of LEVEL_THRESHOLDS) if (pts >= t) return l;
+  return 'débutant';
+}
 
 function ensureWallet(db, userId) {
-  const w = db.prepare('SELECT id FROM wallets WHERE user_id = ?').get(userId);
-  if (!w) db.prepare('INSERT OR IGNORE INTO wallets (user_id) VALUES (?)').run(userId);
+  db.prepare('INSERT OR IGNORE INTO wallets (user_id) VALUES (?)').run(userId);
   return db.prepare('SELECT * FROM wallets WHERE user_id = ?').get(userId);
 }
 
-// GET /api/appointments — liste pour le user connecté
+// GET /api/appointments
 function list(req, res) {
   const db = getDb();
   const { role, id: userId } = req.user;
@@ -44,7 +49,7 @@ function list(req, res) {
   res.json({ appointments: rows });
 }
 
-// POST /api/appointments — créer un rendez-vous
+// POST /api/appointments
 function create(req, res) {
   const db = getDb();
   const { id: clientId } = req.user;
@@ -96,7 +101,7 @@ function updateStatus(req, res) {
   res.json({ message: 'Statut mis à jour' });
 }
 
-// POST /api/appointments/:id/pay — client paie, argent mis en séquestre
+// POST /api/appointments/:id/pay
 function pay(req, res) {
   const db = getDb();
   const appt = db.prepare('SELECT * FROM appointments WHERE id = ?').get(req.params.id);
@@ -109,7 +114,6 @@ function pay(req, res) {
     return res.status(400).json({ error: `Solde insuffisant. Solde actuel : ${clientWallet.balance.toLocaleString('fr-FR')} FCFA` });
   }
 
-  // Déduire du client + mettre en séquestre
   db.prepare(`UPDATE wallets SET balance = balance - ?, held_balance = held_balance + ?, total_spent = total_spent + ?, updated_at = datetime('now') WHERE user_id = ?`)
     .run(appt.amount, appt.amount, appt.amount, req.user.id);
 
@@ -122,7 +126,7 @@ function pay(req, res) {
   res.json({ message: 'Paiement effectué, argent en attente de libération', new_balance: clientWallet.balance - appt.amount });
 }
 
-// POST /api/appointments/:id/confirm-complete — client confirme la fin
+// POST /api/appointments/:id/confirm-complete
 function confirmComplete(req, res) {
   const db = getDb();
   const appt = db.prepare('SELECT * FROM appointments WHERE id = ?').get(req.params.id);
@@ -130,23 +134,41 @@ function confirmComplete(req, res) {
   if (appt.client_id !== req.user.id) return res.status(403).json({ error: 'Accès refusé' });
   if (appt.payment_status !== 'held') return res.status(400).json({ error: 'Aucun paiement en attente' });
 
-  const commission = Math.round(appt.amount * COMMISSION_RATE);
+  const commission    = Math.round(appt.amount * COMMISSION_RATE);
   const providerAmount = appt.amount - commission;
 
-  const prov = db.prepare('SELECT user_id FROM providers WHERE id = ?').get(appt.provider_id);
+  const prov       = db.prepare('SELECT id, user_id, points FROM providers WHERE id = ?').get(appt.provider_id);
   const provWallet = ensureWallet(db, prov.user_id);
-  const clientWallet = ensureWallet(db, appt.client_id);
+  ensureWallet(db, appt.client_id);
 
-  // Libérer séquestre client + créditer prestataire
+  // Libérer séquestre client
   db.prepare(`UPDATE wallets SET held_balance = held_balance - ?, updated_at = datetime('now') WHERE user_id = ?`)
     .run(appt.amount, appt.client_id);
 
+  // Créditer prestataire (montant net)
   db.prepare(`UPDATE wallets SET balance = balance + ?, total_earned = total_earned + ?, updated_at = datetime('now') WHERE user_id = ?`)
     .run(providerAmount, providerAmount, prov.user_id);
 
   db.prepare(`INSERT INTO wallet_transactions (wallet_id, type, amount, fee, net_amount, description, status, appointment_id)
     VALUES (?, 'receipt', ?, ?, ?, ?, 'completed', ?)`)
     .run(provWallet.id, appt.amount, commission, providerAmount, `Prestation terminée — ${appt.title}`, appt.id);
+
+  // Créditer la commission dans le portefeuille admin
+  const adminUser = db.prepare("SELECT id FROM users WHERE role = 'admin' LIMIT 1").get();
+  if (adminUser && commission > 0) {
+    const adminWallet = ensureWallet(db, adminUser.id);
+    db.prepare(`UPDATE wallets SET balance = balance + ?, total_earned = total_earned + ?, updated_at = datetime('now') WHERE user_id = ?`)
+      .run(commission, commission, adminUser.id);
+    db.prepare(`INSERT INTO wallet_transactions (wallet_id, type, amount, net_amount, description, status, appointment_id)
+      VALUES (?, 'commission', ?, ?, ?, 'completed', ?)`)
+      .run(adminWallet.id, commission, commission, `Commission 3% — ${appt.title}`, appt.id);
+  }
+
+  // Attribuer des points au prestataire (+10 par mission terminée)
+  const newPoints = (prov.points || 0) + 10;
+  const newLevel  = getLevel(newPoints);
+  db.prepare("UPDATE providers SET points = ?, level = ?, updated_at = datetime('now') WHERE id = ?")
+    .run(newPoints, newLevel, prov.id);
 
   db.prepare(`UPDATE appointments SET payment_status = 'released', status = 'completed', client_confirmed = 1, updated_at = datetime('now') WHERE id = ?`).run(appt.id);
 

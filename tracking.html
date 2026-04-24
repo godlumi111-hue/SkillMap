@@ -6,6 +6,8 @@
 <title>SkillMap — Suivi en direct</title>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,300&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+<link rel="stylesheet" href="frontend/css/responsive.css"/>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
 :root{
@@ -172,9 +174,9 @@ html,body{height:100%;font-family:var(--fb);background:var(--black);color:var(--
   </div>
 
   <div class="panel-actions">
-    <a href="#" id="btnMsg" class="pact-btn msg">💬 Message</a>
+    <a href="#" id="btnMsg" class="pact-btn msg"><i data-lucide="message-circle"></i> Message</a>
     <a href="rendez-vous.html" class="pact-btn rdv">Voir le RDV</a>
-    <button class="pact-btn confirm" id="btnConfirm" style="display:none;" onclick="confirmArrival()">Confirmer arrivée ✓</button>
+    <button class="pact-btn confirm" id="btnConfirm" style="display:none;" onclick="confirmArrival()">Confirmer arrivée <i data-lucide="check"></i></button>
   </div>
 </div>
 
@@ -219,7 +221,7 @@ function initMap(center) {
 
 // ── Custom icons ───────────────────────────────────────────
 const providerIcon = L.divIcon({
-  html: `<div style="width:40px;height:40px;background:var(--accent,#e8e03a);border:3px solid #1e1d1a;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.2rem;box-shadow:0 4px 12px rgba(0,0,0,.4);">🔧</div>`,
+  html: `<div style="width:40px;height:40px;background:var(--accent,#e8e03a);border:3px solid #1e1d1a;border-radius:50%;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 12px rgba(0,0,0,.4);"><i data-lucide="wrench" style="width:18px;height:18px;"></i></div>`,
   iconSize: [40, 40], iconAnchor: [20, 20], className: '',
 });
 
@@ -339,9 +341,10 @@ function onArrived() {
 
   // Pulse the provider marker
   providerMarker.setIcon(L.divIcon({
-    html: `<div style="width:50px;height:50px;background:var(--green,#2eff9e);border:3px solid #1e1d1a;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.3rem;box-shadow:0 0 20px rgba(46,255,158,.6),0 4px 12px rgba(0,0,0,.4);animation:provPulse .8s infinite alternate;">🔧</div>`,
+    html: `<div style="width:50px;height:50px;background:var(--green,#2eff9e);border:3px solid #1e1d1a;border-radius:50%;display:flex;align-items:center;justify-content:center;box-shadow:0 0 20px rgba(46,255,158,.6),0 4px 12px rgba(0,0,0,.4);animation:provPulse .8s infinite alternate;"><i data-lucide="wrench" style="width:22px;height:22px;"></i></div>`,
     iconSize: [50, 50], iconAnchor: [25, 25], className: '',
   }));
+  if (window.lucide) lucide.createIcons();
 
   map.setView(clientMarker.getLatLng(), 16, { animate: true });
 }
@@ -418,6 +421,7 @@ async function loadAndStart() {
     }
 
     initMap({ lat: (provLat + clientLat) / 2, lng: (provLng + clientLng) / 2 });
+    if (window.lucide) lucide.createIcons();
 
     // Add city marker label
     L.marker([clientLat, clientLng], { icon: clientIcon })

@@ -86,9 +86,11 @@ if (document.getElementById('authForm')) {
           if (!title) { showError('Veuillez choisir votre métier principal'); btn.disabled = false; btnText.textContent = 'Créer mon compte'; return; }
           const chips = [...document.querySelectorAll('.skill-chip.selected')].map(c => c.textContent.trim());
           const rate  = parseInt(document.getElementById('rateInput')?.value) || 0;
-          body.title       = title;
-          body.skills      = chips;
-          body.hourly_rate = rate || undefined;
+          body.title        = title;
+          body.skills       = chips;
+          body.hourly_rate  = rate || undefined;
+          body.neighborhood = document.getElementById('neighborhoodInput')?.value?.trim() || undefined;
+          body.description  = document.getElementById('descInput')?.value?.trim() || undefined;
         }
 
         data = await api.auth.register(body);
@@ -119,7 +121,18 @@ if (document.getElementById('authForm')) {
       el.style.cssText = 'color:#ff4d2e;font-size:.8rem;margin-top:.8rem;font-family:var(--font-mono);letter-spacing:1px;';
       document.getElementById('authForm').appendChild(el);
     }
-    el.textContent = '⚠ ' + msg;
+    el.textContent = 'Erreur: ' + msg;
+  }
+
+  function showError(msg) {
+    let el = document.getElementById('authError');
+    if (!el) {
+      el = document.createElement('p');
+      el.id = 'authError';
+      el.style.cssText = 'color:#ff4d2e;font-size:.8rem;margin-top:.8rem;font-family:var(--font-mono);letter-spacing:1px;';
+      document.getElementById('authForm').appendChild(el);
+    }
+    el.textContent = 'Erreur: ' + msg;
   }
 
   function clearError() {

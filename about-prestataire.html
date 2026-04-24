@@ -5,6 +5,8 @@
 <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
 <title>SkillMap — Mon profil</title>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,300&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+<link rel="stylesheet" href="frontend/css/responsive.css"/>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
 :root{
@@ -132,7 +134,7 @@ select.form-input{cursor:pointer;appearance:auto;}
     <div class="profile-card">
       <div class="profile-av" id="profileAv" onclick="document.getElementById('avatarInput').click()">
         ?
-        <div class="av-overlay">📷 Photo</div>
+        <div class="av-overlay"><i data-lucide="camera"></i>&nbsp;Photo</div>
       </div>
       <input type="file" accept="image/*" id="avatarInput" class="avatar-input" onchange="handleAvatarUpload(event)"/>
       <div class="profile-name" id="pcName">—</div>
@@ -157,7 +159,7 @@ select.form-input{cursor:pointer;appearance:auto;}
 
 <!-- SAVE BAR -->
 <div class="save-bar">
-  <span class="save-msg" id="saveMsg">✓ Modifications enregistrées</span>
+  <span class="save-msg" id="saveMsg"><i data-lucide="check"></i> Modifications enregistrées</span>
   <button class="save-btn" id="saveBtn" onclick="saveProfile()">Enregistrer les modifications</button>
 </div>
 
@@ -184,10 +186,12 @@ async function load() {
 
     // Sidebar
     const initials = u.full_name.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
-    if (p?.photo_url) {
-      document.getElementById('profileAv').style.backgroundImage = `url(${p.photo_url})`;
-      document.getElementById('profileAv').style.backgroundSize = 'cover';
-      document.getElementById('profileAv').textContent = '';
+    const avatarSrc = u.avatar_url || p?.avatar_url;
+    if (avatarSrc) {
+      const av = document.getElementById('profileAv');
+      av.style.backgroundImage = `url(${avatarSrc})`;
+      av.style.backgroundSize = 'cover';
+      av.textContent = '';
     } else {
       document.getElementById('profileAv').textContent = initials;
     }
@@ -212,8 +216,14 @@ async function load() {
       document.getElementById('btnViewPublic').href = `provider-profile.html?id=${p.id}`;
     }
 
-    // Build form
-    const selectedSkills = (p?.skills || '').split(',').map(s=>s.trim()).filter(Boolean);
+    // Load enriched provider data (includes skills array from provider_skills table)
+    let selectedSkills = [];
+    if (p?.id) {
+      try {
+        const enriched = await api.providers.get(p.id);
+        selectedSkills = Array.isArray(enriched.skills) ? enriched.skills : [];
+      } catch {}
+    }
 
     document.getElementById('formSections').innerHTML = `
       <!-- IDENTITÉ -->
@@ -274,7 +284,7 @@ async function load() {
           </div>
           <div class="form-group">
             <label class="form-label">Bio / Présentation</label>
-            <textarea class="form-input" id="fBio" rows="4" placeholder="Décrivez votre expérience, vos spécialités, ce qui vous différencie…">${p?.bio || ''}</textarea>
+            <textarea class="form-input" id="fBio" rows="4" placeholder="Décrivez votre expérience, vos spécialités, ce qui vous différencie…">${p?.description || ''}</textarea>
           </div>
         </div>
       </div>
@@ -317,28 +327,39 @@ async function saveProfile() {
   const btn = document.getElementById('saveBtn');
   btn.disabled = true; btn.textContent = 'Enregistrement…';
 
-  const skills = [...document.querySelectorAll('.skill-chip.on')].map(c => c.textContent).join(', ');
+  const skills = [...document.querySelectorAll('.skill-chip.on')].map(c => c.textContent);
 
   const body = {
-    title:              document.getElementById('fTitle')?.value?.trim(),
-    bio:                document.getElementById('fBio')?.value?.trim(),
-    neighborhood:       document.getElementById('fNeighborhood')?.value?.trim(),
-    hourly_rate:        parseFloat(document.getElementById('fRate')?.value) || null,
-    service_radius_km:  parseInt(document.getElementById('fRadius')?.value) || 10,
-    experience_years:   parseInt(document.getElementById('fExp')?.value) || null,
+    full_name:        document.getElementById('fName')?.value?.trim() || undefined,
+    phone:            document.getElementById('fPhone')?.value?.trim() || undefined,
+    city:             document.getElementById('fCity')?.value?.trim() || undefined,
+    title:            document.getElementById('fTitle')?.value?.trim(),
+    description:      document.getElementById('fBio')?.value?.trim(),
+    neighborhood:     document.getElementById('fNeighborhood')?.value?.trim(),
+    hourly_rate:      parseFloat(document.getElementById('fRate')?.value) || null,
+    experience_years: parseInt(document.getElementById('fExp')?.value) || null,
     skills,
   };
-  if (pendingAvatarB64) body.photo_url = pendingAvatarB64;
+  if (pendingAvatarB64) body.avatar_url = pendingAvatarB64;
 
   try {
     await api.providers.updateProfile(body);
     pendingAvatarB64 = null;
     showSaved('Modifications enregistrées');
-    // Update local cache
+    // Refresh local cache
     const { user: u, provider: p } = await api.auth.me();
     localStorage.setItem('skillmap_user', JSON.stringify(u));
     localStorage.setItem('skillmap_provider', JSON.stringify(p));
     document.getElementById('pcTitle').textContent = p?.title || body.title || 'Prestataire';
+    document.getElementById('pcName').textContent = u.full_name;
+    // Refresh avatar if it was just uploaded
+    const newAvatar = u.avatar_url || p?.avatar_url;
+    if (newAvatar) {
+      const av = document.getElementById('profileAv');
+      av.style.backgroundImage = `url(${newAvatar})`;
+      av.style.backgroundSize = 'cover';
+      av.textContent = '';
+    }
   } catch (e) {
     alert('Erreur : ' + e.message);
   }
@@ -348,12 +369,14 @@ async function saveProfile() {
 
 function showSaved(msg) {
   const el = document.getElementById('saveMsg');
-  el.textContent = '✓ ' + msg;
+  el.innerHTML = `<i data-lucide="check"></i> ${msg}`;
   el.classList.add('show');
+  if (window.lucide) lucide.createIcons({ el });
   setTimeout(() => el.classList.remove('show'), 3000);
 }
 
 load();
+if (window.lucide) lucide.createIcons();
 </script>
 </body>
 </html>

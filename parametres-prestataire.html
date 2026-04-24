@@ -6,6 +6,7 @@
 <title>SkillMap — Paramètres</title>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
 <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+<link rel="stylesheet" href="frontend/css/responsive.css"/>
 <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 :root {
@@ -18,6 +19,18 @@
 }
 html, body { height: 100%; }
 body { font-family: var(--font-body); background: var(--off-white); color: var(--black); display: flex; }
+@media (max-width: 768px) {
+  html, body { overflow: hidden; }
+  body { flex-direction: column; }
+  .app-main { flex: 1; overflow-y: auto; height: calc(100vh - 52px); overflow-x: hidden; }
+  .main-header { padding: 1rem 1rem 0 !important; }
+  .settings-wrap { padding: 1rem !important; }
+  .card { margin-bottom: 1rem !important; }
+  .card-header { padding: 1rem !important; }
+  .card-body { padding: 1rem !important; }
+  .form-grid { grid-template-columns: 1fr !important; gap: .8rem !important; }
+  .level-bar { max-width: 100% !important; }
+}
 
 /* SIDEBAR (same as dashboard-prestataire) */
 .app-sidebar { width: 240px; flex-shrink: 0; background: var(--black); color: var(--white); display: flex; flex-direction: column; border-right: 1px solid rgba(245,244,240,.06); }
@@ -88,6 +101,27 @@ body { font-family: var(--font-body); background: var(--off-white); color: var(-
 .toggle-knob { position: absolute; top: 3px; left: 3px; width: 20px; height: 20px; border-radius: 50%; background: var(--white); transition: left .2s; box-shadow: 0 1px 4px rgba(0,0,0,.2); }
 .toggle-pill.on .toggle-knob { left: 25px; }
 
+/* Avatar upload */
+.avatar-section { display: flex; align-items: center; gap: 1.5rem; margin-bottom: 1.5rem; padding-bottom: 1.5rem; border-bottom: 1px solid rgba(30,29,26,.06); }
+.avatar-preview { width: 80px; height: 80px; border-radius: 50%; overflow: hidden; background: var(--off-white); display: flex; align-items: center; justify-content: center; border: 2px solid var(--gray-light); flex-shrink: 0; position: relative; }
+.avatar-preview img { width: 100%; height: 100%; object-fit: cover; }
+.avatar-initials { font-family: var(--font-display); font-size: 1.8rem; color: var(--gray-mid); }
+.avatar-upload-btn { display: inline-block; padding: .55rem 1.2rem; background: var(--off-white); border: 1px solid rgba(30,29,26,.15); font-family: var(--font-mono); font-size: .65rem; letter-spacing: 1.5px; text-transform: uppercase; cursor: pointer; transition: all .2s; }
+.avatar-upload-btn:hover { border-color: var(--black); }
+.avatar-note { font-size: .72rem; color: var(--gray-mid); margin-top: .35rem; }
+
+/* Niveau / points */
+.level-badge { display: inline-flex; align-items: center; gap: .5rem; padding: .35rem .9rem; font-family: var(--font-mono); font-size: .65rem; letter-spacing: 1.5px; text-transform: uppercase; border: 1px solid; margin-bottom: .6rem; }
+.level-débutant  { color: var(--gray-mid); border-color: var(--gray-light); }
+.level-confirmé  { color: #5b9ef4; border-color: rgba(91,158,244,.4); background: rgba(91,158,244,.06); }
+.level-expert    { color: var(--accent); border-color: rgba(232,224,58,.4); background: rgba(232,224,58,.06); }
+.level-master    { color: var(--accent3); border-color: rgba(46,255,158,.4); background: rgba(46,255,158,.06); }
+.points-bar-wrap { background: rgba(30,29,26,.08); height: 4px; border-radius: 2px; margin: .5rem 0 .3rem; }
+.points-bar { height: 100%; background: var(--accent); border-radius: 2px; transition: width .4s; }
+.points-label { font-family: var(--font-mono); font-size: .6rem; color: var(--gray-mid); }
+.rec-rate { font-family: var(--font-mono); font-size: .72rem; color: var(--gray-d); margin-top: .6rem; }
+.rec-rate strong { color: var(--accent); }
+
 /* Danger */
 .danger-card { border: 1px solid rgba(255,77,46,.2); padding: 1.5rem 1.6rem; }
 .danger-title { font-family: var(--font-mono); font-size: .7rem; letter-spacing: 2px; text-transform: uppercase; color: var(--accent2); margin-bottom: .8rem; }
@@ -98,8 +132,18 @@ body { font-family: var(--font-body); background: var(--off-white); color: var(-
 </head>
 <body>
 
+<!-- Mobile Top Bar -->
+<div class="mobile-topbar">
+  <a href="home-prestataire.html" class="mobile-topbar-logo">Skill<span>Map</span></a>
+  <button class="mobile-menu-btn" id="mobileMenuBtn" onclick="toggleSidebar()">
+    <span></span><span></span><span></span>
+  </button>
+</div>
+<!-- Sidebar Overlay -->
+<div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+
 <!-- SIDEBAR -->
-<aside class="app-sidebar">
+<aside class="app-sidebar" id="appSidebar">
   <div class="sidebar-brand">
     <a href="dashboard-prestataire.html" class="sidebar-logo">Skill<span>Map</span></a>
     <div class="sidebar-role">Espace prestataire</div>
@@ -138,6 +182,22 @@ body { font-family: var(--font-body); background: var(--off-white); color: var(-
       <span class="settings-card-title">Informations personnelles</span>
     </div>
     <div class="settings-card-body">
+      <!-- Photo de profil -->
+      <div class="avatar-section">
+        <div class="avatar-preview" id="avatarPreview">
+          <img id="avatarImg" style="display:none;" alt="Photo de profil"/>
+          <span class="avatar-initials" id="avatarInitialsEl">?</span>
+        </div>
+        <div>
+          <label class="avatar-upload-btn" for="avatarFileInput">
+            <i data-lucide="camera" style="width:14px;height:14px;vertical-align:middle;margin-right:.4rem;"></i>
+            Changer la photo
+          </label>
+          <input type="file" id="avatarFileInput" accept="image/*" style="display:none;" onchange="handleAvatarChange(event)"/>
+          <div class="avatar-note">JPG, PNG · max 3 Mo · Visible sur votre profil public</div>
+          <span class="save-msg" id="avatarMsg" style="display:block;margin-top:.3rem;"></span>
+        </div>
+      </div>
       <div class="form-grid">
         <div class="form-group">
           <label class="form-label">Nom complet</label>
@@ -192,6 +252,16 @@ body { font-family: var(--font-body); background: var(--off-white); color: var(-
           <textarea class="form-textarea" id="inputDesc" placeholder="Décrivez votre expertise, vos services et ce qui vous différencie…"></textarea>
         </div>
       </div>
+
+      <!-- Niveau & points -->
+      <div style="margin-top:1.2rem;padding-top:1.2rem;border-top:1px solid rgba(30,29,26,.06);" id="levelSection" style="display:none;">
+        <div style="font-family:var(--font-mono);font-size:.62rem;letter-spacing:1.5px;text-transform:uppercase;color:var(--gray-mid);margin-bottom:.7rem;">Votre progression</div>
+        <div id="levelBadge" class="level-badge level-débutant"><i data-lucide="star" style="width:13px;height:13px;"></i> <span id="levelText">Débutant</span></div>
+        <div class="points-bar-wrap"><div class="points-bar" id="pointsBar" style="width:0%;"></div></div>
+        <div class="points-label"><span id="pointsCount">0</span> pts · <span id="levelNext"></span></div>
+        <div class="rec-rate" id="recRateInfo"></div>
+      </div>
+
       <div class="form-actions">
         <button class="btn-save" onclick="saveProfessional()">Enregistrer</button>
         <span class="save-msg" id="professionalMsg"></span>
@@ -291,9 +361,79 @@ document.getElementById('logoutBtn2').addEventListener('click', AUTH.logout);
 function showMsg(elId, text, ok=true) {
   const el = document.getElementById(elId);
   if (!el) return;
-  el.textContent = (ok ? '✓ ' : '⚠ ') + text;
+  el.textContent = (ok ? 'OK: ' : 'Erreur: ') + text;
   el.className = 'save-msg ' + (ok ? 'ok' : 'err');
   setTimeout(() => el.textContent = '', 4000);
+}
+
+function showMsg(elId, text, ok=true) {
+  const el = document.getElementById(elId);
+  if (!el) return;
+  el.textContent = (ok ? 'OK: ' : 'Erreur: ') + text;
+  el.className = 'save-msg ' + (ok ? 'ok' : 'err');
+  setTimeout(() => el.textContent = '', 4000);
+}
+
+// ── Avatar ────────────────────────────────────────────────────
+function setAvatarUI(url, name) {
+  const img = document.getElementById('avatarImg');
+  const init = document.getElementById('avatarInitialsEl');
+  if (url) {
+    img.src = url; img.style.display = 'block';
+    init.style.display = 'none';
+  } else {
+    img.style.display = 'none'; init.style.display = '';
+    init.textContent = (name || 'P').split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
+  }
+}
+
+function handleAvatarChange(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  if (file.size > 3 * 1024 * 1024) { showMsg('avatarMsg', 'Image trop grande (max 3 Mo)', false); return; }
+  const reader = new FileReader();
+  reader.onload = async ev => {
+    const b64 = ev.target.result;
+    setAvatarUI(b64, null);
+    try {
+      const { url } = await api.providers.uploadAvatar({ image_base64: b64 });
+      const cached = { ..._user, avatar_url: url };
+      localStorage.setItem('skillmap_user', JSON.stringify(cached));
+      showMsg('avatarMsg', 'Photo mise à jour');
+    } catch (err) { showMsg('avatarMsg', err.message, false); }
+  };
+  reader.readAsDataURL(file);
+}
+
+// ── Niveau et points ──────────────────────────────────────────
+const LEVEL_THRESHOLDS = [[300,'master'],[150,'expert'],[50,'confirmé'],[0,'débutant']];
+const LEVEL_LABELS = { 'débutant':'Débutant', 'confirmé':'Confirmé', 'expert':'Expert', 'master':'Master' };
+const LEVEL_NEXT   = { 'débutant':50, 'confirmé':150, 'expert':300, 'master':null };
+
+function renderLevel(provider, providerPublic) {
+  const sec = document.getElementById('levelSection');
+  if (!sec || !provider) return;
+  sec.style.display = '';
+
+  const pts   = provider.points || 0;
+  const level = provider.level  || 'débutant';
+  const next  = LEVEL_NEXT[level];
+
+  document.getElementById('levelBadge').className = `level-badge level-${level}`;
+  document.getElementById('levelText').textContent = LEVEL_LABELS[level] || level;
+  document.getElementById('pointsCount').textContent = pts;
+
+  const prevThreshold = { 'débutant':0, 'confirmé':50, 'expert':150, 'master':300 }[level] || 0;
+  const progress = next ? Math.round(((pts - prevThreshold) / (next - prevThreshold)) * 100) : 100;
+  document.getElementById('pointsBar').style.width = Math.min(100, progress) + '%';
+  document.getElementById('levelNext').textContent = next ? `${next} pts pour ${LEVEL_LABELS[{ 50:'confirmé',150:'expert',300:'master' }[next] || '']}` : 'Niveau maximum atteint';
+
+  // Tarif recommandé
+  if (providerPublic?.recommended_rate) {
+    document.getElementById('recRateInfo').innerHTML =
+      `Tarif recommandé pour votre niveau : <strong>${providerPublic.recommended_rate.toLocaleString('fr-FR')} FCFA/h</strong>`;
+  }
+  lucide.createIcons({ el: sec });
 }
 
 async function loadProfile() {
@@ -301,33 +441,36 @@ async function loadProfile() {
     const { user, provider } = await api.auth.me();
     _providerData = provider;
 
-    // Wire "Mon profil public" link with actual provider ID
     if (provider?.id) {
       const navProfil = document.querySelector('.snav-item[href="profil-prestataire.html"]');
       if (navProfil) navProfil.href = `provider-profile.html?id=${provider.id}`;
     }
 
+    // Avatar
+    setAvatarUI(user.avatar_url, user.full_name);
+
     // Personal
-    document.getElementById('inputName').value = user.full_name || '';
+    document.getElementById('inputName').value  = user.full_name || '';
     document.getElementById('inputEmail').value = user.email || '';
     document.getElementById('inputPhone').value = user.phone || '';
-    document.getElementById('inputCity').value = user.city || '';
+    document.getElementById('inputCity').value  = user.city  || '';
 
     // Professional
     if (provider) {
-      document.getElementById('inputTitle').value = provider.title || '';
+      document.getElementById('inputTitle').value        = provider.title || '';
       document.getElementById('inputNeighborhood').value = provider.neighborhood || '';
-      document.getElementById('inputRate').value = provider.hourly_rate || '';
-      document.getElementById('inputExp').value = provider.experience_years || '';
-      document.getElementById('inputDesc').value = provider.description || '';
+      document.getElementById('inputRate').value         = provider.hourly_rate || '';
+      document.getElementById('inputExp').value          = provider.experience_years || '';
+      document.getElementById('inputDesc').value         = provider.description || '';
       setAvailabilityUI(!!provider.is_available);
     }
 
-    // Skills
+    // Skills + niveau
     if (provider?.id) {
       const pData = await api.providers.get(provider.id);
       _skills = pData.skills || [];
       renderSkills();
+      renderLevel(provider, pData);
     }
   } catch (err) {
     console.error(err);
@@ -421,6 +564,18 @@ async function changePassword() {
 
 loadProfile();
 lucide.createIcons();
+
+function toggleSidebar() {
+  const sidebar = document.getElementById('appSidebar');
+  const overlay = document.getElementById('sidebarOverlay');
+  const btn = document.getElementById('mobileMenuBtn');
+  sidebar.classList.toggle('open');
+  overlay.classList.toggle('open');
+  if (btn) btn.classList.toggle('open');
+}
+document.querySelectorAll('.snav-item').forEach(el => {
+  el.addEventListener('click', () => { if (window.innerWidth <= 768) toggleSidebar(); });
+});
 </script>
 </body>
 </html>

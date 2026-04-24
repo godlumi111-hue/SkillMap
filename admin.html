@@ -6,6 +6,7 @@
 <title>SkillMap — Administration</title>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
 <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+<link rel="stylesheet" href="frontend/css/responsive.css"/>
 <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 :root {
@@ -16,6 +17,29 @@
 }
 html, body { height: 100%; }
 body { font-family: var(--font-body); background: var(--off-white); color: var(--black); display: flex; }
+@media (max-width: 768px) {
+  html, body { overflow: hidden; }
+  body { flex-direction: column; padding-bottom: 0; }
+  .sidebar {
+    position: fixed !important; top: 0; left: 0; bottom: 0;
+    z-index: 499; transform: translateX(-100%);
+    transition: transform .28s cubic-bezier(.22,1,.36,1);
+    width: 240px !important;
+  }
+  .sidebar.open { transform: translateX(0); }
+  .main {
+    flex: 1; overflow-y: auto;
+    height: calc(100vh - 52px);
+    margin-top: 52px;
+  }
+  .main-header { padding: 1rem !important; flex-wrap: wrap; gap: .5rem; }
+  .main-title { font-size: 1.4rem !important; }
+  .section { padding: 1rem !important; }
+  .stats-grid { grid-template-columns: repeat(2,1fr) !important; }
+  .tabs { overflow-x: auto; white-space: nowrap; }
+  .tab { display: inline-block; flex-shrink: 0; }
+  .data-table th, .data-table td { padding: .5rem .7rem !important; font-size: .75rem !important; }
+}
 
 /* SIDEBAR */
 .sidebar { width: 220px; flex-shrink: 0; background: var(--black); color: var(--white); display: flex; flex-direction: column; }
@@ -110,8 +134,18 @@ body { font-family: var(--font-body); background: var(--off-white); color: var(-
 </head>
 <body>
 
+<!-- Mobile Top Bar -->
+<div class="mobile-topbar">
+  <a href="#" class="mobile-topbar-logo">SKILL<span>MAP</span></a>
+  <button class="mobile-menu-btn" id="mobileMenuBtn" onclick="toggleAdminSidebar()">
+    <span></span><span></span><span></span>
+  </button>
+</div>
+<!-- Sidebar Overlay -->
+<div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleAdminSidebar()"></div>
+
 <!-- SIDEBAR -->
-<aside class="sidebar">
+<aside class="sidebar" id="adminSidebar">
   <div class="sidebar-brand">
     <a href="#" class="sidebar-logo">SKILL<span>MAP</span></a>
     <div class="sidebar-role">Administration</div>
@@ -133,6 +167,7 @@ body { font-family: var(--font-body); background: var(--off-white); color: var(-
       <span class="snav-badge" id="reportsBadge" style="display:none;"></span>
     </a>
     <a class="snav-item" href="#" onclick="showSection('reviews')"><span class="snav-icon"><i data-lucide="star"></i></span> Avis</a>
+    <a class="snav-item" href="#" onclick="showSection('finances')"><span class="snav-icon"><i data-lucide="wallet"></i></span> Finances</a>
   </nav>
   <div class="sidebar-footer">
     <a href="skillmap.html">Voir le site public</a>
@@ -172,16 +207,16 @@ let _currentSection = 'overview';
 function showSection(name) {
   _currentSection = name;
   document.querySelectorAll('.snav-item').forEach((el, i) => {
-    const sections = ['overview','users','providers','requests','reports','reviews'];
+    const sections = ['overview','users','providers','requests','reports','reviews','finances'];
     el.classList.toggle('active', sections[i] === name);
   });
-  const titles = { overview: 'Vue d\'ensemble', users: 'Utilisateurs', providers: 'Prestataires', requests: 'Demandes de service', reports: 'Signalements', reviews: 'Modération des avis' };
-  const subs = { overview: 'Supervision de la plateforme SkillMap', users: 'Gérer tous les comptes utilisateurs', providers: 'Vérifier et gérer les prestataires', requests: 'Suivi des prestations', reports: 'Traiter les signalements en attente', reviews: 'Modérer les avis clients' };
+  const titles = { overview: 'Vue d\'ensemble', users: 'Utilisateurs', providers: 'Prestataires', requests: 'Demandes de service', reports: 'Signalements', reviews: 'Modération des avis', finances: 'Portefeuille Plateforme' };
+  const subs = { overview: 'Supervision de la plateforme SkillMap', users: 'Gérer tous les comptes utilisateurs', providers: 'Vérifier et gérer les prestataires', requests: 'Suivi des prestations', reports: 'Traiter les signalements en attente', reviews: 'Modérer les avis clients', finances: 'Commissions et revenus de la plateforme' };
   document.getElementById('sectionTitle').textContent = titles[name] || name;
   document.getElementById('sectionSub').textContent = subs[name] || '';
   document.getElementById('sectionContent').innerHTML = '<div class="loading-text">Chargement…</div>';
 
-  const loaders = { overview: loadOverview, users: loadUsers, providers: loadProviders, requests: loadRequests, reports: loadReports, reviews: loadReviews };
+  const loaders = { overview: loadOverview, users: loadUsers, providers: loadProviders, requests: loadRequests, reports: loadReports, reviews: loadReviews, finances: loadFinances };
   if (loaders[name]) loaders[name]();
 }
 
@@ -323,7 +358,7 @@ async function loadProviders() {
                 </td>
                 <td><div class="table-actions">
                   ${!p.is_verified
-                    ? `<button class="btn-action btn-verify" onclick="verifyProvider(${p.id},true)">✓ Vérifier</button>`
+                    ? `<button class="btn-action btn-verify" onclick="verifyProvider(${p.id},true)"><i data-lucide="check"></i> Vérifier</button>`
                     : `<button class="btn-action btn-dismiss" onclick="verifyProvider(${p.id},false)">Retirer vérif.</button>`}
                   <button class="btn-action" style="color:#5b9ef4;border-color:rgba(91,158,244,.3);" onclick="window.open('provider-profile.html?id=${p.id}','_blank')">Voir profil</button>
                 </div></td>
@@ -378,7 +413,7 @@ async function loadReports() {
               <div class="report-meta">Prestataire : ${r.provider_name} (${r.provider_title}) · ${new Date(r.created_at).toLocaleDateString('fr-FR')}</div>
             </div>
             <div class="table-actions">
-              <button class="btn-action btn-suspend" onclick="handleReport(${r.id},'reviewed')">⚠ Traiter</button>
+              <button class="btn-action btn-suspend" onclick="handleReport(${r.id},'reviewed')"><i data-lucide="triangle-alert"></i> Traiter</button>
               <button class="btn-action btn-dismiss" onclick="handleReport(${r.id},'dismissed')">Ignorer</button>
             </div>
           </div>
@@ -460,9 +495,82 @@ function filterTable(q, tableId) {
   });
 }
 
+// ── FINANCES ──────────────────────────────────────────────────
+async function loadFinances() {
+  const el = document.getElementById('sectionContent');
+  try {
+    const w = await api.admin.wallet();
+    const fmt = n => Number(n||0).toLocaleString('fr-FR');
+    el.innerHTML = `
+      <div class="section">
+        <div class="sec-title">Revenus de la plateforme</div>
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-num" style="color:var(--accent);">${fmt(w.balance)} FCFA</div>
+            <div class="stat-label">Solde disponible</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-num" style="color:var(--accent3);">${fmt(w.total_earned)} FCFA</div>
+            <div class="stat-label">Total commissions</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-num">${fmt(w.this_month)} FCFA</div>
+            <div class="stat-label">Ce mois-ci</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-num">${w.this_month_count || 0}</div>
+            <div class="stat-label">Transactions ce mois</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-num">${w.commission_count || 0}</div>
+            <div class="stat-label">Commissions totales</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-num" style="color:var(--accent);">${((w.commission_rate||0.03)*100).toFixed(0)}%</div>
+            <div class="stat-label">Taux de commission</div>
+          </div>
+        </div>
+      </div>
+      <div class="section">
+        <div class="sec-title">Historique des commissions</div>
+        ${(w.recent_transactions||[]).length === 0
+          ? '<p style="font-family:var(--font-mono);font-size:.72rem;color:var(--gray-mid);padding:1rem 0;">Aucune commission enregistrée pour l\'instant. Les commissions apparaîtront ici une fois les premières prestations confirmées.</p>'
+          : `<table class="data-table">
+              <thead><tr><th>Date</th><th>Prestation</th><th>Montant</th><th>Statut</th></tr></thead>
+              <tbody>
+                ${(w.recent_transactions||[]).map(t => `
+                  <tr>
+                    <td style="font-family:var(--font-mono);font-size:.65rem;">${(t.created_at||'').slice(0,10)}</td>
+                    <td style="font-size:.78rem;">${t.appt_title || t.description || '—'}</td>
+                    <td style="color:var(--accent3);font-family:var(--font-mono);font-size:.72rem;">+${fmt(t.amount)} FCFA</td>
+                    <td><span class="status-active">● ${t.status === 'completed' ? 'Reçue' : t.status}</span></td>
+                  </tr>`).join('')}
+              </tbody>
+            </table>`}
+      </div>`;
+  } catch (err) {
+    el.innerHTML = `<div class="section"><p style="color:var(--accent2);">${err.message}</p></div>`;
+  }
+}
+
 // ── INIT ──────────────────────────────────────────────────────
 loadOverview();
 lucide.createIcons();
+
+function toggleAdminSidebar() {
+  const sidebar = document.getElementById('adminSidebar');
+  const overlay = document.getElementById('sidebarOverlay');
+  const btn = document.getElementById('mobileMenuBtn');
+  sidebar.classList.toggle('open');
+  overlay.classList.toggle('open');
+  if (btn) btn.classList.toggle('open');
+}
+// Fermer la sidebar sur clic d'un item de nav
+document.querySelectorAll('.snav-item').forEach(el => {
+  el.addEventListener('click', () => {
+    if (window.innerWidth <= 768) toggleAdminSidebar();
+  });
+});
 </script>
 </body>
 </html>

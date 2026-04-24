@@ -6,6 +6,7 @@
 <title>SkillMap — Mon espace prestataire</title>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
 <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+<link rel="stylesheet" href="frontend/css/responsive.css"/>
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
   :root {
@@ -172,10 +173,20 @@
 <div class="cursor" id="cursor"></div>
 <div class="cursor-ring" id="cursorRing"></div>
 
+<!-- Mobile Top Bar -->
+<div class="mobile-topbar">
+  <a href="home-prestataire.html" class="mobile-topbar-logo">Skill<span>Map</span></a>
+  <button class="mobile-menu-btn" id="mobileMenuBtn" onclick="toggleSidebar()">
+    <span></span><span></span><span></span>
+  </button>
+</div>
+<!-- Sidebar Overlay -->
+<div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+
 <div class="app-shell">
 
   <!-- SIDEBAR -->
-  <aside class="app-sidebar">
+  <aside class="app-sidebar" id="appSidebar">
     <div class="sidebar-brand">
       <a href="skillmap.html" class="sidebar-logo">Skill<span>Map</span></a>
       <div class="sidebar-role">Espace prestataire</div>
@@ -333,7 +344,7 @@
               </div>
             </div>
             <div class="req-actions">
-              <button class="req-btn" onclick="this.textContent='✓';this.style.background='rgba(46,255,158,.15)';this.style.color='#1a9e6e';">Évaluer</button>
+              <button class="req-btn" onclick="this.innerHTML='<i data-lucide=&quot;check&quot;></i>';this.style.background='rgba(46,255,158,.15)';this.style.color='#1a9e6e';if(window.lucide)lucide.createIcons({ el: this });">Évaluer</button>
             </div>
           </div>
 
@@ -428,7 +439,8 @@
     card.style.pointerEvents = 'none';
     const badge = card.querySelector('.req-status');
     badge.textContent = 'Acceptée'; badge.className = 'req-status done';
-    btn.closest('.req-actions').innerHTML = '<span style="font-family:var(--font-mono);font-size:.65rem;color:var(--accent3);letter-spacing:1px;">✓ Acceptée</span>';
+    btn.closest('.req-actions').innerHTML = '<span style="font-family:var(--font-mono);font-size:.65rem;color:var(--accent3);letter-spacing:1px;display:inline-flex;align-items:center;gap:.3rem;"><i data-lucide="check"></i> Acceptée</span>';
+    if (window.lucide) lucide.createIcons({ el: btn.closest(".req-card") });
   }
   function declineReq(btn) {
     const card = btn.closest('.req-card');
@@ -461,6 +473,33 @@
 <script src="frontend/js/api.js"></script>
 <script src="frontend/js/auth.js"></script>
 <script src="frontend/js/dashboard-prestataire.js"></script>
-<script>lucide.createIcons();</script>
+<script>
+lucide.createIcons();
+function toggleSidebar() {
+  const sidebar = document.getElementById('appSidebar');
+  const overlay = document.getElementById('sidebarOverlay');
+  const btn = document.getElementById('mobileMenuBtn');
+  sidebar.classList.toggle('open');
+  overlay.classList.toggle('open');
+  if (btn) btn.classList.toggle('open');
+}
+</script>
+
+<!-- Bottom Navigation (mobile uniquement) -->
+<nav class="bottom-nav">
+  <a href="home-prestataire.html" class="bottom-nav-item">
+    <i data-lucide="home"></i><span>Accueil</span>
+  </a>
+  <a href="dashboard-prestataire.html" class="bottom-nav-item active">
+    <i data-lucide="layout-dashboard"></i><span>Dashboard</span>
+  </a>
+  <a href="rendez-vous.html" class="bottom-nav-item">
+    <i data-lucide="calendar-days"></i><span>Agenda</span>
+  </a>
+  <a href="parametres-prestataire.html" class="bottom-nav-item">
+    <i data-lucide="settings"></i><span>Profil</span>
+  </a>
+</nav>
+<script>if(window.lucide)lucide.createIcons({el:document.querySelector('.bottom-nav')});</script>
 </body>
 </html>

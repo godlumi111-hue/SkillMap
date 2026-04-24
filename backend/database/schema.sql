@@ -43,7 +43,7 @@ CREATE TABLE IF NOT EXISTS categories (
   id    INTEGER PRIMARY KEY AUTOINCREMENT,
   name  TEXT    NOT NULL UNIQUE,
   slug  TEXT    NOT NULL UNIQUE,
-  icon  TEXT    DEFAULT '🔧'
+  icon  TEXT    DEFAULT '<i data-lucide="wrench"></i>'
 );
 
 -- ─── PRESTATAIRES ↔ CATÉGORIES ───────────────────────────────
@@ -176,6 +176,29 @@ CREATE TABLE IF NOT EXISTS wallet_transactions (
   appointment_id INTEGER REFERENCES appointments(id),
   created_at     TEXT DEFAULT (datetime('now'))
 );
+
+-- ─── PRIX DE BASE PAR CATÉGORIE ET NIVEAU ────────────────────
+CREATE TABLE IF NOT EXISTS category_base_prices (
+  id            INTEGER PRIMARY KEY AUTOINCREMENT,
+  category_slug TEXT    NOT NULL,
+  level         TEXT    NOT NULL DEFAULT 'débutant'
+                CHECK(level IN ('débutant','confirmé','expert','master')),
+  base_rate     REAL    NOT NULL,
+  UNIQUE(category_slug, level)
+);
+
+-- Prix de base recommandés par la plateforme (FCFA/heure)
+INSERT OR IGNORE INTO category_base_prices (category_slug, level, base_rate) VALUES
+  ('artisanat',  'débutant', 2500), ('artisanat',  'confirmé', 3500), ('artisanat',  'expert', 5000),  ('artisanat',  'master', 7000),
+  ('electricite','débutant', 3500), ('electricite','confirmé', 5000), ('electricite','expert', 7000),  ('electricite','master',10000),
+  ('plomberie',  'débutant', 3000), ('plomberie',  'confirmé', 4000), ('plomberie',  'expert', 5500),  ('plomberie',  'master', 7500),
+  ('beaute',     'débutant', 2000), ('beaute',     'confirmé', 3000), ('beaute',     'expert', 4500),  ('beaute',     'master', 6500),
+  ('design',     'débutant', 5000), ('design',     'confirmé', 7500), ('design',     'expert',12000),  ('design',     'master',18000),
+  ('education',  'débutant', 3000), ('education',  'confirmé', 4500), ('education',  'expert', 6500),  ('education',  'master', 9000),
+  ('telephonie', 'débutant', 3500), ('telephonie', 'confirmé', 5000), ('telephonie', 'expert', 7500),  ('telephonie', 'master',12000),
+  ('mecanique',  'débutant', 4000), ('mecanique',  'confirmé', 5500), ('mecanique',  'expert', 8000),  ('mecanique',  'master',12000),
+  ('couture',    'débutant', 2500), ('couture',    'confirmé', 3500), ('couture',    'expert', 5000),  ('couture',    'master', 7000),
+  ('cuisine',    'débutant', 3000), ('cuisine',    'confirmé', 4500), ('cuisine',    'expert', 6500),  ('cuisine',    'master', 9000);
 
 -- ─── INDEX pour les performances ─────────────────────────────
 CREATE INDEX IF NOT EXISTS idx_providers_available ON providers(is_available);

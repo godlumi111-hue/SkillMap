@@ -34,7 +34,7 @@ function deposit(req, res) {
 
   db.prepare(`INSERT INTO wallet_transactions (wallet_id, type, amount, net_amount, description, status, payment_method, reference)
     VALUES (?, 'deposit', ?, ?, ?, 'completed', ?, ?)`)
-    .run(wallet.id, amount, amount, `Dépôt via ${payment_method.replace('_', ' ')}`, 'completed', payment_method, reference);
+    .run(wallet.id, amount, amount, `Dépôt via ${payment_method.replace('_', ' ')}`, payment_method, reference);
 
   const updated = db.prepare('SELECT balance FROM wallets WHERE user_id = ?').get(req.user.id);
   res.json({ message: 'Dépôt effectué avec succès', new_balance: updated.balance, reference });

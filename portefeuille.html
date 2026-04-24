@@ -5,6 +5,8 @@
 <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
 <title>SkillMap — Portefeuille</title>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,300&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+<link rel="stylesheet" href="frontend/css/responsive.css"/>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
 :root{
@@ -58,8 +60,7 @@ body{font-family:var(--fb);background:var(--white);color:var(--black);min-height
   transition:all .2s;position:relative;background:var(--white);}
 .method-card:hover{border-color:rgba(30,29,26,.3);transform:translateY(-2px);}
 .method-card.selected{border-color:var(--black);background:var(--off);}
-.method-card.selected::after{content:'✓';position:absolute;top:.6rem;right:.7rem;
-  font-family:var(--fm);font-size:.65rem;color:var(--black);}
+.method-card.selected::after{content:'';position:absolute;top:.75rem;right:.75rem;width:14px;height:14px;background:var(--black);-webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M20 6 9 17l-5-5'/%3E%3C/svg%3E") center/contain no-repeat;mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M20 6 9 17l-5-5'/%3E%3C/svg%3E") center/contain no-repeat;}
 .mc-logo{font-family:var(--fd);font-size:1.3rem;letter-spacing:1px;margin-bottom:.3rem;}
 .mc-logo.wave{color:var(--wave);}
 .mc-logo.orange{color:var(--orange);}
@@ -268,7 +269,7 @@ body{font-family:var(--fb);background:var(--white);color:var(--black);min-height
   <div class="modal-box" id="modalBox">
     <div class="modal-head">
       <span class="modal-htitle" id="modalTitle">Paiement</span>
-      <button class="modal-close" onclick="if(!simRunning)closeModal()">✕</button>
+      <button class="modal-close" onclick="if(!simRunning)closeModal()"><i data-lucide="x"></i></button>
     </div>
     <div id="modalContent"></div>
   </div>
@@ -342,7 +343,15 @@ async function loadWallet() {
 }
 
 // ── Render transactions ────────────────────────────────────
-const TX_ICONS  = { deposit:'💳', payment:'→', receipt:'←', commission:'%', refund:'↩', held:'🔒', released:'🔓' };
+const TX_ICONS  = {
+  deposit:'<i data-lucide="credit-card"></i>',
+  payment:'<i data-lucide="arrow-right"></i>',
+  receipt:'<i data-lucide="arrow-left"></i>',
+  commission:'<i data-lucide="percent"></i>',
+  refund:'<i data-lucide="rotate-ccw"></i>',
+  held:'<i data-lucide="lock"></i>',
+  released:'<i data-lucide="unlock"></i>'
+};
 const TX_LABELS = { deposit:'Rechargement', payment:'Paiement prestation', receipt:'Prestation reçue', commission:'Commission', refund:'Remboursement', held:'Séquestre', released:'Libération' };
 
 function renderTransactions(txs) {
@@ -359,7 +368,7 @@ function renderTransactions(txs) {
     const d = new Date(t.created_at);
     const dateStr = `${d.getDate()} ${['Jan','Fév','Mar','Avr','Mai','Jun','Jul','Aoû','Sep','Oct','Nov','Déc'][d.getMonth()]} · ${d.getHours()}h${String(d.getMinutes()).padStart(2,'0')}`;
     return `<div class="tx-item">
-      <div class="tx-icon ${t.type}">${TX_ICONS[t.type] || '·'}</div>
+      <div class="tx-icon ${t.type}">${TX_ICONS[t.type] || '<i data-lucide="dot"></i>'}</div>
       <div class="tx-body">
         <div class="tx-desc">${t.description || TX_LABELS[t.type] || t.type}</div>
         <div class="tx-meta">${dateStr}${t.payment_method ? ' · ' + t.payment_method.replace('_',' ').toUpperCase() : ''}</div>
@@ -372,6 +381,7 @@ function renderTransactions(txs) {
       </div>
     </div>`;
   }).join('')}</div>`;
+  if (window.lucide) lucide.createIcons({ el });
 }
 
 // ── Start deposit flow ─────────────────────────────────────
@@ -397,6 +407,7 @@ function startDeposit() {
 
   document.getElementById('modalTitle').textContent = `Paiement ${info.name}`;
   document.getElementById('modalContent').innerHTML = buildSimUI(info, amount, phone, code, 0);
+  if (window.lucide) lucide.createIcons({ el: document.getElementById('modalContent') });
   openModal();
 
   simRunning = true;
@@ -412,7 +423,7 @@ function buildSimUI(info, amount, phone, code, step) {
   ];
   const stepsHtml = steps.map((s, i) => `
     <div class="sim-step">
-      <div class="sim-num ${i < step ? 'done' : i === step ? 'active' : ''}">${i < step ? '✓' : i+1}</div>
+      <div class="sim-num ${i < step ? 'done' : i === step ? 'active' : ''}">${i < step ? '<i data-lucide="check"></i>' : i+1}</div>
       <div class="sim-text ${i < step ? 'done' : i === step ? 'active' : ''}">${s.label}</div>
     </div>`).join('');
 
@@ -435,8 +446,10 @@ function buildSimUI(info, amount, phone, code, step) {
 async function runSimulation(info, amount, phone, code) {
   for (let step = 0; step <= 3; step++) {
     await delay(900 + Math.random() * 700);
-    if (document.getElementById('modalContent'))
+    if (document.getElementById('modalContent')) {
       document.getElementById('modalContent').innerHTML = buildSimUI(info, amount, phone, code, step + 1);
+      if (window.lucide) lucide.createIcons({ el: document.getElementById('modalContent') });
+    }
   }
 
   await delay(600);
@@ -461,13 +474,14 @@ async function runSimulation(info, amount, phone, code) {
       <div class="modal-foot">
         <button class="modal-btn primary" onclick="closeModal()">Fermer</button>
       </div>`;
+    if (window.lucide) lucide.createIcons({ el: document.getElementById('modalContent') });
   }
 }
 
 function showSuccess(info, amount, ref) {
   document.getElementById('modalContent').innerHTML = `
     <div class="success-wrap">
-      <div class="success-icon">✅</div>
+      <div class="success-icon"><i data-lucide="check-circle-2"></i></div>
       <div class="success-title">Rechargement réussi !</div>
       <div class="success-sub">
         <strong style="font-family:var(--fd);font-size:1.1rem;">${Number(amount).toLocaleString('fr-FR')} FCFA</strong>
@@ -478,6 +492,7 @@ function showSuccess(info, amount, ref) {
     <div class="modal-foot">
       <button class="modal-btn primary" onclick="closeModal()">Fermer</button>
     </div>`;
+  if (window.lucide) lucide.createIcons({ el: document.getElementById('modalContent') });
 }
 
 function delay(ms) { return new Promise(r => setTimeout(r, ms)); }
@@ -491,6 +506,14 @@ function closeModal() {
 document.addEventListener('keydown', e => { if (e.key === 'Escape' && !simRunning) closeModal(); });
 
 loadWallet();
+if (window.lucide) lucide.createIcons();
 </script>
+<nav class="bottom-nav">
+  <a href="home-client.html" class="bottom-nav-item"><i data-lucide="home"></i><span>Accueil</span></a>
+  <a href="prestataires.html" class="bottom-nav-item"><i data-lucide="search"></i><span>Chercher</span></a>
+  <a href="portefeuille.html" class="bottom-nav-item active"><i data-lucide="wallet"></i><span>Portefeuille</span></a>
+  <a href="profil-utilisateur.html" class="bottom-nav-item"><i data-lucide="user"></i><span>Profil</span></a>
+</nav>
+<script>if(window.lucide)lucide.createIcons({el:document.querySelector('.bottom-nav')});</script>
 </body>
 </html>

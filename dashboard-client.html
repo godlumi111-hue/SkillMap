@@ -6,6 +6,7 @@
 <title>SkillMap — Recherche</title>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
 <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+<link rel="stylesheet" href="frontend/css/responsive.css"/>
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
   :root {
@@ -110,6 +111,40 @@
 
   /* ── MAP AREA ── */
   .map-area { flex: 1; position: relative; overflow: hidden; background: #ccc9bf; }
+
+  /* ── RESPONSIVE MOBILE ── */
+  @media (max-width: 768px) {
+    html, body { overflow: auto; }
+    .top-nav { height: 52px; padding: 0 1rem; }
+    .nav-logo { font-size: 1.3rem; }
+    .nav-loc { display: none; }
+    .app-layout {
+      flex-direction: column;
+      height: auto;
+      padding-top: 52px;
+      overflow: visible;
+    }
+    .sidebar {
+      width: 100%;
+      height: 50vh;
+      max-height: 50vh;
+      border-right: none;
+      border-bottom: 1px solid rgba(30,29,26,.1);
+      flex-shrink: 0;
+    }
+    .map-area {
+      height: 50vh;
+      flex: none;
+    }
+    .provider-popup {
+      width: calc(100% - 2rem) !important;
+      left: 1rem !important;
+      transform: none !important;
+      bottom: 1rem !important;
+    }
+    .provider-popup.show { transform: none !important; }
+    .top-nav .nav-search-wrap { max-width: 100%; flex: 1; }
+  }
 
   /* Map grid */
   .map-bg { position: absolute; inset: 0; background-image: linear-gradient(rgba(30,29,26,.1) 1px, transparent 1px), linear-gradient(90deg,rgba(30,29,26,.1) 1px,transparent 1px); background-size: 40px 40px; }
@@ -265,9 +300,9 @@
     <!-- Filter chips -->
     <div class="map-overlay-top">
       <div class="map-filter-chip active"><i data-lucide="map-pin"></i> Tous</div>
-      <div class="map-filter-chip">✓ Disponible</div>
+      <div class="map-filter-chip"><i data-lucide="badge-check"></i> Disponible</div>
       <div class="map-filter-chip"><i data-lucide="star"></i> 4.5+</div>
-      <div class="map-filter-chip">📏 &lt; 2km</div>
+      <div class="map-filter-chip"><i data-lucide="ruler"></i> &lt; 2km</div>
     </div>
 
     <!-- Map controls -->
@@ -296,7 +331,7 @@
           <div class="popup-name" id="popupName">Koné Oumar</div>
           <div class="popup-role" id="popupRole">Plombier · Cocody</div>
         </div>
-        <div class="popup-close" onclick="closePopup()">✕</div>
+        <div class="popup-close" onclick="closePopup()"><i data-lucide="x"></i></div>
       </div>
       <div class="popup-body">
         <div class="popup-meta">
@@ -385,7 +420,7 @@
     document.getElementById('popupRole').textContent = `${p.role} · ${p.zone}`;
     document.getElementById('popupDist').innerHTML = `<i data-lucide="map-pin"></i> ${p.dist} km`;
     lucide.createIcons({ el: document.getElementById('popupDist') });
-    document.getElementById('popupRating').textContent = `★ ${p.rating}`;
+    document.getElementById('popupRating').innerHTML = `<i data-lucide="star"></i> ${p.rating}`;
     document.getElementById('popupAvail').textContent = p.avail ? '● Disponible' : '● Occupé';
     document.getElementById('popupAvail').style.color = p.avail ? 'var(--accent3)' : 'var(--accent2)';
     document.getElementById('popupTags').innerHTML = p.tags.map(t=>`<span class="popup-tag">${t}</span>`).join('');

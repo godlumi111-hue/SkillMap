@@ -80,7 +80,7 @@ function handleReport(req, res) {
   res.json({ message: 'Signalement traité' });
 }
 
-// GET /api/admin/reviews — modération
+// GET /api/admin/reviews
 function listReviews(req, res) {
   const db = getDb();
   const reviews = db.prepare(`
@@ -100,4 +100,45 @@ function moderateReview(req, res) {
   res.json({ message: 'Avis modéré' });
 }
 
-module.exports = { stats, listUsers, updateUser, verifyProvider, listReports, handleReport, listReviews, moderateReview };
+// GET /api/admin/wallet — portefeuille & commissions de la plateforme
+function walletStats(req, res) {
+  const db = getDb();
+  const adminUser = db.prepare("SELECT id FROM users WHERE role = 'admin' LIMIT 1").get();
+  if (!adminUser) return res.status(404).json({ error: 'Admin introuvable' });
+
+  const wallet = db.prepare('SELECT * FROM wallets WHERE user_id = ?').get(adminUser.id);
+  if (!wallet) {
+    return res.json({ balance: 0, total_earned: 0, this_month: 0, this_month_count: 0, commission_count: 0, commission_rate: 0.03, recent_transactions: [] });
+  }
+
+  const thisMonth = db.prepare(`
+    SELECT COALESCE(SUM(amount),0) as total, COUNT(*) as cnt
+    FROM wallet_transactions
+    WHERE wallet_id = ? AND type = 'commission' AND status = 'completed'
+    AND created_at >= date('now','start of month')
+  `).get(wallet.id);
+
+  const allTime = db.prepare(
+    "SELECT COUNT(*) as cnt FROM wallet_transactions WHERE wallet_id = ? AND type = 'commission'"
+  ).get(wallet.id);
+
+  const recent = db.prepare(`
+    SELECT wt.*, a.title as appt_title, a.amount as appt_amount
+    FROM wallet_transactions wt
+    LEFT JOIN appointments a ON a.id = wt.appointment_id
+    WHERE wt.wallet_id = ?
+    ORDER BY wt.created_at DESC LIMIT 30
+  `).all(wallet.id);
+
+  res.json({
+    balance: wallet.balance,
+    total_earned: wallet.total_earned,
+    this_month: thisMonth.total,
+    this_month_count: thisMonth.cnt,
+    commission_count: allTime.cnt,
+    commission_rate: 0.03,
+    recent_transactions: recent
+  });
+}
+
+module.exports = { stats, listUsers, updateUser, verifyProvider, listReports, handleReport, listReviews, moderateReview, walletStats };

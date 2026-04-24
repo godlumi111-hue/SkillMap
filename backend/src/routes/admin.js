@@ -12,5 +12,6 @@ router.get('/reports',            ...guard, ctrl.listReports);
 router.patch('/reports/:id',      ...guard, ctrl.handleReport);
 router.get('/reviews',            ...guard, ctrl.listReviews);
 router.patch('/reviews/:id',      ...guard, ctrl.moderateReview);
+router.get('/wallet',             ...guard, ctrl.walletStats);
 
 module.exports = router;

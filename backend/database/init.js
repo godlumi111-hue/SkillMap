@@ -16,16 +16,16 @@ function initDatabase(existingDb) {
 
   const schema = fs.readFileSync(SCHEMA, 'utf8');
   db.exec(schema);
-  console.log('✅ Schéma appliqué');
+  console.log('[ok] Schéma appliqué');
 
   if (process.env.NODE_ENV !== 'production') {
     const seed = fs.readFileSync(SEED, 'utf8');
     db.exec(seed);
-    console.log('✅ Données de test insérées');
+    console.log('[ok] Données de test insérées');
   }
 
   if (!existingDb) db.close();
-  console.log('✅ Base de données initialisée :', DB_PATH);
+  console.log('[ok] Base de données initialisée :', DB_PATH);
 }
 
 if (require.main === module) {

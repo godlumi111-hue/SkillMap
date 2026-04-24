@@ -17,7 +17,7 @@ Plateforme de mise en relation entre clients et prestataires locaux à Abidjan.
 ## Lancement en 3 étapes
 
 ### 1. Prérequis
-- Node.js **v22+** (vous avez v24 ✓)
+- Node.js **v22+** (vous avez v24, OK)
 - npm
 
 ### 2. Installation

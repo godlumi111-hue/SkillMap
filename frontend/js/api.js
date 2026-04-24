@@ -14,7 +14,7 @@ async function request(method, path, body = null) {
   const opts = { method, headers };
   if (body) opts.body = JSON.stringify(body);
 
-  const res = await fetch(`${API_BASE}${path}`, opts);
+  const res  = await fetch(`${API_BASE}${path}`, opts);
   const data = await res.json().catch(() => ({}));
 
   if (!res.ok) {
@@ -37,16 +37,26 @@ const api = {
 
   // ─── Providers ─────────────────────────────────────────────
   providers: {
-    list:       (params = {}) => request('GET', '/providers?' + new URLSearchParams(params)),
-    get:        (id, params = {}) => request('GET', `/providers/${id}?` + new URLSearchParams(params)),
-    updateProfile:     (body) => request('PUT',   '/providers/me/profile', body),
-    toggleAvailability:(body) => request('PATCH', '/providers/me/availability', body),
+    list:               (params = {}) => request('GET',   '/providers?' + new URLSearchParams(params)),
+    get:                (id, params = {}) => request('GET', `/providers/${id}?` + new URLSearchParams(params)),
+    updateProfile:      (body) => request('PUT',   '/providers/me/profile', body),
+    toggleAvailability: (body) => request('PATCH', '/providers/me/availability', body),
+    uploadAvatar:       (body) => request('POST',  '/providers/me/avatar', body),
+  },
+
+  // ─── Portfolio (réalisations) ──────────────────────────────
+  portfolio: {
+    list:       ()          => request('GET',    '/providers/me/portfolio'),
+    listPublic: (provId)    => request('GET',    `/providers/${provId}/portfolio`),
+    create:     (body)      => request('POST',   '/providers/me/portfolio', body),
+    update:     (id, body)  => request('PUT',    `/providers/me/portfolio/${id}`, body),
+    remove:     (id)        => request('DELETE', `/providers/me/portfolio/${id}`),
   },
 
   // ─── Reviews ───────────────────────────────────────────────
   reviews: {
-    list:   (providerId)        => request('GET',  `/providers/${providerId}/reviews`),
-    create: (providerId, body)  => request('POST', `/providers/${providerId}/reviews`, body),
+    list:   (providerId)       => request('GET',  `/providers/${providerId}/reviews`),
+    create: (providerId, body) => request('POST', `/providers/${providerId}/reviews`, body),
   },
 
   // ─── Services ──────────────────────────────────────────────
@@ -59,10 +69,10 @@ const api = {
 
   // ─── Favorites ─────────────────────────────────────────────
   favorites: {
-    list:   ()           => request('GET',    '/favorites'),
-    add:    (id)         => request('POST',   `/favorites/${id}`),
-    remove: (id)         => request('DELETE', `/favorites/${id}`),
-    check:  (id)         => request('GET',    `/favorites/${id}/check`),
+    list:   ()    => request('GET',    '/favorites'),
+    add:    (id)  => request('POST',   `/favorites/${id}`),
+    remove: (id)  => request('DELETE', `/favorites/${id}`),
+    check:  (id)  => request('GET',    `/favorites/${id}/check`),
   },
 
   // ─── Categories ────────────────────────────────────────────
@@ -72,21 +82,22 @@ const api = {
 
   // ─── Messages ──────────────────────────────────────────────
   messages: {
-    conversations: ()       => request('GET',  '/messages/conversations'),
-    thread:        (userId) => request('GET',  `/messages/${userId}`),
+    conversations: ()            => request('GET',  '/messages/conversations'),
+    thread:        (userId)      => request('GET',  `/messages/${userId}`),
     send:          (userId, content) => request('POST', `/messages/${userId}`, { content }),
   },
 
   // ─── Admin ─────────────────────────────────────────────────
   admin: {
-    stats:          ()        => request('GET',   '/admin/stats'),
-    users:          (params)  => request('GET',   '/admin/users?' + new URLSearchParams(params)),
+    stats:          ()         => request('GET',   '/admin/stats'),
+    users:          (params)   => request('GET',   '/admin/users?' + new URLSearchParams(params)),
     updateUser:     (id, body) => request('PATCH', `/admin/users/${id}`, body),
     verifyProvider: (id, body) => request('PATCH', `/admin/providers/${id}/verify`, body),
     reports:        ()         => request('GET',   '/admin/reports'),
     handleReport:   (id, body) => request('PATCH', `/admin/reports/${id}`, body),
     reviews:        ()         => request('GET',   '/admin/reviews'),
     moderateReview: (id, body) => request('PATCH', `/admin/reviews/${id}`, body),
+    wallet:         ()         => request('GET',   '/admin/wallet'),
   },
 
   // ─── Appointments ──────────────────────────────────────────

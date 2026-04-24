@@ -5,6 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>SkillMap — Mon profil</title>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+<link rel="stylesheet" href="frontend/css/responsive.css"/>
 <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 :root {
@@ -27,7 +29,11 @@ body { font-family: var(--font-body); background: var(--white); color: var(--bla
 
 /* Profile card */
 .profile-hero { display: flex; align-items: center; gap: 2rem; padding: 3rem 0 2rem; border-bottom: 1px solid rgba(30,29,26,.08); margin-bottom: 2.5rem; }
-.profile-av { width: 80px; height: 80px; background: var(--black); color: var(--accent); display: flex; align-items: center; justify-content: center; font-family: var(--font-display); font-size: 2rem; flex-shrink: 0; }
+.profile-av { width: 80px; height: 80px; background: var(--black); color: var(--accent); display: flex; align-items: center; justify-content: center; font-family: var(--font-display); font-size: 2rem; flex-shrink: 0; position: relative; overflow: hidden; cursor: pointer; }
+.profile-av img { width: 100%; height: 100%; object-fit: cover; position: absolute; inset: 0; }
+.profile-av-overlay { position: absolute; inset: 0; background: rgba(0,0,0,.5); display: flex; align-items: center; justify-content: center; opacity: 0; transition: opacity .2s; }
+.profile-av:hover .profile-av-overlay { opacity: 1; }
+.profile-av-overlay-text { font-family: var(--font-mono); font-size: .5rem; letter-spacing: 1px; color: var(--white); text-align: center; }
 .profile-name { font-family: var(--font-display); font-size: 2rem; letter-spacing: 2px; margin-bottom: .3rem; }
 .profile-role { font-family: var(--font-mono); font-size: .65rem; letter-spacing: 2px; text-transform: uppercase; color: var(--gray-mid); margin-bottom: .5rem; }
 .profile-email { font-size: .82rem; color: var(--gray-dark); }
@@ -81,7 +87,12 @@ body { font-family: var(--font-body); background: var(--white); color: var(--bla
 
 <div class="main-wrap">
   <div class="profile-hero">
-    <div class="profile-av" id="profileAv">?</div>
+    <div class="profile-av" id="profileAv" onclick="document.getElementById('avatarInput').click()" title="Changer la photo">
+      <span id="profileAvText">?</span>
+      <img id="profileAvImg" style="display:none;" alt="Photo de profil"/>
+      <div class="profile-av-overlay"><div class="profile-av-overlay-text">Changer<br>la photo</div></div>
+    </div>
+    <input type="file" id="avatarInput" accept="image/*" style="display:none;" onchange="handleAvatarUpload(event)"/>
     <div>
       <div class="profile-name" id="profileName">…</div>
       <div class="profile-role" id="profileRole">Client</div>
@@ -157,14 +168,26 @@ body { font-family: var(--font-body); background: var(--white); color: var(--bla
 AUTH.requireAuth();
 const _user = AUTH.getUser();
 
+function setAvatar(url, name) {
+  const img  = document.getElementById('profileAvImg');
+  const text = document.getElementById('profileAvText');
+  if (url) {
+    img.src = url; img.style.display = 'block';
+    text.style.display = 'none';
+  } else {
+    img.style.display = 'none'; text.style.display = '';
+    text.textContent = (name || 'U').split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
+  }
+}
+
 // Fill header
-document.getElementById('profileAv').textContent = (_user?.full_name?.split(' ').map(w=>w[0]).join('').slice(0,2)||'U').toUpperCase();
-document.getElementById('profileName').textContent = _user?.full_name || '—';
-document.getElementById('profileRole').textContent = _user?.role === 'client' ? 'Client SkillMap' : 'Prestataire SkillMap';
+setAvatar(_user?.avatar_url, _user?.full_name);
+document.getElementById('profileName').textContent  = _user?.full_name || '—';
+document.getElementById('profileRole').textContent  = _user?.role === 'client' ? 'Client SkillMap' : 'Prestataire SkillMap';
 document.getElementById('profileEmail').textContent = _user?.email || '';
 document.getElementById('inputEmail').value = _user?.email || '';
-document.getElementById('inputName').value = _user?.full_name || '';
-document.getElementById('inputCity').value = _user?.city || '';
+document.getElementById('inputName').value  = _user?.full_name || '';
+document.getElementById('inputCity').value  = _user?.city  || '';
 document.getElementById('inputPhone').value = _user?.phone || '';
 
 document.getElementById('btnLogout').addEventListener('click', AUTH.logout);
@@ -172,8 +195,26 @@ document.getElementById('btnLogout2').addEventListener('click', AUTH.logout);
 
 function showAlert(msg, type='success') {
   const box = document.getElementById('alertBox');
-  box.innerHTML = `<div class="alert alert-${type}">✓ ${msg}</div>`;
+  box.innerHTML = `<div class="alert alert-${type}">${msg}</div>`;
   setTimeout(() => box.innerHTML = '', 4000);
+}
+
+async function handleAvatarUpload(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  if (file.size > 3 * 1024 * 1024) { showAlert('Image trop grande (max 3 Mo)', 'error'); return; }
+  const reader = new FileReader();
+  reader.onload = async ev => {
+    const b64 = ev.target.result;
+    setAvatar(b64, null);
+    try {
+      const { url } = await api.providers.uploadAvatar({ image_base64: b64 });
+      const updated = { ..._user, avatar_url: url };
+      localStorage.setItem('skillmap_user', JSON.stringify(updated));
+      showAlert('Photo de profil mise à jour.');
+    } catch (err) { showAlert(err.message || 'Erreur lors du téléchargement.', 'error'); }
+  };
+  reader.readAsDataURL(file);
 }
 
 async function saveProfile() {

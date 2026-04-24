@@ -1,0 +1,657 @@
+/* ================================================================
+   SKILLMAP — RESPONSIVE MOBILE CSS
+   Cible : toutes les pages de l'application
+   Breakpoints : 768px (tablette) · 480px (petit mobile)
+   ================================================================ */
+
+/* ── 1. RESET GLOBAL MOBILE ─────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; }
+body { overflow-x: hidden; }
+
+/* Masquer le curseur custom sur écrans tactiles */
+@media (max-width: 768px) {
+  .cursor, .cursor-ring { display: none !important; }
+}
+
+/* ── 2. HAMBURGER BUTTON (commun .nav et .top-nav) ──────────── */
+.nav-burger {
+  display: none;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 5px;
+  width: 40px; height: 40px;
+  background: transparent;
+  border: 1px solid rgba(30,29,26,.14);
+  cursor: pointer;
+  flex-shrink: 0;
+  margin-left: .5rem;
+}
+.nav-burger span {
+  display: block;
+  width: 20px; height: 2px;
+  background: var(--black, #1e1d1a);
+  transition: transform .22s, opacity .22s;
+}
+.nav-burger.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+.nav-burger.open span:nth-child(2) { opacity: 0; }
+.nav-burger.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+@media (max-width: 768px) {
+  .nav-burger { display: flex; }
+}
+
+/* ── 3. NAV SIMPLE (.nav) — home-client, home-prestataire, etc. ─ */
+@media (max-width: 768px) {
+  .nav {
+    padding: 0 1rem !important;
+    height: 52px !important;
+  }
+  .nav-logo { font-size: 1.3rem !important; }
+  .nav-right { gap: .5rem !important; }
+  .nav-notif, .nav-av { width: 36px !important; height: 36px !important; }
+}
+
+/* ── 4. TOP-NAV (.top-nav) — prestataires, profil, mes-demandes ─ */
+@media (max-width: 768px) {
+  .top-nav {
+    padding: 0 1rem !important;
+    height: 52px !important;
+    gap: .7rem !important;
+  }
+  .nav-logo { font-size: 1.3rem !important; }
+  /* Barre de recherche dans la nav → full width sur petite nav */
+  .nav-search-wrap {
+    max-width: 100% !important;
+    flex: 1 !important;
+  }
+  .nav-loc { display: none !important; }
+  .nav-right { gap: .5rem !important; }
+  .nav-avatar, .nav-notif { width: 34px !important; height: 34px !important; font-size: .8rem !important; }
+  .nav-link { display: none !important; }
+  /* Lien retour — texte masqué, icône seulement */
+  .nav-back { font-size: 0 !important; padding: .35rem .5rem !important; }
+  .nav-back::before { content: '←'; font-size: .85rem; }
+}
+
+/* ── 5. APP-SHELL SIDEBAR (dashboards, admin, parametres) ────── */
+
+/* Mobile top bar (affiché uniquement sur mobile) */
+.mobile-topbar {
+  display: none;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 1rem;
+  height: 52px;
+  background: var(--black, #1e1d1a);
+  color: var(--white, #f5f4f0);
+  flex-shrink: 0;
+  position: relative;
+  z-index: 300;
+}
+.mobile-topbar-logo {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 1.4rem;
+  letter-spacing: 3px;
+  color: var(--white, #f5f4f0);
+  text-decoration: none;
+}
+.mobile-topbar-logo span { color: var(--accent, #e8e03a); }
+.mobile-menu-btn {
+  width: 40px; height: 40px;
+  background: transparent; border: none; cursor: pointer;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center; gap: 5px;
+  padding: 0;
+}
+.mobile-menu-btn span {
+  display: block; width: 22px; height: 2px;
+  background: var(--white, #f5f4f0);
+  transition: transform .22s, opacity .22s;
+}
+.mobile-menu-btn.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+.mobile-menu-btn.open span:nth-child(2) { opacity: 0; }
+.mobile-menu-btn.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+/* Overlay sombre derrière la sidebar ouverte */
+.sidebar-overlay {
+  display: none;
+  position: fixed; inset: 0;
+  background: rgba(30,29,26,.52);
+  z-index: 498;
+  backdrop-filter: blur(3px);
+  -webkit-backdrop-filter: blur(3px);
+}
+.sidebar-overlay.open { display: block; }
+
+@media (max-width: 768px) {
+  /* Afficher la top bar mobile */
+  .mobile-topbar { display: flex; }
+
+  /* App shell → colonne verticale */
+  .app-shell {
+    flex-direction: column !important;
+    overflow: hidden !important;
+    height: 100vh !important;
+  }
+
+  /* Sidebar → tiroir coulissant depuis la gauche */
+  .app-sidebar {
+    position: fixed !important;
+    top: 0 !important; left: 0 !important; bottom: 0 !important;
+    z-index: 499 !important;
+    transform: translateX(-100%) !important;
+    transition: transform .28s cubic-bezier(.22,1,.36,1) !important;
+    width: 260px !important;
+    overflow-y: auto !important;
+  }
+  .app-sidebar.open {
+    transform: translateX(0) !important;
+  }
+
+  /* Zone principale */
+  .app-main {
+    flex: 1 !important;
+    overflow-y: auto !important;
+    height: calc(100vh - 52px) !important;
+    overflow-x: hidden !important;
+  }
+
+  /* Cacher la sidebar native sur mobile (elle sera en tiroir) */
+  html.has-sidebar, body.has-sidebar { overflow: hidden; }
+}
+
+@media (min-width: 769px) {
+  .mobile-topbar { display: none !important; }
+  .sidebar-overlay { display: none !important; }
+}
+
+/* ── 6. LAYOUT DASHBOARD-CLIENT (2 panneaux) ─────────────────── */
+@media (max-width: 768px) {
+  .app-layout {
+    flex-direction: column !important;
+    height: auto !important;
+    overflow: visible !important;
+    padding-top: 52px !important;
+  }
+  /* Sidebar de la liste prestataires → plein-écran mobile */
+  .sidebar {
+    width: 100% !important;
+    height: auto !important;
+    border-right: none !important;
+    border-bottom: 1px solid rgba(30,29,26,.1) !important;
+    max-height: 55vh !important;
+  }
+  /* Zone détail prestataire → plein largeur */
+  .main-panel, .detail-panel {
+    width: 100% !important;
+    flex: unset !important;
+    min-height: 45vh !important;
+  }
+}
+
+/* ── 7. SIDEBAR FILTRES (prestataires.html) ──────────────────── */
+@media (max-width: 768px) {
+  .main-wrap {
+    flex-direction: column !important;
+    padding-top: 52px !important;
+    min-height: 100vh !important;
+  }
+  .filters-sidebar {
+    width: 100% !important;
+    position: static !important;
+    height: auto !important;
+    border-right: none !important;
+    border-bottom: 1px solid rgba(30,29,26,.1) !important;
+    padding: 1rem !important;
+    display: none !important; /* caché par défaut, toggle via bouton */
+  }
+  .filters-sidebar.open { display: block !important; }
+
+  .content-area { padding: 1rem !important; }
+
+  /* Bouton "Filtres" sur mobile */
+  .mobile-filter-btn {
+    display: flex !important;
+    align-items: center; gap: .5rem;
+    padding: .55rem 1.1rem;
+    background: var(--black, #1e1d1a);
+    color: var(--white, #f5f4f0);
+    border: none; cursor: pointer;
+    font-family: 'DM Mono', monospace;
+    font-size: .65rem; letter-spacing: 1.5px;
+    text-transform: uppercase;
+    margin-bottom: 1rem;
+  }
+}
+.mobile-filter-btn { display: none; } /* caché sur desktop */
+
+/* ── 8. HERO SECTIONS ────────────────────────────────────────── */
+@media (max-width: 768px) {
+  .hero {
+    padding: 72px 1rem 2rem !important;
+    margin-top: 0 !important;
+  }
+  .hero-greeting {
+    font-size: clamp(2rem, 9vw, 3rem) !important;
+    line-height: 1 !important;
+  }
+  .hero-inner {
+    grid-template-columns: auto 1fr !important;
+    gap: 1rem !important;
+  }
+  .hero-rating { display: none !important; }
+  .hero-search {
+    flex-direction: column !important;
+    gap: .5rem !important;
+    max-width: 100% !important;
+  }
+  .hero-search input,
+  .hero-search button { width: 100% !important; }
+}
+
+/* ── 9. STATS BARS & GRIDS ───────────────────────────────────── */
+@media (max-width: 768px) {
+  /* Stats bar 2×2 */
+  .stats-bar {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+  .stats-bar .stat-item:nth-child(2) { border-right: none !important; }
+  .stats-bar .stat-item:nth-child(3) {
+    border-top: 1px solid rgba(30,29,26,.06) !important;
+  }
+
+  /* Stats grid dashboard 2×2 */
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+    margin: 1rem !important;
+    gap: 1px !important;
+  }
+  .stat-card { padding: 1rem !important; }
+  .stat-card-num { font-size: 2rem !important; }
+
+  /* Stats grid admin */
+  .stats-grid-wrap,
+  .admin-stats { grid-template-columns: repeat(2, 1fr) !important; }
+}
+
+/* ── 10. GRILLES PRINCIPALES ─────────────────────────────────── */
+@media (max-width: 768px) {
+  /* Grille 2 colonnes (main-cols) */
+  .main-cols {
+    grid-template-columns: 1fr !important;
+    padding: 0 1rem 2rem !important;
+    gap: 1rem !important;
+  }
+  .main-header {
+    padding: 1rem !important;
+    flex-wrap: wrap !important;
+    gap: .6rem !important;
+  }
+  .main-greeting { font-size: 1.5rem !important; }
+
+  /* Provider cards grid */
+  .providers-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* Grille formulaires */
+  .form-grid, .booking-grid, .bk-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* Portfolio grid */
+  .portfolio-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .portfolio-grid {
+    grid-template-columns: 1fr !important;
+  }
+  .pub-pf-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+}
+
+/* ── 11. CONTENU PRINCIPAL ───────────────────────────────────── */
+@media (max-width: 768px) {
+  .content { padding: 1rem !important; }
+  .page-content { padding: 1rem !important; }
+  .section-wrap, .page-wrap {
+    padding: 1rem !important;
+    max-width: 100% !important;
+  }
+
+  /* Header de section */
+  .sec-head, .sec-header {
+    flex-wrap: wrap !important;
+    gap: .5rem !important;
+  }
+
+  /* Content-wrap profil prestataire */
+  .content-wrap {
+    grid-template-columns: 1fr !important;
+    padding: 1.5rem 1rem 3rem !important;
+    gap: 1.5rem !important;
+  }
+  /* Action card : ne plus être sticky sur mobile */
+  .action-card { position: static !important; }
+
+  /* Tabs profil */
+  .profile-tabs { padding: 0 .8rem !important; gap: 0 !important; }
+  .ptab { padding: .75rem .8rem !important; font-size: .58rem !important; }
+}
+
+/* ── 12. CARTES (cards) ──────────────────────────────────────── */
+@media (max-width: 768px) {
+  .appt-card, .req-card, .wallet-card,
+  .service-card, .message-card {
+    padding: 1rem !important;
+  }
+  /* Deux colonnes internes → une */
+  .req-card-body, .appt-card-body {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+/* ── 13. MODALS ──────────────────────────────────────────────── */
+@media (max-width: 768px) {
+  .modal-overlay {
+    align-items: flex-end !important;
+  }
+  .modal-box {
+    position: relative !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    max-height: 90vh !important;
+    margin: 0 !important;
+    border-radius: 16px 16px 0 0 !important;
+    overflow-y: auto !important;
+  }
+}
+
+/* ── 14. TABLEAUX ────────────────────────────────────────────── */
+@media (max-width: 768px) {
+  .table-wrap, .admin-table-wrap {
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+  }
+  table { min-width: 540px !important; }
+
+  /* Admin table wrapper scroll */
+  .users-table-wrap,
+  .transactions-table { overflow-x: auto !important; }
+}
+
+/* ── 15. FORMULAIRES ─────────────────────────────────────────── */
+@media (max-width: 768px) {
+  input[type="text"],
+  input[type="email"],
+  input[type="password"],
+  input[type="number"],
+  input[type="tel"],
+  input[type="date"],
+  input[type="time"],
+  select,
+  textarea {
+    width: 100% !important;
+    font-size: 16px !important; /* empêche le zoom auto sur iOS */
+  }
+  .form-actions, .btn-row {
+    flex-direction: column !important;
+    gap: .6rem !important;
+  }
+  .btn-primary, .btn-secondary {
+    width: 100% !important;
+    text-align: center !important;
+  }
+}
+
+/* ── 16. BARRE DE NAVIGATION BOTTOM (mobile uniquement) ──────── */
+.bottom-nav {
+  display: none;
+  position: fixed;
+  bottom: 0; left: 0; right: 0;
+  height: 60px;
+  background: var(--black, #1e1d1a);
+  border-top: 1px solid rgba(245,244,240,.1);
+  z-index: 400;
+  align-items: center;
+  justify-content: space-around;
+  padding: 0 .5rem;
+  padding-bottom: env(safe-area-inset-bottom);
+}
+.bottom-nav-item {
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  gap: 3px;
+  color: rgba(245,244,240,.4);
+  text-decoration: none;
+  font-family: 'DM Mono', monospace;
+  font-size: .48rem;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  flex: 1;
+  padding: .4rem .2rem;
+  transition: color .2s;
+  cursor: pointer; border: none; background: transparent;
+}
+.bottom-nav-item svg { width: 22px; height: 22px; }
+.bottom-nav-item.active { color: var(--accent, #e8e03a); }
+.bottom-nav-item:hover { color: var(--white, #f5f4f0); }
+
+@media (max-width: 768px) {
+  .bottom-nav { display: flex; }
+  /* Ajouter espace en bas pour éviter que le contenu passe sous la barre */
+  body { padding-bottom: 60px; }
+  /* Sauf les pages avec app-shell (overflow:hidden) */
+  .has-bottom-nav .app-main { padding-bottom: 60px; }
+}
+
+/* ── 17. PAGE DE CONNEXION ───────────────────────────────────── */
+@media (max-width: 768px) {
+  .login-layout {
+    flex-direction: column !important;
+    min-height: 100vh !important;
+  }
+  .login-left {
+    display: none !important; /* masquer l'illustration sur mobile */
+  }
+  .login-right {
+    width: 100% !important;
+    padding: 2rem 1.2rem !important;
+    min-height: 100vh !important;
+  }
+  .login-box {
+    max-width: 100% !important;
+    padding: 0 !important;
+  }
+}
+
+/* ── 18. PORTEFEUILLE ────────────────────────────────────────── */
+@media (max-width: 768px) {
+  .wallet-header { padding: 1.5rem 1rem !important; }
+  .wallet-balance { font-size: clamp(2.5rem, 10vw, 4rem) !important; }
+  .method-grid {
+    grid-template-columns: 1fr !important;
+  }
+  .wallet-actions {
+    flex-direction: column !important;
+    gap: .6rem !important;
+  }
+  .wallet-actions button, .wallet-actions a {
+    width: 100% !important;
+    text-align: center !important;
+  }
+}
+
+/* ── 19. PROFIL UTILISATEUR ──────────────────────────────────── */
+@media (max-width: 768px) {
+  .profile-hero { padding: 4rem 1rem 1.5rem !important; }
+  .profile-hero-inner {
+    flex-direction: column !important;
+    text-align: center !important;
+    gap: 1rem !important;
+  }
+  .profile-content { padding: 1.5rem 1rem !important; }
+  .profile-grid, .settings-grid {
+    grid-template-columns: 1fr !important;
+  }
+  .profile-tabs-nav { overflow-x: auto; }
+}
+
+/* ── 20. PARAMÈTRES PRESTATAIRE ──────────────────────────────── */
+@media (max-width: 768px) {
+  .settings-layout {
+    grid-template-columns: 1fr !important;
+  }
+  .settings-sidebar { display: none !important; }
+  .settings-main { padding: 1rem !important; }
+  .card-body { padding: 1.2rem 1rem !important; }
+  .level-progress-bar { max-width: 100% !important; }
+}
+
+/* ── 21. PAGE ABOUT PRESTATAIRE ──────────────────────────────── */
+@media (max-width: 768px) {
+  .about-layout {
+    grid-template-columns: 1fr !important;
+    padding: 1rem !important;
+  }
+  .about-sidebar {
+    width: 100% !important;
+    position: static !important;
+  }
+}
+
+/* ── 22. PAGE TRACKING ───────────────────────────────────────── */
+@media (max-width: 768px) {
+  .tracking-layout {
+    flex-direction: column !important;
+    height: auto !important;
+  }
+  .tracking-map {
+    height: 50vh !important;
+    width: 100% !important;
+  }
+  .tracking-panel {
+    width: 100% !important;
+    height: auto !important;
+    max-height: 55vh !important;
+    overflow-y: auto !important;
+  }
+}
+
+/* ── 23. RÉALISATIONS / PORTFOLIO ────────────────────────────── */
+@media (max-width: 768px) {
+  .pub-pf-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: .5rem !important;
+  }
+  .pf-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+}
+@media (max-width: 400px) {
+  .pub-pf-grid { grid-template-columns: 1fr !important; }
+}
+
+/* ── 24. ADMIN ───────────────────────────────────────────────── */
+@media (max-width: 768px) {
+  .admin-layout, .admin-shell {
+    flex-direction: column !important;
+  }
+  /* Sidebar admin → tiroir (géré par .app-sidebar rules) */
+
+  .admin-main {
+    padding: 1rem !important;
+  }
+  .admin-header {
+    padding: 1rem !important;
+    flex-wrap: wrap !important;
+    gap: .5rem !important;
+  }
+
+  /* Stats admin 2×2 */
+  .stats-wrap {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+
+  /* Tabs admin scroll horizontal */
+  .admin-tabs {
+    overflow-x: auto !important;
+    white-space: nowrap !important;
+    -webkit-overflow-scrolling: touch !important;
+  }
+  .admin-tab {
+    display: inline-block !important;
+    flex-shrink: 0 !important;
+  }
+
+  /* Tables admin scrollables */
+  .admin-table-container {
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+  }
+}
+
+/* ── 25. RENDEZ-VOUS ─────────────────────────────────────────── */
+@media (max-width: 768px) {
+  .appts-layout { padding: 1rem !important; padding-top: 1rem !important; }
+  .appts-filters {
+    overflow-x: auto !important;
+    flex-wrap: nowrap !important;
+    padding-bottom: .5rem !important;
+    -webkit-overflow-scrolling: touch !important;
+  }
+  .filter-tab { flex-shrink: 0 !important; }
+  .appt-card {
+    padding: .9rem !important;
+  }
+  .appt-card-meta {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: .3rem !important;
+  }
+}
+
+/* ── 26. MES DEMANDES ────────────────────────────────────────── */
+@media (max-width: 768px) {
+  .req-layout, .demands-layout {
+    padding: 1rem !important;
+    padding-top: 1rem !important;
+  }
+  .req-card {
+    padding: 1rem !important;
+  }
+  .req-card-footer {
+    flex-wrap: wrap !important;
+    gap: .5rem !important;
+  }
+  .req-card-footer button {
+    flex: 1 !important;
+    min-width: 120px !important;
+  }
+}
+
+/* ── 27. UTILITIES MOBILE ────────────────────────────────────── */
+@media (max-width: 768px) {
+  .hide-mobile { display: none !important; }
+  .show-mobile { display: block !important; }
+  .show-mobile-flex { display: flex !important; }
+
+  /* Réduire les padding généraux */
+  .section { margin-bottom: 1.5rem !important; }
+  .section-title { font-size: 1.2rem !important; }
+
+  /* Boutons full-width sur mobile si .btn-full-mobile */
+  .btn-full-mobile { width: 100% !important; }
+
+  /* Badge et chips */
+  .skill-tag { font-size: .65rem !important; padding: .25rem .7rem !important; }
+
+  /* Réductions typographie globales */
+  h1 { font-size: clamp(1.8rem, 7vw, 3rem) !important; }
+  h2 { font-size: clamp(1.4rem, 5vw, 2rem) !important; }
+}

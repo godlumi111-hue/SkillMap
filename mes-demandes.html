@@ -6,6 +6,7 @@
 <title>SkillMap — Demandes</title>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
 <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+<link rel="stylesheet" href="frontend/css/responsive.css"/>
 <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 :root {
@@ -179,26 +180,18 @@ function renderRequests() {
     const label = statusMap[_filter]?.label?.toLowerCase() || '';
     list.innerHTML = `
       <div class="empty-state">
-<<<<<<< HEAD
-        <div class="empty-state-icon">${_filter === 'all' ? '<i data-lucide="clipboard-list"></i>' : '<i data-lucide="search"></i>'}</div>
-        <h2>${_filter === 'all' ? 'Aucune demande' : 'Aucune demande ' + (statusMap[_filter]?.label || '').toLowerCase()}</h2>
-        <p>${_filter === 'all' ? 'Vous n\'avez pas encore fait de demande de prestation.' : 'Pas de demande avec ce statut.'}</p>
-        ${_filter === 'all' ? '<a href="prestataires.html" class="btn-primary">Trouver un prestataire →</a>' : ''}
-      </div>
-    `;
-=======
-        <div class="empty-state-icon">${isAll ? '📋' : '🔍'}</div>
+        <div class="empty-state-icon"><i data-lucide="${isAll ? 'clipboard-list' : 'search'}"></i></div>
         <h2>${isAll ? 'Aucune demande' : 'Aucune demande ' + label}</h2>
         <p>${isAll
           ? (_isProvider ? 'Aucune demande de prestation reçue pour l\'instant.' : 'Vous n\'avez pas encore fait de demande de prestation.')
           : 'Pas de demande avec ce statut.'}</p>
         ${isAll && !_isProvider ? '<a href="prestataires.html" class="btn-primary">Trouver un prestataire →</a>' : ''}
       </div>`;
->>>>>>> 3eb4a494b0b6b3bde744e14e9f7dc98640698d4a
     return;
   }
 
   list.innerHTML = filtered.map(r => _isProvider ? renderProviderCard(r) : renderClientCard(r)).join('');
+  if (window.lucide) lucide.createIcons({ el: list });
 }
 
 function renderClientCard(r) {
@@ -216,11 +209,7 @@ function renderClientCard(r) {
         </div>
         <div class="req-right">
           <span class="status-badge ${s.cls}">${s.label}</span>
-<<<<<<< HEAD
-          <button class="btn-msg" onclick="contactProvider(${r.provider_user_id}, '${r.provider_name || 'le prestataire'}')"><i data-lucide="message-circle"></i> Message</button>
-=======
-          <button class="btn-msg" onclick="contactUser(${r.provider_user_id}, '${safeProvName}')">💬 Message</button>
->>>>>>> 3eb4a494b0b6b3bde744e14e9f7dc98640698d4a
+          <button class="btn-msg" onclick="contactUser(${r.provider_user_id}, '${safeProvName}')"><i data-lucide="message-circle"></i> Message</button>
         </div>
       </div>
     </div>`;
@@ -242,7 +231,7 @@ function renderProviderCard(r) {
         </div>
         <div class="req-right">
           <span class="status-badge ${s.cls}">${s.label}</span>
-          <button class="btn-msg" onclick="contactUser(${r.client_id}, '${safeClientName}')">💬 Message</button>
+          <button class="btn-msg" onclick="contactUser(${r.client_id}, '${safeClientName}')"><i data-lucide="message-circle"></i> Message</button>
         </div>
       </div>
       ${actionsHtml}
@@ -256,17 +245,17 @@ function buildProviderActions(r) {
   if (r.status === 'pending') {
     buttons = `
       <span class="act-label">Actions :</span>
-      <button class="act-btn accept" onclick="changeStatus(${r.id}, 'accepted')">✓ Accepter</button>
-      <button class="act-btn reject" onclick="confirmReject(${r.id})">✕ Refuser</button>`;
+      <button class="act-btn accept" onclick="changeStatus(${r.id}, 'accepted')"><i data-lucide="check"></i> Accepter</button>
+      <button class="act-btn reject" onclick="confirmReject(${r.id})"><i data-lucide="x"></i> Refuser</button>`;
   } else if (r.status === 'accepted') {
     buttons = `
       <span class="act-label">Actions :</span>
-      <button class="act-btn progress" onclick="changeStatus(${r.id}, 'in_progress')">▶ Démarrer</button>
-      <button class="act-btn cancel" onclick="confirmReject(${r.id})">✕ Annuler</button>`;
+      <button class="act-btn progress" onclick="changeStatus(${r.id}, 'in_progress')"><i data-lucide="play"></i> Démarrer</button>
+      <button class="act-btn cancel" onclick="confirmReject(${r.id})"><i data-lucide="x"></i> Annuler</button>`;
   } else if (r.status === 'in_progress') {
     buttons = `
       <span class="act-label">Actions :</span>
-      <button class="act-btn done" onclick="changeStatus(${r.id}, 'completed')">✓ Terminer</button>`;
+      <button class="act-btn done" onclick="changeStatus(${r.id}, 'completed')"><i data-lucide="check"></i> Terminer</button>`;
   }
 
   return `<div class="req-actions">${buttons}</div>`;
@@ -324,7 +313,14 @@ function escHtml(str) {
 }
 
 loadRequests();
-lucide.createIcons();
+if (window.lucide) lucide.createIcons();
 </script>
+<nav class="bottom-nav">
+  <a href="home-client.html" class="bottom-nav-item"><i data-lucide="home"></i><span>Accueil</span></a>
+  <a href="prestataires.html" class="bottom-nav-item"><i data-lucide="search"></i><span>Chercher</span></a>
+  <a href="mes-demandes.html" class="bottom-nav-item active"><i data-lucide="clipboard-list"></i><span>Demandes</span></a>
+  <a href="profil-utilisateur.html" class="bottom-nav-item"><i data-lucide="user"></i><span>Profil</span></a>
+</nav>
+<script>if(window.lucide)lucide.createIcons({el:document.querySelector('.bottom-nav')});</script>
 </body>
 </html>

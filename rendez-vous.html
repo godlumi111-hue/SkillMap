@@ -5,6 +5,8 @@
 <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
 <title>SkillMap — Rendez-vous</title>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,300&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+<link rel="stylesheet" href="frontend/css/responsive.css"/>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
 :root{
@@ -216,7 +218,7 @@ body{font-family:var(--fb);background:var(--white);color:var(--black);min-height
   <div class="modal-box" id="modalBox">
     <div class="modal-head">
       <span class="modal-htitle" id="modalTitle">Action</span>
-      <button class="modal-close" onclick="closeModal()">✕</button>
+      <button class="modal-close" onclick="closeModal()"><i data-lucide="x"></i></button>
     </div>
     <div id="modalContent"></div>
   </div>
@@ -445,11 +447,12 @@ async function doPay(id) {
     await api.appointments.pay(id);
     document.getElementById('modalContent').innerHTML = `
       <div class="modal-success-wrap">
-        <div class="modal-success-icon">✅</div>
+        <div class="modal-success-icon"><i data-lucide="check-circle-2"></i></div>
         <div class="modal-success-title">Paiement effectué</div>
         <div class="modal-success-sub">Le montant est en séquestre. Il sera versé au prestataire après votre confirmation.</div>
       </div>
       <div class="modal-foot"><button class="modal-btn confirm" onclick="closeModal();load()">Fermer</button></div>`;
+    if (window.lucide) lucide.createIcons({ el: document.getElementById('modalContent') });
   } catch (e) {
     document.getElementById('modalContent').innerHTML = `
       <div class="modal-body"><div class="modal-notice warn">${e.message}</div></div>
@@ -490,11 +493,12 @@ async function doConfirmComplete(id) {
     const res = await api.appointments.confirmComplete(id);
     document.getElementById('modalContent').innerHTML = `
       <div class="modal-success-wrap">
-        <div class="modal-success-icon">🎉</div>
+        <div class="modal-success-icon"><i data-lucide="party-popper"></i></div>
         <div class="modal-success-title">Prestation confirmée</div>
         <div class="modal-success-sub">${fmt(res.provider_received)} ont été versés au prestataire. Merci pour votre confiance !</div>
       </div>
       <div class="modal-foot"><button class="modal-btn confirm" onclick="closeModal();load()">Fermer</button></div>`;
+    if (window.lucide) lucide.createIcons({ el: document.getElementById('modalContent') });
   } catch (e) {
     alert(e.message); btn.disabled = false; btn.textContent = 'Confirmer la fin';
   }
@@ -561,6 +565,14 @@ async function doMarkDone(id) {
 }
 
 load();
+if (window.lucide) lucide.createIcons();
 </script>
+<nav class="bottom-nav">
+  <a href="home-client.html" class="bottom-nav-item"><i data-lucide="home"></i><span>Accueil</span></a>
+  <a href="prestataires.html" class="bottom-nav-item"><i data-lucide="search"></i><span>Chercher</span></a>
+  <a href="rendez-vous.html" class="bottom-nav-item active"><i data-lucide="calendar-days"></i><span>Rendez-vous</span></a>
+  <a href="profil-utilisateur.html" class="bottom-nav-item"><i data-lucide="user"></i><span>Profil</span></a>
+</nav>
+<script>if(window.lucide)lucide.createIcons({el:document.querySelector('.bottom-nav')});</script>
 </body>
 </html>
