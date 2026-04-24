@@ -104,6 +104,8 @@ body{font-family:var(--fb);background:var(--white);color:var(--black);min-height
 .action-btn.accent:hover{background:#d4cc35;}
 .action-btn.success{background:rgba(46,255,158,.15);color:#00a651;border:1px solid rgba(46,255,158,.3);}
 .action-btn.success:hover{background:rgba(46,255,158,.25);}
+.action-btn.enroute{background:var(--teal);color:var(--black);font-weight:500;}
+.action-btn.enroute:hover{background:#00b5a0;}
 .action-btn.danger{background:rgba(255,77,46,.1);color:var(--red);border:1px solid rgba(255,77,46,.2);}
 .action-btn.danger:hover{background:rgba(255,77,46,.18);}
 .action-btn.outline{background:transparent;color:var(--gray-d);border:1px solid rgba(30,29,26,.2);}
@@ -351,8 +353,11 @@ function buildActions(a) {
     if (['pending','confirmed'].includes(a.status)) {
       btns.push(`<button class="action-btn danger" onclick="openCancelModal(${a.id})">Annuler</button>`);
     }
-    if (['in_progress','en_route','confirmed'].includes(a.status)) {
+    if (['in_progress','en_route'].includes(a.status)) {
       btns.push(`<a href="tracking.html?id=${a.id}" class="action-track" style="margin-left:auto;">Suivre en direct →</a>`);
+    }
+    if (a.status === 'confirmed' && !['in_progress','en_route'].includes(a.status)) {
+      btns.push(`<span style="margin-left:auto;font-family:var(--fm);font-size:.6rem;color:var(--gray-m);letter-spacing:1px;">En attente de départ du prestataire</span>`);
     }
   }
 
@@ -361,11 +366,11 @@ function buildActions(a) {
       btns.push(`<button class="action-btn primary" onclick="changeStatus(${a.id},'confirmed')">Accepter</button>`);
       btns.push(`<button class="action-btn danger" onclick="changeStatus(${a.id},'cancelled')">Refuser</button>`);
     }
-    if (a.status === 'confirmed' && a.payment_status === 'held') {
-      btns.push(`<button class="action-btn outline" onclick="changeStatus(${a.id},'en_route')">En route</button>`);
+    if (a.status === 'confirmed') {
+      btns.push(`<button class="action-btn enroute" onclick="changeStatus(${a.id},'en_route')"><i data-lucide="navigation"></i> Je suis en route</button>`);
     }
     if (a.status === 'en_route') {
-      btns.push(`<button class="action-btn outline" onclick="changeStatus(${a.id},'in_progress')">Commencer</button>`);
+      btns.push(`<button class="action-btn success" onclick="changeStatus(${a.id},'in_progress')"><i data-lucide="play"></i> Commencer la prestation</button>`);
     }
     if (a.status === 'in_progress') {
       btns.push(`<button class="action-btn success" onclick="openProviderDoneModal(${a.id})">Terminer</button>`);

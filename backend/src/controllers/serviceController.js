@@ -65,7 +65,7 @@ function create(req, res) {
 // PATCH /api/services/:id/status — changer le statut
 function updateStatus(req, res) {
   const { status } = req.body;
-  const validStatuses = ['accepted', 'in_progress', 'completed', 'cancelled', 'rejected'];
+  const validStatuses = ['accepted', 'en_route', 'in_progress', 'completed', 'cancelled', 'rejected'];
   if (!validStatuses.includes(status)) {
     return res.status(400).json({ error: 'Statut invalide' });
   }

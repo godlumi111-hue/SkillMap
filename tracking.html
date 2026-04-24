@@ -95,6 +95,38 @@ html,body{height:100%;font-family:var(--fb);background:var(--black);color:var(--
 .marker-dest{width:20px;height:20px;background:var(--red);border:2px solid var(--white);
   display:flex;align-items:center;justify-content:center;font-size:.65rem;}
 
+/* ── WAITING STATE (prestataire pas encore parti) ─────────── */
+.wait-screen{position:fixed;inset:0;z-index:250;background:var(--black);
+  display:none;align-items:center;justify-content:center;padding:2rem;}
+.wait-screen.visible{display:flex;}
+.wait-inner{text-align:center;max-width:300px;}
+.wait-logo{font-family:var(--fd);font-size:2rem;letter-spacing:4px;margin-bottom:1.8rem;}
+.wait-logo span{color:var(--accent);}
+.wait-badge{display:inline-flex;align-items:center;gap:.5rem;font-family:var(--fm);
+  font-size:.58rem;letter-spacing:2px;text-transform:uppercase;
+  color:rgba(245,244,240,.5);border:1px solid rgba(245,244,240,.12);
+  padding:.35rem .9rem;margin-bottom:2rem;}
+.wait-provname{font-family:var(--fd);font-size:1.3rem;letter-spacing:1px;margin-bottom:.25rem;}
+.wait-provrole{font-family:var(--fm);font-size:.6rem;color:rgba(245,244,240,.35);
+  letter-spacing:1px;margin-bottom:1.6rem;}
+.wait-msg{font-size:.78rem;color:rgba(245,244,240,.4);line-height:1.7;margin-bottom:2rem;}
+.wait-steps{display:flex;align-items:center;justify-content:center;margin-bottom:2rem;}
+.ws-item{display:flex;flex-direction:column;align-items:center;gap:.4rem;min-width:56px;
+  font-family:var(--fm);font-size:.48rem;letter-spacing:1px;text-transform:uppercase;
+  color:rgba(245,244,240,.22);}
+.ws-item.done{color:rgba(46,255,158,.6);}
+.ws-item.current{color:var(--accent);}
+.ws-dot{width:10px;height:10px;border-radius:50%;background:rgba(245,244,240,.12);border:2px solid rgba(245,244,240,.18);}
+.ws-item.done .ws-dot{background:var(--green);border-color:var(--green);}
+.ws-item.current .ws-dot{background:var(--accent);border-color:var(--accent);animation:livePulse .9s infinite;}
+.ws-line{flex:1;height:1px;background:rgba(245,244,240,.1);min-width:16px;margin-bottom:.9rem;}
+.wait-poll{font-family:var(--fm);font-size:.55rem;color:rgba(245,244,240,.2);
+  letter-spacing:1px;margin-bottom:1.5rem;}
+.wait-poll span{color:var(--accent);}
+.wait-back{font-family:var(--fm);font-size:.6rem;letter-spacing:1.5px;text-transform:uppercase;
+  color:rgba(245,244,240,.35);text-decoration:none;transition:color .2s;}
+.wait-back:hover{color:var(--white);}
+
 /* ── LOADING STATE ───────────────────────────────────────── */
 .map-loading{position:fixed;inset:0;z-index:200;background:var(--black);
   display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.8rem;}
@@ -113,6 +145,35 @@ html,body{height:100%;font-family:var(--fb);background:var(--black);color:var(--
 </style>
 </head>
 <body>
+
+<!-- WAITING STATE — prestataire pas encore en route -->
+<div class="wait-screen" id="waitScreen">
+  <div class="wait-inner">
+    <div class="wait-logo">Skill<span>Map</span></div>
+    <div class="wait-badge">
+      <div class="psb-dot waiting"></div>
+      <span>En attente de départ</span>
+    </div>
+    <div class="wait-provname" id="waitProvName">—</div>
+    <div class="wait-provrole" id="waitProvRole">—</div>
+    <div class="wait-msg">
+      Votre rendez-vous est confirmé.<br>
+      Le prestataire n'a pas encore démarré son trajet.<br>
+      Cette page se mettra à jour automatiquement.
+    </div>
+    <div class="wait-steps">
+      <div class="ws-item done"><div class="ws-dot"></div><span>Confirmé</span></div>
+      <div class="ws-line"></div>
+      <div class="ws-item current"><div class="ws-dot"></div><span>En attente<br>de départ</span></div>
+      <div class="ws-line"></div>
+      <div class="ws-item"><div class="ws-dot"></div><span>En route</span></div>
+      <div class="ws-line"></div>
+      <div class="ws-item"><div class="ws-dot"></div><span>Arrivé</span></div>
+    </div>
+    <div class="wait-poll">Vérification dans <span id="pollCountdown">20</span>s…</div>
+    <a href="rendez-vous.html" class="wait-back">← Retour aux rendez-vous</a>
+  </div>
+</div>
 
 <!-- LOADING -->
 <div class="map-loading" id="mapLoading">
@@ -374,6 +435,16 @@ async function loadAndStart() {
         provLng  = appt.lng  || (ABIDJAN.lng  + (Math.random()-.5)*.05);
         clientLat = ABIDJAN.lat + (Math.random()-.5)*.02;
         clientLng = ABIDJAN.lng + (Math.random()-.5)*.02;
+
+        // Bloquer la carte si le prestataire n'est pas encore en route
+        if (!['en_route','in_progress'].includes(appt.status)) {
+          document.getElementById('waitProvName').textContent = provName;
+          document.getElementById('waitProvRole').textContent = provRole;
+          document.getElementById('mapLoading').classList.add('hidden');
+          document.getElementById('waitScreen').classList.add('visible');
+          startWaitingPolling();
+          return;
+        }
       } catch {}
     }
 
@@ -445,6 +516,27 @@ async function loadAndStart() {
       { lat: ABIDJAN.lat - 0.006, lng: ABIDJAN.lng + 0.010 }
     );
   }
+}
+
+// ── Polling d'attente — vérifie si le prestataire est parti ──
+function startWaitingPolling() {
+  if (!apptId) return;
+  let countdown = 20;
+  const countEl = document.getElementById('pollCountdown');
+
+  const tick = setInterval(() => {
+    countdown--;
+    if (countEl) countEl.textContent = countdown;
+    if (countdown <= 0) {
+      countdown = 20;
+      api.appointments.get(apptId).then(data => {
+        if (['en_route','in_progress'].includes(data.appointment?.status)) {
+          clearInterval(tick);
+          location.reload();
+        }
+      }).catch(() => {});
+    }
+  }, 1000);
 }
 
 loadAndStart();

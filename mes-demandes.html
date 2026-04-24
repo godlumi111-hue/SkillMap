@@ -49,6 +49,7 @@ body { font-family: var(--font-body); background: var(--white); color: var(--bla
 .status-badge { font-size: .6rem; font-family: var(--font-mono); letter-spacing: 1px; padding: .3rem .7rem; white-space: nowrap; }
 .status-pending    { background: rgba(232,224,58,.1);  color: #b8a800; border: 1px solid rgba(232,224,58,.4); }
 .status-accepted   { background: rgba(46,255,158,.08); color: #00a862; border: 1px solid rgba(46,255,158,.3); }
+.status-en_route   { background: rgba(0,201,177,.12);  color: #007a6e; border: 1px solid rgba(0,201,177,.35); }
 .status-in_progress{ background: rgba(0,201,177,.1);   color: #007a6e; border: 1px solid rgba(0,201,177,.3); }
 .status-completed  { background: rgba(30,29,26,.05);   color: var(--gray-dark); border: 1px solid rgba(30,29,26,.15); }
 .status-rejected   { background: rgba(255,77,46,.08);  color: var(--accent2); border: 1px solid rgba(255,77,46,.2); }
@@ -64,6 +65,8 @@ body { font-family: var(--font-body); background: var(--white); color: var(--bla
 .act-btn.accept:hover { background: #d4cc35; }
 .act-btn.progress { background: var(--black); color: var(--white); }
 .act-btn.progress:hover { background: var(--gray-dark); }
+.act-btn.enroute  { background: #00c9b1; color: var(--black); font-weight: 500; }
+.act-btn.enroute:hover { background: #00b5a0; }
 .act-btn.done     { background: rgba(46,255,158,.15); color: #00a862; border: 1px solid rgba(46,255,158,.3); }
 .act-btn.done:hover { background: rgba(46,255,158,.25); }
 .act-btn.reject   { background: rgba(255,77,46,.1); color: var(--accent2); border: 1px solid rgba(255,77,46,.2); margin-left: auto; }
@@ -149,6 +152,7 @@ let _filter = 'all';
 const statusMap = {
   pending:     { label: 'En attente',  cls: 'status-pending'     },
   accepted:    { label: 'Acceptée',    cls: 'status-accepted'    },
+  en_route:    { label: 'En route',    cls: 'status-en_route'    },
   in_progress: { label: 'En cours',    cls: 'status-in_progress' },
   completed:   { label: 'Terminée',    cls: 'status-completed'   },
   rejected:    { label: 'Refusée',     cls: 'status-rejected'    },
@@ -250,8 +254,12 @@ function buildProviderActions(r) {
   } else if (r.status === 'accepted') {
     buttons = `
       <span class="act-label">Actions :</span>
-      <button class="act-btn progress" onclick="changeStatus(${r.id}, 'in_progress')"><i data-lucide="play"></i> Démarrer</button>
+      <button class="act-btn enroute" onclick="changeStatus(${r.id}, 'en_route')"><i data-lucide="navigation"></i> Je suis en route</button>
       <button class="act-btn cancel" onclick="confirmReject(${r.id})"><i data-lucide="x"></i> Annuler</button>`;
+  } else if (r.status === 'en_route') {
+    buttons = `
+      <span class="act-label">Actions :</span>
+      <button class="act-btn progress" onclick="changeStatus(${r.id}, 'in_progress')"><i data-lucide="play"></i> Commencer la prestation</button>`;
   } else if (r.status === 'in_progress') {
     buttons = `
       <span class="act-label">Actions :</span>
