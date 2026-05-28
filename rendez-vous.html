@@ -344,7 +344,7 @@ function buildActions(a) {
   let btns = [];
 
   if (role === 'client') {
-    if (a.status === 'confirmed' && a.payment_status === 'unpaid') {
+    if (a.payment_status === 'unpaid' && !['completed','cancelled'].includes(a.status)) {
       btns.push(`<button class="action-btn accent" onclick="openPayModal(${a.id})">Payer maintenant</button>`);
     }
     if (a.payment_status === 'held' && a.status !== 'completed' && a.status !== 'cancelled') {
@@ -472,16 +472,13 @@ async function doPay(id) {
 function openConfirmModal(id) {
   const a = allAppts.find(x => x.id === id);
   document.getElementById('modalTitle').textContent = 'Confirmer la fin de prestation';
-  const commission = Math.round(a.amount * 0.03);
-  const net = a.amount - commission;
   document.getElementById('modalContent').innerHTML = `
     <div class="modal-body">
       <div class="modal-row"><span class="modal-lbl">Prestation</span><span class="modal-val">${a.title}</span></div>
-      <div class="modal-row"><span class="modal-lbl">Montant retenu</span><span class="modal-val big">${fmt(a.amount)}</span></div>
-      <div class="modal-row"><span class="modal-lbl">Commission (3%)</span><span class="modal-val">${fmt(commission)}</span></div>
-      <div class="modal-row"><span class="modal-lbl">Versé au prestataire</span><span class="modal-val green">${fmt(net)}</span></div>
+      <div class="modal-row"><span class="modal-lbl">Prestataire</span><span class="modal-val">${a.provider_name || '—'}</span></div>
+      <div class="modal-row"><span class="modal-lbl">Montant payé</span><span class="modal-val big">${fmt(a.amount)}</span></div>
       <div class="modal-notice">
-        En confirmant, vous attestez que la prestation a été réalisée. Le paiement sera <strong>immédiatement</strong> versé au prestataire.
+        En confirmant, vous attestez que la prestation a bien été réalisée. Le paiement sera libéré immédiatement.
       </div>
     </div>
     <div class="modal-foot">
@@ -495,12 +492,12 @@ async function doConfirmComplete(id) {
   const btn = document.getElementById('btnConfirmDone');
   btn.disabled = true; btn.textContent = 'En cours…';
   try {
-    const res = await api.appointments.confirmComplete(id);
+    await api.appointments.confirmComplete(id);
     document.getElementById('modalContent').innerHTML = `
       <div class="modal-success-wrap">
         <div class="modal-success-icon"><i data-lucide="party-popper"></i></div>
         <div class="modal-success-title">Prestation confirmée</div>
-        <div class="modal-success-sub">${fmt(res.provider_received)} ont été versés au prestataire. Merci pour votre confiance !</div>
+        <div class="modal-success-sub">Merci pour votre confiance ! Nous espérons que vous êtes satisfait de la prestation.</div>
       </div>
       <div class="modal-foot"><button class="modal-btn confirm" onclick="closeModal();load()">Fermer</button></div>`;
     if (window.lucide) lucide.createIcons({ el: document.getElementById('modalContent') });
@@ -541,15 +538,20 @@ async function doCancel(id) {
 // ── Provider "done" modal ──────────────────────────────────
 function openProviderDoneModal(id) {
   const a = allAppts.find(x => x.id === id);
+  const commission = Math.round(a.amount * 0.03);
+  const net = a.amount - commission;
   document.getElementById('modalTitle').textContent = 'Marquer comme terminé';
   document.getElementById('modalContent').innerHTML = `
     <div class="modal-body">
       <p style="font-size:.82rem;color:var(--gray-m);margin-bottom:.8rem;">
         Marquer <strong>${a.title}</strong> comme terminé. Le client devra confirmer pour débloquer le paiement.
       </p>
-      ${a.payment_status === 'held'
-        ? `<div class="modal-notice">Montant en attente : <strong>${fmt(a.amount)}</strong>. Il vous sera versé après confirmation client.</div>`
-        : `<div class="modal-notice warn">Aucun paiement en séquestre pour ce rendez-vous.</div>`}
+      ${a.payment_status === 'held' ? `
+        <div class="modal-row"><span class="modal-lbl">Montant de la prestation</span><span class="modal-val">${fmt(a.amount)}</span></div>
+        <div class="modal-row"><span class="modal-lbl">Commission plateforme (3%)</span><span class="modal-val" style="color:var(--red);">− ${fmt(commission)}</span></div>
+        <div class="modal-row"><span class="modal-lbl">Vous recevrez</span><span class="modal-val big" style="color:var(--green);">${fmt(net)}</span></div>
+        <div class="modal-notice" style="margin-top:.8rem;">Versement après confirmation du client.</div>
+      ` : `<div class="modal-notice warn">Aucun paiement en séquestre pour ce rendez-vous.</div>`}
     </div>
     <div class="modal-foot">
       <button class="modal-btn cancel" onclick="closeModal()">Retour</button>
